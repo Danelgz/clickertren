@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Juego Clicker del Tren</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+    <!-- VIDEO DE FONDO -->
+    <video id="bg-video" autoplay loop muted>
+        <source src="video/fondo.mp4" type="video/mp4">
+    </video>
+
+    <!-- CONTENEDOR PRINCIPAL DEL JUEGO -->
+    <div class="game-container">
+
+        <!-- RANGO ACTUAL -->
+        <div id="playerRankDiv">
+            <img id="rankImage" src="images/rank_principiante.png" alt="Rango">
+            <div id="rankName">Principiante</div>
+        </div>
+
+        <!-- ESTADÍSTICAS -->
+        <div class="stats">
+            <div>Puntos: <span id="pointsDisplay">0</span></div>
+            <div>PPS: <span id="ppsDisplay">0</span></div>
+            <div>Clics totales: <span id="clickCounterDiv">0</span></div>
+        </div>
+
+        <!-- TREN CLICABLE -->
+        <div class="train-container">
+            <img id="train" src="images/tren.jpg" alt="Tren">
+        </div>
+
+        <!-- MENSAJES -->
+        <div id="messages"></div>
+
+        <!-- BOTÓN REINICIAR -->
+        <button id="resetBtn">Reiniciar Progreso</button>
+
+    </div>
+
+    <!-- TIENDA DE MEJORAS -->
+    <div id="shopContainer">
+        <div id="upgradesContainer"></div>
+    </div>
+
+    <!-- TIENDA DE RANGOS + BOOSTERS -->
+    <div id="rankShopContainer">
+        <h3 style="color:white; text-align:center; margin-bottom:10px;">Tienda de Rangos</h3>
+        <div id="ranksContainer"></div>
+
+        <!-- BOOSTERS / POTENCIADORES -->
+        <div id="boostersToggleContainer">
+            <button id="boostersToggleBtn">Mostrar Potenciadores</button>
+            <div id="boostersContainer" style="display:none; margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- RANKING GLOBAL ONLINE -->
+    <div id="globalRanking" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color:white; background: rgba(0,0,0,0.5); padding:10px; border-radius:10px;">
+        <h3 style="margin:5px 0; text-align:center;">Ranking Global</h3>
+        <ol id="rankingList" style="padding-left:20px;"></ol>
+    </div>
+
+    <!-- SCRIPT DEL JUEGO -->
+    <script src="juegos.js"></script>
+
+</body>
+</html>
+

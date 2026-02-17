@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La página de Izei</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Video de fondo -->
+    <video autoplay loop muted id="bg-video">
+        <source src="video/fondo.mp4" type="video/mp4">
+    </video>
+
+    <!-- Contenedor principal centrado -->
+    <div class="centered-container">
+        <h1 class="main-title">La página de Izei</h1>
+        
+        <div class="buttons-container">
+            <a href="juegos.html" class="btn">Juegos</a>
+            <button id="colorBtn" class="btn">Cambiar color</button>
+        </div>
+    </div>
+
+    <audio id="clickSound" src="audio/click.mp3"></audio>
+
+    <script>
+        const colorBtn = document.getElementById('colorBtn');
+        const clickSound = document.getElementById('clickSound');
+
+        // Colores de fondo disponibles
+        const colors = [
+            '#FF6B6B', '#6BCB77', '#4D96FF', '#FFD93D', '#FF6BF7',
+            '#6BFFEA', '#FF9E6B', '#D36BFF', '#6BFF8E', '#FF6B99',
+            '#6BCBFF', '#FFDA6B', '#6BFFDA', '#FF6BB2', '#C36BFF'
+        ];
+
+        colorBtn.addEventListener('click', () => {
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            document.body.style.backgroundColor = randomColor;
+            clickSound.play();
+        });
+    </script>
+</body>
+</html>
