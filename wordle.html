@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Wordle Español</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Juego Wordle en español con niveles y estadísticas">
+    <link rel="stylesheet" href="wordle.css">
+</head>
+
+<body>
+
+    <!-- Video de fondo -->
+    <video 
+        id="bg-video"
+        autoplay
+        loop
+        muted
+        playsinline
+        poster="video/poster.jpg"
+        aria-hidden="true"
+    >
+        <source src="video/fondo.mp4" type="video/mp4">
+    </video>
+
+    <main id="wordle-container">
+
+        <header class="game-header">
+            <h1>WORDLE</h1>
+            <h2>Nivel <span id="levelDisplay">1</span></h2>
+        </header>
+
+        <!-- MENSAJES DEL JUEGO -->
+        <div id="game-message" aria-live="polite"></div>
+
+        <!-- TABLERO -->
+        <section id="game-board" aria-label="Tablero de juego"></section>
+
+        <!-- TECLADO -->
+        <section id="keyboard" aria-label="Teclado virtual"></section>
+
+        <!-- CONTROLES -->
+        <section class="game-controls">
+            <button id="showStatsBtn" type="button">📊 Estadísticas</button>
+            <a href="index.html" id="backBtn">Volver a inicio</a>
+        </section>
+
+    </main>
+
+    <!-- PANEL ESTADÍSTICAS -->
+    <div 
+        id="statsPanel"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden="true"
+    >
+        <h3>Estadísticas</h3>
+        <p>Total aciertos: <span id="totalWins">0</span></p>
+        <p>1 intento: <span id="win1">0</span></p>
+        <p>2 intentos: <span id="win2">0</span></p>
+        <p>3 intentos: <span id="win3">0</span></p>
+        <p>4 intentos: <span id="win4">0</span></p>
+        <p>5 intentos: <span id="win5">0</span></p>
+        <button id="closeStatsBtn" type="button">Cerrar</button>
+    </div>
+
+    <script src="wordle.js"></script>
+</body>
+</html>

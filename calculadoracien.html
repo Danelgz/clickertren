@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Científica</title>
+    <link rel="stylesheet" href="calculadoracien.css">
+</head>
+<body>
+    <video autoplay loop muted id="bg-video">
+        <source src="video/fondo.mp4" type="video/mp4">
+    </video>
+
+    <div class="calculator-container">
+        <h1 class="calculator-title">Calculadora Científica</h1>
+
+        <div class="screen" id="screen">0</div>
+
+        <div class="buttons">
+            <!-- Funciones científicas -->
+            <button class="btn sci" data-op="sin">sin</button>
+            <button class="btn sci" data-op="cos">cos</button>
+            <button class="btn sci" data-op="tan">tan</button>
+            <button class="btn sci" data-op="sqrt">√</button>
+
+            <button class="btn sci" data-op="log">log</button>
+            <button class="btn sci" data-op="exp">exp</button>
+            <button class="btn sci" data-op="^">^</button>
+            <button class="btn clear" id="clear">C</button>
+
+            <!-- Números y operadores normales -->
+            <button class="btn number" data-num="7">7</button>
+            <button class="btn number" data-num="8">8</button>
+            <button class="btn number" data-num="9">9</button>
+            <button class="btn operator" data-op="/">÷</button>
+
+            <button class="btn number" data-num="4">4</button>
+            <button class="btn number" data-num="5">5</button>
+            <button class="btn number" data-num="6">6</button>
+            <button class="btn operator" data-op="*">×</button>
+
+            <button class="btn number" data-num="1">1</button>
+            <button class="btn number" data-num="2">2</button>
+            <button class="btn number" data-num="3">3</button>
+            <button class="btn operator" data-op="-">−</button>
+
+            <button class="btn number zero" data-num="0">0</button>
+            <button class="btn number" data-num=".">.</button>
+            <button class="btn operator" data-op="+">+</button>
+            <button class="btn equals" id="equals">=</button>
+        </div>
+
+        <!-- Volver a calculadora normal -->
+        <a href="calculadora.html" class="btn" style="width:100%; margin-top:15px; text-align:center;">Volver a Calculadora Normal</a>
+    </div>
+
+    <!-- Botón volver al inicio -->
+    <a href="index.html" id="backBtnCalc">Volver a Inicio</a>
+
+    <script src="calculadoracien.js"></script>
+</body>
+</html>
