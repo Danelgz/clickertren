@@ -3,6 +3,14 @@
     "database": "(default)",
     "location": "nam5",
     "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
+    "indexes": "firestore.indexes.json" "site": "trenclicker-1",
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Trenclicker",
+        "supportEmail": "danelgzu55@gmail.com"
+      }
+    }
   }
 }

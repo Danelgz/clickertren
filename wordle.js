@@ -1,6 +1,5 @@
 // ========================
-// PALABRAS SECRETAS (las que puede tocar adivinar)
-// Son palabras comunes y conocidas
+// PALABRAS SECRETAS
 // ========================
 const words = [
 "ABACO","ABAJO","ABRIR","ACERO","ACIDO","ACTOR","AGUJA","ALBUM","ALDEA","ALETA",
@@ -54,13 +53,11 @@ const words = [
 ];
 
 // ========================
-// DICCIONARIO COMPLETO — palabras válidas que el jugador puede escribir
-// Incluye las palabras jugables + miles de palabras reales del español de 5 letras
+// DICCIONARIO COMPLETO — guardado como Set normalizado (sin tildes, sin Ñ→N)
+// Todas las comparaciones se harán normalizadas
 // ========================
-const validWords = new Set([
-// Todas las palabras jugables
+const rawValidWords = [
 ...words,
-// Formas verbales y variantes comunes
 "ABABA","ABADA","ABAIS","ABALO","ABANA","ABANO","ABARA","ABATE","ABATI","ABECE",
 "ABEJA","ABETO","ABOBA","ABOCA","ABOCO","ABOGA","ABOGO","ABONO","ABOYA","ABRAN",
 "ABRAS","ABRIA","ABRIO","ABUSO","ACABA","ACABE","ACABO","ACASO","ACATA","ACATE",
@@ -131,12 +128,9 @@ const validWords = new Set([
 "DIERA","DIGAN","DIGAS","DIMAS","DIODO","DIQUE","DIUCA","DIZMO","DOBLA","DOLCE",
 "DOLIA","DOPAR","DORAD","DORSO","DOTAR","DRAGO","DRENA","DRENE","DRENO","DRONE",
 "DUDAR","DUELO","DURAR","DUROS",
-"ECHAR","EDEMA","EGIDA","EMANA","EMANE","EMANO","EMITA","EMITE","EMITO","EMPAS",
-"EMPAV","ENAJE","ENCAN","ENCAR","ENCHA","ENCHE","ENCHO","ENEMA","ENFAD","ENFER",
-"ENGAL","ENGOM","ENGOR","ENGRA","ENGRI","ENOJA","ENOJE","ENOJO","ENREA","ENREO",
-"ENTIA","ERIZO","ERRAR","ERRAS","ERREN","ERRES","ESCAR","ESPAD","ESPIG","ESPIN",
-"ESPOL","ESTAN","ESTAS","ESTOR","ESTOY","ETAPA","ETICA","ETICO","EVOCA","EVOCE",
-"EVOCO",
+"ECHAR","EDEMA","EGIDA","EMANA","EMANE","EMANO","EMITA","EMITE","EMITO","ENEMA",
+"ENOJA","ENOJE","ENOJO","ERIZO","ERRAR","ERRAS","ERREN","ERRES","ETAPA","ETICA",
+"ETICO","EVOCA","EVOCE","EVOCO",
 "FABLA","FALCA","FANAL","FANGO","FANON","FAROL","FARSA","FASTO","FECAL","FECHO",
 "FEBLE","FELON","FEROZ","FEUDO","FIBRA","FIDEO","FIGOS","FINJO","FISCO","FISGA",
 "FISGO","FITAS","FLAMA","FLAME","FLAMO","FLETE","FOLIO","FOLLO","FONAL","FONJE",
@@ -152,8 +146,8 @@ const validWords = new Set([
 "HABAR","HACHA","HACHE","HACHO","HADAR","HALDA","HALAR","HAMPA","HARBA","HARPA",
 "HARPO","HIENA","HILAR","HIMEN","HIMNO","HIPON","HISAR","HOLCO","HOLGA","HOLGO",
 "HONRA","HONRE","HONRO","HOSCA","HOSCO","HUMAN","HUMAR","HURTA","HURTE","HURTO",
-"IBERA","IBERO","ICONO","ILEON","IMAGO","IMPEL","INCOA","INCOE","INCOO","INDIO",
-"INDUE","INFLA","INFLE","INFLO","INSTA","INSTE","INSTO","INVAR","ISCAR","ISLOT",
+"IBERA","IBERO","ICONO","ILEON","IMAGO","INDIO","INDUE","INFLA","INFLE","INFLO",
+"INSTA","INSTE","INSTO","INVAR","ISCAR","ISLOT",
 "JALAR","JALCA","JALEO","JALMA","JAMBA","JAMBO","JAREA","JAREO","JARRA","JARRO",
 "JASPE","JEQUE","JERBO","JINCA","JINCO","JINGO","JIOTE","JODAR","JODEN","JODES",
 "JODIO","JODON","JOPAR","JORON","JOVAR","JUBAS","JUGAD","JUGAS","JULIA","JUMAR",
@@ -168,23 +162,21 @@ const validWords = new Set([
 "MACAS","MACEO","MACER","MACES","MACHA","MACHE","MACHO","MACOA","MAFIA","MAGRO",
 "MAJAR","MAJAS","MALEO","MARES","MARTA","MARTE","MASAR","MARZO","MATAN","MAUCA",
 "MAURA","MAZAN","MECEN","MECER","MECES","MECIO","MEDID","MEDIR","MEIGA","MEIGO",
-"MELAN","MELAR","MELIO","MELSA","MENOR","MERAR","MERAN","MERMA","MERME","MEZCA",
-"MEZCO","MIERA","MIGAR","MIRLA","MIRLO","MISCO","MOCAR","MOCER","MOCES","MOCIO",
-"MOHON","MOJON","MOLDE","MOLER","MOLES","MOLIO","MOLLE","MOLON","MONAR","MONDA",
-"MONDE","MONDO","MORAN","MORAR","MORAZ","MORBO","MORCO","MORRA","MORRO","MORSA",
-"MORSE","MOSTO","MOTIS","MOVIA","MOZOS","MUGIR","MUGIO","MULTA","MUSCA","MUSGO",
-"MUTIS",
+"MELAN","MELAR","MELIO","MELSA","MERAR","MERAN","MERMA","MERME","MEZCA","MEZCO",
+"MIERA","MIGAR","MIRLA","MIRLO","MISCO","MOCAR","MOCER","MOCES","MOCIO","MOHON",
+"MOJON","MOLDE","MOLER","MOLES","MOLIO","MOLLE","MOLON","MONAR","MONDA","MONDE",
+"MONDO","MORAN","MORAR","MORAZ","MORBO","MORCO","MORRA","MORRO","MORSA","MORSE",
+"MOSTO","MOTIS","MOVIA","MOZOS","MUGIR","MUGIO","MULTA","MUSCA","MUSGO","MUTIS",
 "NABAL","NABAN","NABAR","NABAS","NABOA","NACAS","NACEN","NACER","NACES","NACIB",
 "NACIO","NACOS","NAFRA","NAGUA","NAPAR","NAPAS","NARDO","NARES","NARRA","NARRE",
-"NARRO","NASAR","NASAS","NECAR","NECEA","NECIO","NEGRO","NELAR","NEMOS","NERON",
-"NETOS","NEVAR","NIMBA","NIMBE","NIMBO","NINFA","NITOR","NOCAR","NODAL","NODOS",
-"NOGAL","NOPAL","NORMA","NOVAR","NOVAS","NOVEL","NUBLE","NUBLO","NUCAS","NULAS",
-"NULOS","NUTRI","NUTRA","NUTRE",
-"OBESA","OBESO","OBRAR","OBSTA","OBSTE","OBSTO","OCEAN","OCENA","OCOTE","OCRES",
-"ODIAR","ODIAS","ODIOS","OFITA","OGROS","OJEAR","OJEAS","OJEEN","OJETE","OLEOS",
-"OLERA","OLMOS","ONDAS","ONEAS","ONOTO","OPACA","OPACO","OPTAE","OPTAR","OPTAS",
-"OPTEN","ORATE","ORUGA","OSEAS","OSEOS","OSTIA","OTEAR","OTEAS","OVEJA","OVERO",
-"OVNIS",
+"NARRO","NASAR","NASAS","NECAR","NECEA","NECIO","NELAR","NEMOS","NERON","NETOS",
+"NEVAR","NIMBA","NIMBE","NIMBO","NINFA","NITOR","NOCAR","NODAL","NODOS","NOGAL",
+"NOPAL","NORMA","NOVAR","NOVAS","NOVEL","NUBLE","NUBLO","NUCAS","NULAS","NULOS",
+"NUTRI","NUTRA","NUTRE",
+"OBESA","OBESO","OBRAR","OBSTA","OBSTE","OBSTO","OCENA","OCOTE","OCRES","ODIAR",
+"ODIAS","ODIOS","OFITA","OGROS","OJEAR","OJEAS","OJEEN","OJETE","OLEOS","OLERA",
+"OLMOS","ONDAS","ONEAS","ONOTO","OPACA","OPACO","OPTAR","OPTAS","OPTEN","ORATE",
+"ORUGA","OSEAS","OSEOS","OSTIA","OTEAR","OTEAS","OVEJA","OVERO","OVNIS",
 "PACER","PACES","PACIA","PACIO","PACOS","PAILA","PALCA","PALCO","PALMA","PALMO",
 "PALPA","PALPE","PALPO","PANAL","PANDO","PANEL","PAPAN","PAPEA","PAPEO","PARCO",
 "PARMO","PARRA","PARRO","PASEN","PASMO","PAVON","PAYOR","PAYAR","PAYAS","PAYES",
@@ -192,10 +184,10 @@ const validWords = new Set([
 "PERNA","PERNO","PEROS","PESCA","PEZON","PICAR","PICAS","PICEL","PICOL","PICON",
 "PILAF","PILAR","PINAS","PINON","PINZA","PIOJO","PIPAS","PIQUE","PISAR","PISAS",
 "PITON","PLAZO","PLEGA","PLENA","PLENO","POLAR","POLCA","POLEA","PONCA","PONCO",
-"PONYA","PORCA","PORCO","PORRA","PORTO","POSAR","POZOS","PRECE","PRESA","PROAS",
-"PROBA","PROBE","PROBO","PROCO","PROLE","PRONA","PRONE","PRONO","PRORA","PROTO",
-"PUBES","PUCHA","PUCHO","PUDOR","PUGNA","PUGNE","PUGNO","PULGA","PULPO","PULSA",
-"PUNZA","PUNAL","PURGA","PURGE","PURGO",
+"PONYA","PORCA","PORCO","PORRA","PORTO","POSAR","POZOS","PRESA","PROAS","PROBA",
+"PROBE","PROBO","PROCO","PROLE","PRONA","PRONE","PRONO","PRORA","PROTO","PUBES",
+"PUCHA","PUCHO","PUDOR","PUGNA","PUGNE","PUGNO","PULGA","PULPO","PULSA","PUNZA",
+"PUNAL","PURGA","PURGE","PURGO",
 "RABAS","RABEL","RABIA","RABIE","RABIO","RABON","RACAS","RACHO","RAHEZ","RAJAR",
 "RAJAS","RAJON","RALEA","RALEO","RAMPA","RANDA","RAPAR","RAPAS","RAPON","RAPTO",
 "RASCA","RASPE","RASPO","RASTA","RAUDO","REDES","REMAN","REMAR","REMAS","RENAL",
@@ -215,31 +207,49 @@ const validWords = new Set([
 "TALDO","TALEO","TALLO","TALON","TALPA","TAMAL","TANGA","TAPAS","TAPAR","TAPON",
 "TAQUE","TARAR","TARAS","TARCO","TARJE","TARJO","TARSA","TASCA","TEDIO","TEJON",
 "TELOS","TENOR","TEOSA","TERCO","TERMA","TERMO","TESAR","TESON","TETIS","TINCA",
-"TINCO","TINEA","TINGO","TINIA","TIRSO","TITAN","TACAS","TOCHE","TOCON","TOKIO",
-"TOLDO","TONCO","TONGA","TOPAS","TOPAR","TOPER","TOPIL","TOPON","TORAX","TORAR",
-"TORBA","TORCO","TORCA","TORDO","TORIL","TORON","TORPE","TORSO","TOSER","TOSES",
-"TOSIO","TRABA","TRAER","TRAPO","TRAZA","TRACE","TREPA","TRETA","TRIAR","TRIGA",
-"TRIGO","TRIPA","TROCAR","TROCA","TROCO","TRONA","TRONE","TROVA","TRUFA","TRUJA",
-"TUCAN","TUNAR","TURBA",
+"TINCO","TINEA","TINGO","TINIA","TIRSO","TITAN","TOCHE","TOCON","TOKIO","TOLDO",
+"TONCO","TONGA","TOPAS","TOPAR","TOPER","TOPIL","TOPON","TORAX","TORAR","TORBA",
+"TORCO","TORCA","TORDO","TORIL","TORON","TORPE","TORSO","TOSER","TOSES","TOSIO",
+"TRABA","TRAER","TRAPO","TRAZA","TRACE","TREPA","TRETA","TRIAR","TRIGA","TRIGO",
+"TRIPA","TROCA","TROCO","TRONA","TRONE","TROVA","TRUFA","TRUJA","TUCAN","TUNAR",
+"TURBA",
 "UBRES","ULULO","UNCIR","UNCIA","UNGIR","UNGIO","URDIR","URGIR","URGIO","USURA",
 "UTERO","UVERO",
 "VACUA","VACUO","VAGAL","VAGAR","VAGAS","VAGOS","VAHAR","VAHOS","VAJON","VANAL",
-"VARCO","VARIA","VARIO","VASAR","VASOS","VAYAN","VECIN","VEDAR","VEDAS","VEJEZ",
-"VELAR","VELAS","VELON","VELOZ","VENAL","VENDI","VENDO","VENIA","VERAZ","VERGA",
-"VERSO","VETAS","VETAR","VICAR","VIGAS","VIGOR","VIRAR","VIRAS","VIRGO","VIRIL",
-"VIVAR","VIVAS","VIVAZ","VOCAS","VOCEO","VOLCA","VOLCO","VOLTIO","VOLVA","VULGO",
-"YANKI","YEDRA","YEGUA","YERBA","YERMO","YESCA","YUGOS","YUNTA","ZAINO","ZALEO",
-"ZANCA","ZANON","ZARCO","ZARPA","ZARPE","ZARPO","ZARZA","ZOCAL","ZOCLO","ZONAS",
-"ZURCE","ZURCI","ZURRA"
-]);
+"VARCO","VARIA","VARIO","VASAR","VASOS","VAYAN","VEDAR","VEDAS","VEJEZ","VELAR",
+"VELAS","VELON","VELOZ","VENAL","VENDI","VENDO","VENIA","VERAZ","VERGA","VERSO",
+"VETAS","VETAR","VICAR","VIGAS","VIGOR","VIRAR","VIRAS","VIRGO","VIRIL","VIVAR",
+"VIVAS","VIVAZ","VOCAS","VOCEO","VOLCA","VOLCO","VOLVA","VULGO",
+"YANKI","YEDRA","YEGUA","YERBA","YERMO","YESCA","YUGOS","YUNTA",
+"ZAINO","ZALEO","ZANCA","ZANON","ZARCO","ZARPA","ZARPE","ZARPO","ZARZA","ZOCAL",
+"ZOCLO","ZONAS","ZURCE","ZURCI","ZURRA"
+];
+
+// Función de normalización: quita tildes, convierte Ñ→N para comparación interna
+function normalize(str) {
+    return str.toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/Ñ/g, "N"); // Ñ se compara como N en el dict (sin tildes)
+}
+
+// Nota: en el juego la Ñ se muestra como Ñ, pero validamos sin ella para máxima compatibilidad
+// Sin embargo, preservamos Ñ real: sólo normalizamos tildes, NO la Ñ
+function normalizeNoAccents(str) {
+    return str.toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+// Construimos el set con entradas normalizadas (sin tildes, con Ñ conservada)
+const validWordsSet = new Set(rawValidWords.map(w => normalizeNoAccents(w)));
 
 // ========================
 // CLASE WORDLEGAME
 // ========================
 class WordleGame {
     constructor(words) {
-        // Solo palabras jugables de exactamente 5 letras
-        this.words = words.map(w => w.toUpperCase()).filter(w => w.length === 5);
+        this.words = words.map(w => normalizeNoAccents(w)).filter(w => w.length === 5);
         this.level = parseInt(localStorage.getItem('level')) || 1;
         this.totalWins = parseInt(localStorage.getItem('totalWins')) || 0;
         this.winAttempts = JSON.parse(localStorage.getItem('winAttempts')) || [0,0,0,0,0,0];
@@ -263,7 +273,7 @@ class WordleGame {
         this.updateStatsDisplay();
         this.updateLevelDisplay();
 
-        // Inyectar animación shake
+        // Animación shake
         const style = document.createElement('style');
         style.textContent = `
             @keyframes shake {
@@ -321,7 +331,9 @@ class WordleGame {
                 btn.textContent = k;
                 if (k === 'ENTER' || k === 'DEL') btn.classList.add('special');
                 rowDiv.appendChild(btn);
+                // Mapeamos tanto la clave directa como su versión normalizada
                 this.keyMap[k] = btn;
+                rowDiv.appendChild(btn);
                 btn.addEventListener('click', () => this.handleKey(k));
             });
             this.keyboardDiv.appendChild(rowDiv);
@@ -331,13 +343,24 @@ class WordleGame {
     bindKeyboard() {
         document.addEventListener('keydown', e => {
             if (this.gameOver) return;
-            let key = e.key.toUpperCase();
-            if (key === 'BACKSPACE') key = 'DEL';
-            if (key === 'ENTER') {
-                this.handleKey('ENTER');
-            } else if (key === 'DEL') {
+            const raw = e.key;
+
+            if (raw === 'Backspace' || raw === 'Delete') {
                 this.handleKey('DEL');
-            } else if (key.length === 1 && /^[A-ZÑ]$/.test(key)) {
+                return;
+            }
+            if (raw === 'Enter') {
+                this.handleKey('ENTER');
+                return;
+            }
+
+            // Convertir a mayúsculas y normalizar tildes (á→A, é→E, etc.) pero preservar Ñ
+            let key = raw.toUpperCase();
+            // Tildes comunes → letra base
+            key = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+            // Aceptar letras del alfabeto español (A-Z y Ñ)
+            if (/^[A-ZÑ]$/.test(key)) {
                 this.handleKey(key);
             }
         });
@@ -363,8 +386,10 @@ class WordleGame {
         }
     }
 
-    removeAccents(str) {
-        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    isValidWord(guess) {
+        // Normalizar sin tildes, manteniendo Ñ
+        const norm = normalizeNoAccents(guess.toUpperCase());
+        return validWordsSet.has(norm);
     }
 
     handleKey(key) {
@@ -388,18 +413,6 @@ class WordleGame {
         }
     }
 
-    isValidWord(guess) {
-        const normalized = this.removeAccents(guess.toUpperCase());
-        // Comprobar directamente en el Set
-        if (validWords.has(normalized)) return true;
-        if (validWords.has(guess.toUpperCase())) return true;
-        // Fallback: normalizar cada entrada del diccionario (para palabras con tildes)
-        for (const w of validWords) {
-            if (this.removeAccents(w) === normalized) return true;
-        }
-        return false;
-    }
-
     checkWord() {
         if (this.currentCol < 5) {
             this.showMessage('✏️ Escribe 5 letras');
@@ -409,7 +422,6 @@ class WordleGame {
         let guess = "";
         for (let c = 0; c < 5; c++) guess += this.board[this.currentRow][c].textContent;
 
-        // VALIDACIÓN: la palabra debe existir en el diccionario
         if (!this.isValidWord(guess)) {
             this.showMessage('❌ Palabra no válida');
             const row = this.board[this.currentRow];
@@ -418,11 +430,12 @@ class WordleGame {
             return;
         }
 
-        const normalizedGuess = this.removeAccents(guess.toUpperCase());
-        const normalizedWord = this.removeAccents(this.currentWord);
+        // Comparar sin tildes, con Ñ conservada
+        const guessNorm = normalizeNoAccents(guess);
+        const wordNorm = normalizeNoAccents(this.currentWord);
 
         const letterCount = {};
-        for (let l of normalizedWord) {
+        for (let l of wordNorm) {
             letterCount[l] = (letterCount[l] || 0) + 1;
         }
 
@@ -430,16 +443,16 @@ class WordleGame {
 
         // Primero: correctas
         for (let c = 0; c < 5; c++) {
-            if (normalizedGuess[c] === normalizedWord[c]) {
+            if (guessNorm[c] === wordNorm[c]) {
                 results[c] = 'correct';
-                letterCount[normalizedGuess[c]]--;
+                letterCount[guessNorm[c]]--;
             }
         }
 
         // Segundo: presentes
         for (let c = 0; c < 5; c++) {
             if (results[c] === 'correct') continue;
-            const letter = normalizedGuess[c];
+            const letter = guessNorm[c];
             if (letterCount[letter] > 0) {
                 results[c] = 'present';
                 letterCount[letter]--;
@@ -449,9 +462,8 @@ class WordleGame {
         // Animación reveal
         for (let c = 0; c < 5; c++) {
             const tile = this.board[this.currentRow][c];
-            const letter = normalizedGuess[c];
+            const keyChar = guess[c]; // char original que el user escribió (puede ser Ñ)
             const result = results[c];
-            const keyChar = guess[c];
 
             setTimeout(() => {
                 tile.classList.add('reveal');
@@ -459,7 +471,8 @@ class WordleGame {
                     tile.classList.remove('reveal');
                     tile.classList.add(result);
 
-                    const keyBtn = this.keyMap[keyChar] || this.keyMap[letter];
+                    // Colorear tecla del teclado virtual
+                    const keyBtn = this.keyMap[keyChar];
                     if (keyBtn) {
                         if (result === 'correct') {
                             keyBtn.classList.remove('present', 'absent');
@@ -477,7 +490,7 @@ class WordleGame {
 
         // Comprobación final
         setTimeout(() => {
-            if (normalizedGuess === normalizedWord) {
+            if (guessNorm === wordNorm) {
                 this.totalWins++;
                 this.winAttempts[this.currentRow]++;
                 this.showMessage('¡Correcto! 🎉', 0);

@@ -1,0 +1,316 @@
+/* ==============================
+   RESET
+============================== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ==============================
+   VARIABLES
+============================== */
+:root {
+    --gold:   #FFD93D;
+    --gold2:  #FFC700;
+    --red:    #FF4C4C;
+    --green:  #538d4e;
+    --card:   rgba(0, 0, 0, 0.72);
+    --border: rgba(255, 217, 61, 0.30);
+    --text:   #f0e6c8;
+    --muted:  #8a7d5a;
+    --r1: #FFD700;
+    --r2: #C0C0C0;
+    --r3: #cd7f32;
+}
+
+/* ==============================
+   BODY & FONDO
+============================== */
+body {
+    font-family: 'Rajdhani', Arial, sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+#bg-video {
+    position: fixed;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.70);
+    z-index: -1;
+}
+
+/* ==============================
+   LAYOUT
+============================== */
+.page-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 20px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+/* ==============================
+   CABECERA
+============================== */
+.page-header { text-align: center; }
+
+.page-header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 5px;
+    text-shadow: 0 0 30px var(--gold), 0 0 70px rgba(255,217,61,0.3);
+    animation: glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 20px var(--gold), 0 0 40px rgba(255,217,61,0.2); }
+    to   { text-shadow: 0 0 45px var(--gold), 0 0 90px rgba(255,217,61,0.5); }
+}
+
+.subtitle {
+    margin-top: 8px;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+/* ==============================
+   GRID DOS TABLAS
+============================== */
+.boards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    width: 100%;
+}
+
+@media (max-width: 700px) {
+    .boards-grid { grid-template-columns: 1fr; }
+}
+
+/* ==============================
+   TARJETA
+============================== */
+.board-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 0 28px rgba(255,217,61,0.07),
+                inset 0 1px 0 rgba(255,255,255,0.04);
+    transition: box-shadow 0.3s;
+}
+
+.board-card:hover {
+    box-shadow: 0 0 50px rgba(255,217,61,0.14);
+}
+
+/* ==============================
+   CABECERA TARJETA
+============================== */
+.board-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 26px;
+    border-bottom: 1px solid var(--border);
+}
+
+.train-head  { background: linear-gradient(135deg, rgba(255,217,61,0.13), rgba(255,200,0,0.03)); }
+.wordle-head { background: linear-gradient(135deg, rgba(83,141,78,0.18), rgba(83,141,78,0.03)); }
+
+.board-icon {
+    font-size: 2.6rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 8px rgba(255,217,61,0.5));
+}
+
+.board-head h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 2px;
+}
+
+.board-head p {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 3px;
+}
+
+/* ==============================
+   LOADING
+============================== */
+.loading-msg {
+    padding: 40px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 1rem;
+    letter-spacing: 1px;
+    animation: blink 1.2s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}
+
+/* ==============================
+   LISTA
+============================== */
+.board-list {
+    list-style: none;
+    padding: 10px 0;
+    min-height: 60px;
+}
+
+.board-list li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 26px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.18s;
+    animation: slideIn 0.35s ease both;
+}
+
+.board-list li:last-child { border-bottom: none; }
+.board-list li:hover      { background: rgba(255,217,61,0.05); }
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* delays escalonados */
+.board-list li:nth-child(1)  { animation-delay: .04s; }
+.board-list li:nth-child(2)  { animation-delay: .08s; }
+.board-list li:nth-child(3)  { animation-delay: .12s; }
+.board-list li:nth-child(4)  { animation-delay: .16s; }
+.board-list li:nth-child(5)  { animation-delay: .20s; }
+.board-list li:nth-child(6)  { animation-delay: .24s; }
+.board-list li:nth-child(7)  { animation-delay: .28s; }
+.board-list li:nth-child(8)  { animation-delay: .32s; }
+.board-list li:nth-child(9)  { animation-delay: .36s; }
+.board-list li:nth-child(10) { animation-delay: .40s; }
+
+/* Posición / medalla */
+.rank-pos {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 900;
+    min-width: 28px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.medal { font-size: 1.4rem; min-width: 28px; text-align: center; }
+
+/* Nombre */
+.rank-name {
+    flex: 1;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rank-name.is-you { color: var(--gold); }
+
+.you-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 5px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: var(--gold);
+    color: #000;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+
+/* Puntuación */
+.rank-score {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--gold);
+    white-space: nowrap;
+}
+
+/* Empty / error */
+.empty-msg {
+    padding: 36px 26px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+/* ==============================
+   ACCIONES
+============================== */
+.page-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.page-actions button {
+    padding: 13px 30px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border: none;
+    border-radius: 13px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    color: #000;
+    cursor: pointer;
+    box-shadow: 0 0 22px rgba(255,217,61,0.35);
+    transition: all 0.22s;
+}
+
+.page-actions button:hover {
+    transform: scale(1.06);
+    box-shadow: 0 0 38px rgba(255,217,61,0.55);
+}
+
+.back-link {
+    padding: 13px 30px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border-radius: 13px;
+    border: 1px solid var(--border);
+    color: var(--gold);
+    text-decoration: none;
+    background: rgba(255,217,61,0.06);
+    transition: all 0.22s;
+}
+
+.back-link:hover {
+    background: rgba(255,217,61,0.14);
+    border-color: var(--gold);
+}

@@ -229,3 +229,35 @@ button:hover {
     font-weight: bold;
     display: inline-block;
 }
+
+/* ======================== */
+/* ANIMACIÓN SHAKE (palabra inválida) */
+/* ======================== */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-6px); }
+    40%       { transform: translateX(6px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+}
+
+.tile.shake {
+    animation: shake 0.5s ease;
+    border-color: #ff4444;
+}
+
+/* ======================== */
+/* BOTÓN RANKINGS            */
+/* ======================== */
+.ranking-link {
+    text-decoration: none;
+    color: black;
+    background: linear-gradient(90deg, #FFD93D, #FFC700);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    display: inline-block;
+    box-shadow: 0 0 15px #FFD93D;
+    transition: transform 0.2s ease;
+}
+.ranking-link:hover { transform: scale(1.05); }

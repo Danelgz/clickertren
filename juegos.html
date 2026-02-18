@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Juego Clicker del Tren</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="juegos.css">
 </head>
 <body>
 
@@ -28,9 +28,9 @@
             <div>Clics totales: <span id="clickCounterDiv">0</span></div>
         </div>
 
-        <!-- TREN CLICABLE -->
+        <!-- TREN CLICABLE (envuelto en div para eventos) -->
         <div class="train-container">
-            <img id="train" src="images/tren.jpg" alt="Tren">
+            <img id="train" src="images/tren.jpg" alt="Tren" draggable="false">
         </div>
 
         <!-- MENSAJES -->
@@ -51,7 +51,6 @@
         <h3 style="color:white; text-align:center; margin-bottom:10px;">Tienda de Rangos</h3>
         <div id="ranksContainer"></div>
 
-        <!-- BOOSTERS / POTENCIADORES -->
         <div id="boostersToggleContainer">
             <button id="boostersToggleBtn">Mostrar Potenciadores</button>
             <div id="boostersContainer" style="display:none; margin-top:10px;"></div>

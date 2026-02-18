@@ -1,0 +1,302 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background: #000;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+/* VIDEO DE FONDO */
+#bg-video {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.72);
+    z-index: -1;
+}
+
+/* CONTENEDOR PRINCIPAL */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
+    background: rgba(255, 217, 61, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 0 25px #FFD93D, 0 0 50px rgba(255,217,61,0.3);
+    min-width: 280px;
+    max-width: 340px;
+    margin-top: 10px;
+}
+
+/* RANGO */
+#playerRankDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+#rankImage {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 50%;
+    border: 3px solid #FFD93D;
+    box-shadow: 0 0 12px #FFD93D;
+}
+
+#rankName {
+    color: #FFD93D;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 0 0 8px #FFD93D;
+}
+
+/* ESTADÍSTICAS */
+.stats {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.stats span {
+    color: #FFD93D;
+    font-weight: bold;
+}
+
+/* TREN */
+.train-container {
+    cursor: pointer;
+    user-select: none;
+}
+
+#train {
+    width: 200px;
+    height: 150px;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 0 20px #FFD93D;
+    transition: transform 0.1s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none; /* handled by container */
+}
+
+.train-container:active #train {
+    transform: scale(0.95);
+}
+
+/* MENSAJES */
+#messages {
+    color: #FFD93D;
+    font-size: 1rem;
+    font-weight: bold;
+    min-height: 24px;
+    text-align: center;
+    text-shadow: 0 0 8px #FFD93D;
+}
+
+/* BOTÓN REINICIAR */
+#resetBtn {
+    padding: 10px 24px;
+    background: linear-gradient(90deg, #FF6B6B, #FF4C4C);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(255,76,76,0.6);
+    transition: all 0.2s ease;
+}
+
+#resetBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 22px rgba(255,76,76,0.9);
+}
+
+/* TIENDA DE MEJORAS */
+#shopContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    background: rgba(255, 217, 61, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 0 16px #FFD93D44;
+    width: 260px;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+#shopContainer::-webkit-scrollbar { width: 6px; }
+#shopContainer::-webkit-scrollbar-thumb { background: #FFD93D88; border-radius: 4px; }
+
+#upgradesContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* TIENDA DE RANGOS + BOOSTERS */
+#rankShopContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+    background: rgba(255, 217, 61, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 0 16px #FFD93D44;
+    width: 260px;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+#rankShopContainer::-webkit-scrollbar { width: 6px; }
+#rankShopContainer::-webkit-scrollbar-thumb { background: #FFD93D88; border-radius: 4px; }
+
+#ranksContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* TARJETAS DE MEJORA / RANGO */
+.upgrade, .rank {
+    background: rgba(255, 217, 61, 0.12);
+    border: 1px solid #FFD93D55;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-size: 0.85rem;
+}
+
+.upgrade strong, .rank strong {
+    color: #FFD93D;
+}
+
+.upgrade button, .rank button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    cursor: pointer;
+    background: linear-gradient(90deg, #FFD93D, #FFC700);
+    color: #000;
+    box-shadow: 0 0 8px #FFD93D88;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.upgrade button:hover:not(:disabled), .rank button:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 0 14px #FFD93D;
+}
+
+.upgrade button:disabled, .rank button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Precios */
+.price-can-buy { color: #7FFF7F; font-weight: bold; }
+.price-cant-buy { color: #FF7F7F; }
+
+/* BOOSTERS TOGGLE */
+#boostersToggleContainer {
+    margin-top: 10px;
+}
+
+#boostersToggleBtn {
+    width: 100%;
+    padding: 8px 0;
+    background: linear-gradient(90deg, #FFD93D, #FFC700);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 0 10px #FFD93D88;
+    transition: all 0.2s ease;
+}
+
+#boostersToggleBtn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 18px #FFD93D;
+}
+
+#boostersContainer {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* BOTÓN VOLVER */
+#backBtn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    padding: 12px 24px;
+    background: linear-gradient(90deg, #FFD93D, #FFC700);
+    color: #000;
+    font-weight: bold;
+    font-size: 1rem;
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 0 16px #FFD93D;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+#backBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 26px #FFD93D;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    body {
+        flex-direction: column;
+        align-items: center;
+    }
+    #shopContainer, #rankShopContainer {
+        width: 90vw;
+        max-width: 400px;
+        max-height: none;
+    }
+}

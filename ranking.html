@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rankings – Trenclicker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="ranking.css">
+</head>
+<body>
+
+    <video id="bg-video" autoplay loop muted playsinline>
+        <source src="video/fondo.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <div class="page-wrap">
+
+        <header class="page-header">
+            <h1>🏆 RANKINGS</h1>
+            <p class="subtitle">Los mejores jugadores de Trenclicker</p>
+        </header>
+
+        <div class="boards-grid">
+
+            <!-- TOP 10 TREN CLICKER -->
+            <div class="board-card">
+                <div class="board-head train-head">
+                    <span class="board-icon">🚂</span>
+                    <div>
+                        <h2>Tren Clicker</h2>
+                        <p>Top 10 · Más puntos</p>
+                    </div>
+                </div>
+                <div class="loading-msg" id="trainLoading">Cargando...</div>
+                <ol class="board-list" id="trainList"></ol>
+            </div>
+
+            <!-- TOP 10 WORDLE -->
+            <div class="board-card">
+                <div class="board-head wordle-head">
+                    <span class="board-icon">🔤</span>
+                    <div>
+                        <h2>Wordle</h2>
+                        <p>Top 10 · Nivel más alto</p>
+                    </div>
+                </div>
+                <div class="loading-msg" id="wordleLoading">Cargando...</div>
+                <ol class="board-list" id="wordleList"></ol>
+            </div>
+
+        </div>
+
+        <div class="page-actions">
+            <button id="refreshBtn">↻ Actualizar</button>
+            <a href="index.html" class="back-link">← Volver al inicio</a>
+        </div>
+
+    </div>
+
+    <script type="module" src="ranking.js"></script>
+</body>
+</html>

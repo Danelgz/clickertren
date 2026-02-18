@@ -42,6 +42,7 @@
         <!-- CONTROLES -->
         <section class="game-controls">
             <button id="showStatsBtn" type="button">📊 Estadísticas</button>
+            <a href="ranking.html" class="ranking-link">🏆 Rankings</a>
             <a href="index.html" id="backBtn">Volver a inicio</a>
         </section>
 
@@ -66,6 +67,7 @@
         <button id="closeStatsBtn" type="button">Cerrar</button>
     </div>
 
-    <script src="wordle.js"></script>
+    <!-- type="module" es necesario para los imports de Firebase -->
+    <script type="module" src="wordle.js"></script>
 </body>
 </html>
