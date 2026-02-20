@@ -12,7 +12,18 @@
         <source src="video/fondo.mp4" type="video/mp4">
     </video>
 
-    <!-- CONTENEDOR PRINCIPAL DEL JUEGO -->
+    <!-- TIENDA DE RANGOS + BOOSTERS (columna izquierda) -->
+    <div id="rankShopContainer">
+        <h3>Tienda de Rangos</h3>
+        <div id="ranksContainer"></div>
+
+        <div id="boostersToggleContainer">
+            <button id="boostersToggleBtn">Mostrar Potenciadores</button>
+            <div id="boostersContainer" style="display:none; margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL DEL JUEGO (columna central) -->
     <div class="game-container">
 
         <!-- RANGO ACTUAL -->
@@ -41,20 +52,9 @@
 
     </div>
 
-    <!-- TIENDA DE MEJORAS -->
+    <!-- TIENDA DE MEJORAS (columna derecha) -->
     <div id="shopContainer">
         <div id="upgradesContainer"></div>
-    </div>
-
-    <!-- TIENDA DE RANGOS + BOOSTERS -->
-    <div id="rankShopContainer">
-        <h3 style="color:white; text-align:center; margin-bottom:10px;">Tienda de Rangos</h3>
-        <div id="ranksContainer"></div>
-
-        <div id="boostersToggleContainer">
-            <button id="boostersToggleBtn">Mostrar Potenciadores</button>
-            <div id="boostersContainer" style="display:none; margin-top:10px;"></div>
-        </div>
     </div>
 
     <!-- BOTÓN VOLVER AL INICIO -->

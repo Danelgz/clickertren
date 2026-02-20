@@ -4,47 +4,506 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página de Danel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ── LOGIN OVERLAY ── */
+        #loginOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(6px);
+            animation: fadeIn 0.5s ease;
+        }
+
+        #loginBox {
+            background: rgba(10, 10, 10, 0.92);
+            border: 1px solid rgba(255, 217, 61, 0.35);
+            border-radius: 24px;
+            padding: 48px 44px 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow:
+                0 0 60px rgba(255, 217, 61, 0.12),
+                0 0 120px rgba(255, 217, 61, 0.05),
+                inset 0 1px 0 rgba(255,255,255,0.05);
+            animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(28px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0)    scale(1); }
+        }
+
+        #loginBox .login-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: block;
+            filter: drop-shadow(0 0 12px rgba(255, 217, 61, 0.6));
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 12px rgba(255,217,61,0.6)); }
+            50%       { transform: scale(1.08); filter: drop-shadow(0 0 22px rgba(255,217,61,0.9)); }
+        }
+
+        #loginBox h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #FFD93D;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(255,217,61,0.5);
+            margin-bottom: 6px;
+        }
+
+        #loginBox p.login-sub {
+            font-family: 'Rajdhani', sans-serif;
+            color: #8a7d5a;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 36px;
+        }
+
+        /* ── INPUT NOMBRE ── */
+        #loginBox .input-wrap {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        #playerNameInput {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255,217,61,0.06);
+            border: 1px solid rgba(255,217,61,0.25);
+            border-radius: 12px;
+            color: #f0e6c8;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        #playerNameInput::placeholder { color: #5a5040; }
+
+        #playerNameInput:focus {
+            border-color: rgba(255,217,61,0.6);
+            box-shadow: 0 0 0 3px rgba(255,217,61,0.1);
+        }
+
+        /* ── BOTÓN ENTRAR ── */
+        #enterBtn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #FFD93D, #FFC700);
+            border: none;
+            border-radius: 12px;
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            cursor: pointer;
+            box-shadow: 0 0 28px rgba(255,217,61,0.4);
+            transition: all 0.22s ease;
+            margin-bottom: 20px;
+            margin-top: 6px;
+        }
+
+        #enterBtn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 42px rgba(255,217,61,0.6);
+        }
+
+        #enterBtn:active { transform: scale(0.98); }
+
+        /* ── SEPARADOR ── */
+        .login-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .login-divider span {
+            flex: 1;
+            height: 1px;
+            background: rgba(255,217,61,0.18);
+        }
+
+        .login-divider p {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.75rem;
+            color: #5a5040;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* ── BOTÓN GOOGLE ── */
+        #googleBtn {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            color: #f0e6c8;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.22s ease;
+        }
+
+        #googleBtn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.3);
+            transform: scale(1.02);
+        }
+
+        #googleBtn svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        #loginError {
+            margin-top: 14px;
+            color: #FF6B6B;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.85rem;
+            min-height: 1.2em;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── MAIN CONTENT (oculto hasta login) ── */
+        #mainContent {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            gap: 28px;
+            text-align: center;
+            animation: fadeIn 0.6s ease;
+        }
+
+        #mainContent.visible { display: flex; }
+
+        /* ── BARRA USUARIO ── */
+        #userBar {
+            position: fixed;
+            top: 18px;
+            right: 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0,0,0,0.75);
+            border: 1px solid rgba(255,217,61,0.3);
+            border-radius: 50px;
+            padding: 8px 16px 8px 10px;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 20px rgba(255,217,61,0.1);
+        }
+
+        #userAvatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid #FFD93D;
+            object-fit: cover;
+        }
+
+        #userAvatarInitial {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid #FFD93D;
+            background: linear-gradient(135deg, #FFD93D, #FFC700);
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #userName {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #FFD93D;
+            letter-spacing: 1px;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #logoutBtn {
+            background: none;
+            border: none;
+            color: #5a5040;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 2px 4px;
+            line-height: 1;
+            transition: color 0.2s;
+            box-shadow: none;
+        }
+
+        #logoutBtn:hover { color: #FF6B6B; transform: none; }
+
+        /* ── TÍTULO ── */
+        #mainContent h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2rem, 6vw, 4rem);
+            color: #FFD93D;
+            text-shadow: 0 0 20px #FFD93D, 0 0 50px rgba(255,217,61,0.3);
+            letter-spacing: 4px;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 15px #FFD93D, 0 0 35px rgba(255,217,61,0.2); }
+            to   { text-shadow: 0 0 30px #FFD93D, 0 0 70px rgba(255,217,61,0.5); }
+        }
+
+        /* ── BOTONES NAV ── */
+        .nav-btn {
+            padding: 15px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, #FFD93D, #FFC700);
+            color: #000;
+            border-radius: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 0 20px rgba(255,217,61,0.5);
+            transition: all 0.3s ease;
+            display: block;
+            width: 280px;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 35px rgba(255,217,61,0.75);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+    </style>
 </head>
 <body>
+
     <!-- Video de fondo -->
-    <video autoplay loop muted id="bg-video">
+    <video autoplay loop muted id="bg-video" playsinline>
         <source src="video/fondo.mp4" type="video/mp4">
     </video>
 
-    <!-- Contenedor principal centrado -->
-    <div class="centered-container" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; gap:30px; text-align:center;">
-        <h1 style="font-size:4rem; color:#FFD93D; text-shadow: 0 0 10px #FFD93D;">Página de Danel</h1>
+    <!-- ══════════════════════════════
+         PANTALLA DE LOGIN
+    ══════════════════════════════ -->
+    <div id="loginOverlay">
+        <div id="loginBox">
+            <span class="login-icon">🚂</span>
+            <h2>TRENCLICKER</h2>
+            <p class="login-sub">Introduce tu nombre para jugar</p>
 
-        <!-- Botón Juego -->
-        <a href="juegos.html" id="startGameBtn" style="padding:15px 40px; font-size:2rem; background: linear-gradient(90deg, #FFD93D, #FFC700); color:#000; border-radius:12px; font-weight:bold; text-decoration:none; box-shadow:0 0 20px #FFD93D; transition:all 0.3s ease;">
-            Tren Clicker
-        </a>
+            <div class="input-wrap">
+                <input
+                    type="text"
+                    id="playerNameInput"
+                    placeholder="Tu nombre de jugador"
+                    maxlength="20"
+                    autocomplete="off"
+                    spellcheck="false"
+                />
+            </div>
 
-        <!-- Botón Calculadora -->
-        <a href="calculadora.html" id="calculatorBtn" style="padding:15px 40px; font-size:2rem; background: linear-gradient(90deg, #FFD93D, #FFC700); color:#000; border-radius:12px; font-weight:bold; text-decoration:none; box-shadow:0 0 20px #FFD93D; transition:all 0.3s ease;">
-            Calculadora
-        </a>
+            <button id="enterBtn">⚡ ENTRAR</button>
 
-        <!-- Botón Wordle (nuevo) -->
-        <a href="wordle.html" id="wordleBtn" style="padding:15px 40px; font-size:2rem; background: linear-gradient(90deg, #FFD93D, #FFC700); color:#000; border-radius:12px; font-weight:bold; text-decoration:none; box-shadow:0 0 20px #FFD93D; transition:all 0.3s ease;">
-            Wordle
-        </a>
+            <div class="login-divider">
+                <span></span>
+                <p>o inicia sesión con</p>
+                <span></span>
+            </div>
+
+            <button id="googleBtn">
+                <!-- Google logo SVG -->
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                Continuar con Google
+            </button>
+
+            <div id="loginError"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════
+         BARRA DE USUARIO (top-right)
+    ══════════════════════════════ -->
+    <div id="userBar" style="display:none;">
+        <div id="userAvatarInitial"></div>
+        <img id="userAvatar" style="display:none;" alt="avatar">
+        <span id="userName"></span>
+        <button id="logoutBtn" title="Cerrar sesión">✕</button>
+    </div>
+
+    <!-- ══════════════════════════════
+         CONTENIDO PRINCIPAL
+    ══════════════════════════════ -->
+    <div id="mainContent">
+        <h1>PÁGINA DE DANEL</h1>
+
+        <a href="juegos.html"     id="startGameBtn" class="nav-btn">🚂 Tren Clicker</a>
+        <a href="calculadora.html" id="calculatorBtn" class="nav-btn">🧮 Calculadora</a>
+        <a href="wordle.html"     id="wordleBtn"    class="nav-btn">🔤 Wordle</a>
+        <a href="ranking.html"    id="rankingBtn"   class="nav-btn">🏆 Rankings</a>
     </div>
 
     <!-- Sonido de clic -->
     <audio id="clickSound" src="audio/click.mp3"></audio>
 
-    <script>
-        const startBtn = document.getElementById('startGameBtn');
-        const calcBtn = document.getElementById('calculatorBtn');
-        const wordleBtn = document.getElementById('wordleBtn');
-        const clickSound = document.getElementById('clickSound');
+    <script type="module">
+        import { initializeApp }           from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getAuth, signInWithPopup, signOut,
+                 GoogleAuthProvider, onAuthStateChanged }
+            from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
-        // Reproducir sonido al pulsar cualquier botón
-        startBtn.addEventListener('click', () => clickSound.play());
-        calcBtn.addEventListener('click', () => clickSound.play());
-        wordleBtn.addEventListener('click', () => clickSound.play());
+        const firebaseConfig = {
+            apiKey:            "AIzaSyAxuWMkoJ3PvE0Iq_dSI3Hc5MJL_MPsw2U",
+            authDomain:        "trenclicker.firebaseapp.com",
+            projectId:         "trenclicker",
+            storageBucket:     "trenclicker.firebasestorage.app",
+            messagingSenderId: "390144624024",
+            appId:             "1:390144624024:web:b5d36b5a30411cea1197ed"
+        };
+
+        const app      = initializeApp(firebaseConfig);
+        const auth     = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // ── DOM refs ──────────────────────────────
+        const loginOverlay    = document.getElementById('loginOverlay');
+        const mainContent     = document.getElementById('mainContent');
+        const userBar         = document.getElementById('userBar');
+        const userAvatar      = document.getElementById('userAvatar');
+        const userAvatarInit  = document.getElementById('userAvatarInitial');
+        const userNameEl      = document.getElementById('userName');
+        const loginError      = document.getElementById('loginError');
+        const playerNameInput = document.getElementById('playerNameInput');
+        const enterBtn        = document.getElementById('enterBtn');
+        const googleBtn       = document.getElementById('googleBtn');
+        const logoutBtn       = document.getElementById('logoutBtn');
+        const clickSound      = document.getElementById('clickSound');
+
+        // ── Helpers ───────────────────────────────
+        function showMain(displayName, photoURL) {
+            loginOverlay.style.display  = 'none';
+            mainContent.classList.add('visible');
+            userBar.style.display       = 'flex';
+            userNameEl.textContent      = displayName;
+
+            if (photoURL) {
+                userAvatar.src          = photoURL;
+                userAvatar.style.display = 'block';
+                userAvatarInit.style.display = 'none';
+            } else {
+                userAvatarInit.textContent   = displayName.charAt(0).toUpperCase();
+                userAvatarInit.style.display = 'flex';
+                userAvatar.style.display     = 'none';
+            }
+
+            localStorage.setItem('playerName', displayName);
+        }
+
+        function showError(msg) {
+            loginError.textContent = msg;
+            setTimeout(() => loginError.textContent = '', 3500);
+        }
+
+        // ── Escuchar estado de Auth (Google) ──────
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                showMain(user.displayName || user.email, user.photoURL);
+            } else {
+                // Comprobar si hay nombre guardado localmente
+                const saved = localStorage.getItem('playerName');
+                if (saved) showMain(saved, null);
+            }
+        });
+
+        // ── Entrar con nombre ─────────────────────
+        enterBtn.addEventListener('click', () => {
+            const name = playerNameInput.value.trim();
+            if (!name) { showError('⚠️ Escribe tu nombre para continuar'); return; }
+            if (name.length < 2) { showError('⚠️ El nombre debe tener al menos 2 caracteres'); return; }
+            clickSound.play().catch(() => {});
+            showMain(name, null);
+        });
+
+        playerNameInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') enterBtn.click();
+        });
+
+        // ── Google Sign-In ────────────────────────
+        googleBtn.addEventListener('click', async () => {
+            try {
+                loginError.textContent = '';
+                await signInWithPopup(auth, provider);
+                // onAuthStateChanged lo maneja
+            } catch (err) {
+                if (err.code !== 'auth/popup-closed-by-user') {
+                    showError('⚠️ Error al iniciar con Google');
+                    console.error(err);
+                }
+            }
+        });
+
+        // ── Cerrar sesión ─────────────────────────
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (_) {}
+            localStorage.removeItem('playerName');
+            mainContent.classList.remove('visible');
+            userBar.style.display  = 'none';
+            loginOverlay.style.display = 'flex';
+            playerNameInput.value  = '';
+        });
+
+        // ── Sonido en botones de nav ──────────────
+        ['startGameBtn','calculatorBtn','wordleBtn','rankingBtn'].forEach(id => {
+            document.getElementById(id)?.addEventListener('click', () => {
+                clickSound.play().catch(() => {});
+            });
+        });
     </script>
 </body>
 </html>

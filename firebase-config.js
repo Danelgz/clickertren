@@ -8,13 +8,19 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebas
 import { getFirestore }  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey:            "PEGA_TU_API_KEY",
+    apiKey:            "AIzaSyAxuWMkoJ3PvE0Iq_dSI3Hc5MJL_MPsw2U",
     authDomain:        "trenclicker.firebaseapp.com",
     projectId:         "trenclicker",
     storageBucket:     "trenclicker.firebasestorage.app",
-    messagingSenderId: "PEGA_TU_SENDER_ID",
-    appId:             "PEGA_TU_APP_ID"
+    messagingSenderId: "390144624024",
+    appId:             "1:390144624024:web:b5d36b5a30411cea1197ed"
 };
 
-export const app = initializeApp(firebaseConfig);
-export const db  = getFirestore(app);
+// ⚠️ Comprueba si la config está sin rellenar
+export const firebaseReady =
+    !firebaseConfig.apiKey.startsWith("PEGA_TU") &&
+    !firebaseConfig.appId.startsWith("PEGA_TU") &&
+    !firebaseConfig.messagingSenderId.startsWith("PEGA_TU");
+
+export const app = firebaseReady ? initializeApp(firebaseConfig) : null;
+export const db  = firebaseReady ? getFirestore(app) : null;

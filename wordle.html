@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <title>Wordle Español</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Juego Wordle en español con niveles y estadísticas">
     <link rel="stylesheet" href="wordle.css">
 </head>
 
 <body>
 
-    <!-- Video de fondo -->
     <video 
         id="bg-video"
         autoplay
@@ -30,16 +28,12 @@
             <h2>Nivel <span id="levelDisplay">1</span></h2>
         </header>
 
-        <!-- MENSAJES DEL JUEGO -->
         <div id="game-message" aria-live="polite"></div>
 
-        <!-- TABLERO -->
         <section id="game-board" aria-label="Tablero de juego"></section>
 
-        <!-- TECLADO -->
         <section id="keyboard" aria-label="Teclado virtual"></section>
 
-        <!-- CONTROLES -->
         <section class="game-controls">
             <button id="showStatsBtn" type="button">📊 Estadísticas</button>
             <a href="ranking.html" class="ranking-link">🏆 Rankings</a>
@@ -48,7 +42,6 @@
 
     </main>
 
-    <!-- PANEL ESTADÍSTICAS (oculto por defecto con style inline) -->
     <div 
         id="statsPanel"
         role="dialog"
@@ -67,7 +60,7 @@
         <button id="closeStatsBtn" type="button">Cerrar</button>
     </div>
 
-    <!-- type="module" es necesario para los imports de Firebase -->
-    <script type="module" src="wordle.js"></script>
+    <!-- SIN type="module" para que funcione como script normal -->
+    <script src="wordle.js"></script>
 </body>
 </html>
