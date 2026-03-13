@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajustes – Trenclicker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+    <!-- Video de fondo para PC -->
+    <video id="bgVideo" autoplay muted loop>
+        <source src="video/fondo.mp4" type="video/mp4">
+    </video>
+    
+    <div class="overlay"></div>
+
+    <div class="page-wrap">
+        <header class="page-header">
+            <h1>⚙️ AJUSTES</h1>
+            <p class="subtitle">Personaliza tu experiencia</p>
+            <a href="index.html" class="back-link">← Volver al inicio</a>
+        </header>
+
+        <div class="settings-container">
+            <!-- Cambiar Nombre de Usuario -->
+            <div class="setting-card">
+                <div class="card-header">
+                    <span class="card-icon">👤</span>
+                    <h2>Nombre de Usuario</h2>
+                </div>
+                <div class="card-content">
+                    <div class="input-group">
+                        <input type="text" id="newUsername" placeholder="Nuevo nombre" maxlength="20">
+                        <button id="changeUsernameBtn">Cambiar</button>
+                    </div>
+                    <div id="usernameMessage" class="setting-message"></div>
+                </div>
+            </div>
+
+            <!-- Selección de Música -->
+            <div class="setting-card">
+                <div class="card-header">
+                    <span class="card-icon">🎵</span>
+                    <h2>Música de Fondo</h2>
+                </div>
+                <div class="card-content">
+                    <div class="music-options">
+                        <label class="music-option">
+                            <input type="radio" name="musicChoice" value="chuchu">
+                            <div class="option-content">
+                                <div class="option-info">
+                                    <span class="option-title">ChuChuWa</span>
+                                    <span class="option-desc">El clásico tren</span>
+                                </div>
+                                <div class="option-preview">
+                                    <span class="preview-icon">🚂</span>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="music-option">
+                            <input type="radio" name="musicChoice" value="antonimo">
+                            <div class="option-content">
+                                <div class="option-info">
+                                    <span class="option-title">Antoni(m)o</span>
+                                    <span class="option-desc">El ritmo moderno</span>
+                                </div>
+                                <div class="option-preview">
+                                    <span class="preview-icon">🎸</span>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="music-option">
+                            <input type="radio" name="musicChoice" value="bebita">
+                            <div class="option-content">
+                                <div class="option-info">
+                                    <span class="option-title">Bebita</span>
+                                    <span class="option-desc">El ritmo relajante</span>
+                                </div>
+                                <div class="option-preview">
+                                    <span class="preview-icon">🌊</span>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="music-option">
+                            <input type="radio" name="musicChoice" value="chiqui">
+                            <div class="option-content">
+                                <div class="option-info">
+                                    <span class="option-title">"Hago lo que quiero" Chiqui Ibai</span>
+                                    <span class="option-desc">El ritmo viral</span>
+                                </div>
+                                <div class="option-preview">
+                                    <span class="preview-icon">🎤</span>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="music-option">
+                            <input type="radio" name="musicChoice" value="mix">
+                            <div class="option-content">
+                                <div class="option-info">
+                                    <span class="option-title">Mix Aleatorio</span>
+                                    <span class="option-desc">Cambia cada partida</span>
+                                </div>
+                                <div class="option-preview">
+                                    <span class="preview-icon">🎲</span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div id="musicMessage" class="setting-message"></div>
+                </div>
+            </div>
+
+            <!-- Control de Música Rápido -->
+            <div class="setting-card">
+                <div class="card-header">
+                    <span class="card-icon">🔊</span>
+                    <h2>Control Rápido</h2>
+                </div>
+                <div class="card-content">
+                    <div class="quick-controls">
+                        <button id="quickMuteBtn" class="control-btn mute-btn">
+                            <span class="btn-icon">🔇</span>
+                            <span class="btn-text">Silenciar</span>
+                        </button>
+                        <button id="quickUnmuteBtn" class="control-btn unmute-btn">
+                            <span class="btn-icon">🔊</span>
+                            <span class="btn-text">Activar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control de Volumen -->
+            <div class="setting-card">
+                <div class="card-header">
+                    <span class="card-icon">🎚️</span>
+                    <h2>Volumen de Música</h2>
+                </div>
+                <div class="card-content">
+                    <div class="volume-control">
+                        <div class="volume-slider-container">
+                            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="5">
+                            <div class="volume-value">
+                                <span id="volumeValue">5%</span>
+                            </div>
+                        </div>
+                        <div class="volume-presets">
+                            <button class="preset-btn" data-volume="0">🔇 Silencio</button>
+                            <button class="preset-btn" data-volume="25">🔉 Bajo</button>
+                            <button class="preset-btn" data-volume="50">🔊 Medio</button>
+                            <button class="preset-btn" data-volume="75">📢 Alto</button>
+                            <button class="preset-btn" data-volume="100">🎉 Máximo</button>
+                        </div>
+                    </div>
+                    <div id="volumeMessage" class="setting-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase-config.js";
+        import { updateProfile } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import { doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        // Variables globales
+        let currentUser = null;
+        let bgMusic = null;
+
+        // Elementos del DOM
+        const newUsernameInput = document.getElementById('newUsername');
+        const changeUsernameBtn = document.getElementById('changeUsernameBtn');
+        const usernameMessage = document.getElementById('usernameMessage');
+        const musicMessage = document.getElementById('musicMessage');
+        const quickMuteBtn = document.getElementById('quickMuteBtn');
+        const quickUnmuteBtn = document.getElementById('quickUnmuteBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        const volumeMessage = document.getElementById('volumeMessage');
+
+        // Prevenir errores de extensiones de Chrome
+        window.addEventListener('error', function(e) {
+            // Ignorar errores de extensiones de Chrome
+            if (e.filename && e.filename.includes('chrome-extension://')) {
+                e.preventDefault();
+                return false;
+            }
+        }, true);
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializeApp();
+            loadSettings();
+            setupEventListeners();
+        });
+
+        // Inicializar aplicación
+        async function initializeApp() {
+            // Esperar a que Firebase se inicialice
+            return new Promise((resolve) => {
+                const unsubscribe = auth.onAuthStateChanged(async (user) => {
+                    currentUser = user;
+                    if (user) {
+                        newUsernameInput.value = user.displayName || '';
+                    }
+                    unsubscribe();
+                    resolve();
+                });
+            });
+        }
+
+        // Cargar configuración
+        function loadSettings() {
+            // Cargar preferencia de música
+            const savedMusicChoice = localStorage.getItem('musicChoice') || 'chuchu';
+            const musicRadio = document.querySelector(`input[name="musicChoice"][value="${savedMusicChoice}"]`);
+            if (musicRadio) {
+                musicRadio.checked = true;
+            }
+
+            // Cargar preferencia de volumen
+            const savedVolume = localStorage.getItem('musicVolume') || '5';
+            volumeSlider.value = savedVolume;
+            volumeValue.textContent = savedVolume + '%';
+            updateVolumePresets(savedVolume);
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Cambiar nombre de usuario
+            changeUsernameBtn.onclick = async () => {
+                try {
+                    const newUsername = newUsernameInput.value.trim();
+                    
+                    if (!newUsername) {
+                        showMessage(usernameMessage, 'El nombre no puede estar vacío', 'error');
+                        return;
+                    }
+
+                    if (newUsername.length < 3) {
+                        showMessage(usernameMessage, 'El nombre debe tener al menos 3 caracteres', 'error');
+                        return;
+                    }
+
+                    if (!currentUser) {
+                        showMessage(usernameMessage, 'Debes estar logueado para cambiar el nombre', 'error');
+                        return;
+                    }
+
+                    await updateProfile(currentUser, {
+                        displayName: newUsername
+                    });
+
+                    // Forzar recarga del perfil de Firebase para asegurar que los cambios se reflejen
+                    await currentUser.reload();
+
+                    // Actualizar en Firestore
+                    await setDoc(doc(db, 'usernames', currentUser.uid), {
+                        name: newUsername,
+                        updatedAt: serverTimestamp()
+                    });
+
+                    // Actualizar localStorage y sessionStorage para que el cambio se refleje inmediatamente
+                    localStorage.setItem('playerName', newUsername);
+                    sessionStorage.setItem('playerName', newUsername);
+
+                    showMessage(usernameMessage, 'Nombre actualizado correctamente', 'success');
+                    
+                    // Limpiar mensaje después de 3 segundos
+                    setTimeout(() => {
+                        clearMessage(usernameMessage);
+                    }, 3000);
+
+                } catch (error) {
+                    console.error('Error updating username:', error);
+                    if (error.code === 'permission-denied') {
+                        showMessage(usernameMessage, 'No tienes permisos para cambiar el nombre', 'error');
+                    } else {
+                        showMessage(usernameMessage, 'Error al actualizar el nombre', 'error');
+                    }
+                }
+            };
+
+            // Cambiar música
+            document.querySelectorAll('input[name="musicChoice"]').forEach(radio => {
+                radio.onchange = async () => {
+                    try {
+                        const musicChoice = radio.value;
+                        
+                        // Guardar preferencia
+                        localStorage.setItem('musicChoice', musicChoice);
+                        
+                        // Si el usuario está logueado, guardar en Firestore
+                        if (currentUser) {
+                            await setDoc(doc(db, 'userSettings', currentUser.uid), {
+                                musicChoice: musicChoice,
+                                updatedAt: serverTimestamp()
+                            }, { merge: true });
+                        }
+
+                        // Aplicar cambio inmediatamente
+                        applyMusicChoice(musicChoice);
+                        
+                        showMessage(musicMessage, 'Música actualizada correctamente', 'success');
+                        
+                        // Limpiar mensaje después de 3 segundos
+                        setTimeout(() => {
+                            clearMessage(musicMessage);
+                        }, 3000);
+
+                    } catch (error) {
+                        console.error('Error updating music:', error);
+                        if (error.code === 'permission-denied') {
+                            showMessage(musicMessage, 'No tienes permisos para cambiar la música', 'error');
+                        } else {
+                            showMessage(musicMessage, 'Error al actualizar la música', 'error');
+                        }
+                    }
+                };
+            });
+
+            // Controles rápidos
+            quickMuteBtn.onclick = () => {
+                if (bgMusic) {
+                    bgMusic.muted = true;
+                    localStorage.setItem('musicMuted', 'true');
+                    localStorage.setItem('musicPlaying', 'false');
+                    updateMusicButtons();
+                }
+            };
+
+            quickUnmuteBtn.onclick = () => {
+                if (bgMusic) {
+                    bgMusic.muted = false;
+                    bgMusic.play().catch(() => {});
+                    localStorage.setItem('musicMuted', 'false');
+                    localStorage.setItem('musicPlaying', 'true');
+                    updateMusicButtons();
+                }
+            };
+
+            // Control de volumen
+            volumeSlider.oninput = () => {
+                const volume = volumeSlider.value;
+                volumeValue.textContent = volume + '%';
+                updateVolumePresets(volume);
+                applyVolume(volume);
+            };
+
+            volumeSlider.onchange = async () => {
+                const volume = volumeSlider.value;
+                try {
+                    localStorage.setItem('musicVolume', volume);
+                    
+                    if (currentUser) {
+                        await setDoc(doc(db, 'userSettings', currentUser.uid), {
+                            musicVolume: parseInt(volume),
+                            updatedAt: serverTimestamp()
+                        }, { merge: true });
+                    }
+
+                    showMessage(volumeMessage, 'Volumen actualizado correctamente', 'success');
+                    setTimeout(() => {
+                        clearMessage(volumeMessage);
+                    }, 2000);
+
+                } catch (error) {
+                    console.error('Error updating volume:', error);
+                    if (error.code === 'permission-denied') {
+                        showMessage(volumeMessage, 'No tienes permisos para cambiar el volumen', 'error');
+                    } else {
+                        showMessage(volumeMessage, 'Error al actualizar el volumen', 'error');
+                    }
+                }
+            };
+
+            // Botones de preset de volumen
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const volume = btn.dataset.volume;
+                    volumeSlider.value = volume;
+                    volumeValue.textContent = volume + '%';
+                    updateVolumePresets(volume);
+                    applyVolume(volume);
+                    
+                    // Guardar automáticamente
+                    localStorage.setItem('musicVolume', volume);
+                    if (currentUser) {
+                        setDoc(doc(db, 'userSettings', currentUser.uid), {
+                            musicVolume: parseInt(volume),
+                            updatedAt: serverTimestamp()
+                        }, { merge: true }).catch(() => {});
+                    }
+                };
+            });
+        }
+
+        // Aplicar elección de música
+        function applyMusicChoice(choice) {
+            if (!bgMusic) {
+                bgMusic = document.createElement('audio');
+                bgMusic.volume = 0.05;
+                document.body.appendChild(bgMusic);
+            }
+
+            // Guardar estado actual de reproducción
+            const wasPlaying = !bgMusic.paused && !bgMusic.muted;
+
+            let newSrc;
+            let isMix = choice === 'mix';
+            
+            if (isMix) {
+                // Elegir aleatoriamente para el modo mix
+                const choices = ['chuchu', 'antonimo', 'bebita', 'chiqui'];
+                const randomChoice = choices[Math.floor(Math.random() * choices.length)];
+                switch (randomChoice) {
+                    case 'chuchu': newSrc = 'audio/chuchu.mp3'; break;
+                    case 'antonimo': newSrc = 'audio/antonimo.mp3'; break;
+                    case 'bebita': newSrc = 'audio/bebita.mp3'; break;
+                    case 'chiqui': newSrc = 'audio/chiqui.mp3'; break;
+                }
+            } else {
+                // Usar la canción seleccionada
+                switch (choice) {
+                    case 'chuchu':
+                        newSrc = 'audio/chuchu.mp3';
+                        break;
+                    case 'antonimo':
+                        newSrc = 'audio/antonimo.mp3';
+                        break;
+                    case 'bebita':
+                        newSrc = 'audio/bebita.mp3';
+                        break;
+                    case 'chiqui':
+                        newSrc = 'audio/chiqui.mp3';
+                        break;
+                    default:
+                        newSrc = 'audio/chuchu.mp3';
+                }
+            }
+
+            // Configurar bucle según el modo
+            if (isMix) {
+                bgMusic.loop = false;
+                // Añadir event listener para cambiar de canción cuando termine
+                bgMusic.addEventListener('ended', playNextRandomTrack);
+            } else {
+                bgMusic.loop = true;
+                // Remover event listener si existe
+                bgMusic.removeEventListener('ended', playNextRandomTrack);
+            }
+
+            // Solo cambiar la fuente si es diferente
+            if (bgMusic.src !== newSrc) {
+                bgMusic.src = newSrc;
+                localStorage.setItem('currentMusicSrc', newSrc);
+            }
+            
+            // Aplicar volumen guardado
+            const savedVolume = localStorage.getItem('musicVolume') || '5';
+            applyVolume(savedVolume);
+            
+            // Si estaba reproduciendo antes, continuar reproduciendo
+            if (wasPlaying) {
+                bgMusic.play().catch(() => {});
+                localStorage.setItem('musicPlaying', 'true');
+            }
+        }
+
+        // Función para reproducir la siguiente canción aleatoria (modo mix)
+        function playNextRandomTrack() {
+            if (!bgMusic) return;
+            
+            const musicChoice = localStorage.getItem('musicChoice') || 'chuchu';
+            if (musicChoice !== 'mix') return;
+            
+            // Elegir una canción diferente a la actual
+            const availableTracks = ['audio/chuchu.mp3', 'audio/antonimo.mp3', 'audio/bebita.mp3', 'audio/chiqui.mp3']
+                .filter(track => track !== bgMusic.src);
+            const randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+            
+            bgMusic.src = randomTrack;
+            localStorage.setItem('currentMusicSrc', randomTrack);
+            
+            // Reproducir si no está silenciado
+            if (!bgMusic.muted) {
+                bgMusic.play().catch(() => {});
+            }
+        }
+
+        // Aplicar volumen
+        function applyVolume(volume) {
+            if (bgMusic) {
+                bgMusic.volume = volume / 100;
+            }
+        }
+
+        // Actualizar presets de volumen
+        function updateVolumePresets(currentVolume) {
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.volume === currentVolume) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Actualizar botones de música
+        function updateMusicButtons() {
+            if (bgMusic && bgMusic.muted) {
+                quickMuteBtn.classList.add('active');
+                quickUnmuteBtn.classList.remove('active');
+            } else {
+                quickMuteBtn.classList.remove('active');
+                quickUnmuteBtn.classList.add('active');
+            }
+        }
+
+        // Mostrar mensajes
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `setting-message ${type}`;
+            element.style.display = 'block';
+        }
+
+        function clearMessage(element) {
+            element.className = 'setting-message';
+            element.textContent = '';
+            element.style.display = 'none';
+        }
+
+        // Cargar preferencia de música desde Firestore si está logueado
+        async function loadMusicPreference() {
+            if (!currentUser) return;
+            
+            try {
+                const settingsDoc = await getDoc(doc(db, 'userSettings', currentUser.uid));
+                if (settingsDoc.exists()) {
+                    const data = settingsDoc.data();
+                    
+                    // Cargar elección de música
+                    if (data.musicChoice) {
+                        localStorage.setItem('musicChoice', data.musicChoice);
+                        applyMusicChoice(data.musicChoice);
+                    }
+                    
+                    // Cargar volumen
+                    if (data.musicVolume !== undefined) {
+                        localStorage.setItem('musicVolume', data.musicVolume.toString());
+                        volumeSlider.value = data.musicVolume;
+                        volumeValue.textContent = data.musicVolume + '%';
+                        updateVolumePresets(data.musicVolume.toString());
+                        applyVolume(data.musicVolume);
+                    }
+                }
+            } catch (error) {
+                console.warn('Error loading music preference:', error);
+                if (error.code !== 'permission-denied') {
+                    // Solo mostrar error si no es de permisos (puede ser offline)
+                    console.warn('Could not load music preference from Firestore, using localStorage only');
+                }
+            }
+        }
+
+        // Inicializar música cuando el usuario se autentique
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                setTimeout(async () => {
+                    await loadMusicPreference();
+                    updateMusicButtons();
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

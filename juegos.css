@@ -1,4 +1,42 @@
-/* RESET */
+/* ==============================
+   MUSIC TOGGLE BUTTON
+============================== */
+#musicToggleBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 217, 61, 0.3);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    color: #FFD93D;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#musicToggleBtn:hover {
+    background: rgba(255, 217, 61, 0.1);
+    border-color: rgba(255, 217, 61, 0.5);
+    transform: scale(1.05);
+}
+
+#musicToggleBtn.muted {
+    color: #FF6B6B;
+}
+
+#musicToggleBtn.muted:hover {
+    color: #FF6B6B;
+}
+
+/* ==============================
+   RESET
+============================== */
 * {
     margin: 0;
     padding: 0;
@@ -6,70 +44,168 @@
     font-family: 'Arial', sans-serif;
 }
 
-/* VIDEO DE FONDO */
-#bg-video {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    object-fit: cover;
-    z-index: -2;
+/* ============================== 
+   FONDO ANIMADO ESPECTACULAR
+============================== */
+body {
+    background: #000;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
 }
 
-body::after {
-    content: "";
+/* Video de fondo para PC */
+#bgVideo {
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.72);
-    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -3;
+}
+
+/* En móvil: fondo negro animado con toques blancos */
+@media (max-width: 768px) {
+    body {
+        background: #000;
+    }
+    
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-image: 
+            radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.6), transparent),
+            radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.7), transparent),
+            radial-gradient(1px 1px at 80% 20%, rgba(255, 255, 255, 0.5), transparent),
+            radial-gradient(2px 2px at 10% 80%, rgba(255, 255, 255, 0.6), transparent);
+        background-size: 200% 200%, 180% 180%, 220% 220%, 190% 190%, 210% 210%;
+        animation: 
+            particlesMove 30s linear infinite,
+            twinkle 3s ease-in-out infinite alternate;
+        z-index: -2;
+    }
+    
+    body::after {
+        content: "";
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+            linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%);
+        z-index: -1;
+        animation: overlayPulse 8s ease-in-out infinite alternate;
+    }
+    
+    #bgVideo {
+        display: none !important;
+    }
+}
+
+/* En PC: mostrar video y ocultar efectos */
+@media (min-width: 769px) {
+    body::before,
+    body::after {
+        display: none !important;
+    }
+}
+
+@keyframes particlesMove {
+    0% { 
+        background-position: 0% 0%, 20% 20%, 40% 40%, 60% 60%, 80% 80%;
+        transform: rotate(0deg) scale(1);
+    }
+    50% { 
+        background-position: 100% 100%, 80% 80%, 60% 60%, 40% 40%, 20% 20%;
+        transform: rotate(180deg) scale(1.1);
+    }
+    100% { 
+        background-position: 0% 0%, 20% 20%, 40% 40%, 60% 60%, 80% 80%;
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.3; }
+}
+
+@keyframes overlayPulse {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
 }
 
 /* ==============================
-   LAYOUT 3 COLUMNAS — SOLO PC
+   BODY — sin scroll, altura fija
 ============================== */
-body {
-    display: grid;
-    grid-template-columns: 260px 1fr 280px;
-    min-height: 100vh;
-    align-items: start;
+html, body {
+    height: 100%;
+    overflow: hidden; /* ← el body nunca scrollea */
     background: #000;
 }
 
 /* ==============================
-   COLUMNA IZQUIERDA — Tienda de Rangos
+   LAYOUT 3 COLUMNAS FIJAS
+============================== */
+body {
+    display: grid;
+    grid-template-columns: 260px 1fr 280px;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ==============================
+   COLUMNA IZQUIERDA — Tienda de Rangos + Potenciadores
+   Anclada al viewport, nunca se mueve, scroll interno
 ============================== */
 #rankShopContainer {
     grid-column: 1;
-    position: sticky;
-    top: 0;
     height: 100vh;
-    overflow-y: auto;
+    overflow-y: auto;   /* ← scroll solo aquí */
+    overflow-x: hidden;
     background: rgba(0,0,0,0.75);
     border-right: 2px solid #FFD93D;
-    padding: 16px 12px;
+    padding: 16px 12px 80px 12px; /* padding-bottom extra para el botón volver */
     z-index: 10;
     box-shadow: 4px 0 20px rgba(255,217,61,0.25);
     display: flex;
     flex-direction: column;
+    /* Siempre empieza desde arriba */
+    align-items: stretch;
 }
 
 #rankShopContainer::-webkit-scrollbar { width: 5px; }
 #rankShopContainer::-webkit-scrollbar-thumb { background: #FFD93D88; border-radius: 3px; }
 
-
-#rankShopContainer h3 {
+/* Título sticky del panel izquierdo — siempre visible arriba */
+#rankShopTitle {
+    position: sticky;
+    top: 0;
     color: #FFD93D;
     text-align: center;
     font-size: 1rem;
-    margin-bottom: 12px;
+    padding: 12px 0 10px;
+    margin-bottom: 10px;
+    background: rgba(0,0,0,0.9);
     text-shadow: 0 0 8px #FFD93D;
     letter-spacing: 1px;
+    z-index: 2;
+    border-bottom: 1px solid #FFD93D33;
+    flex-shrink: 0;
 }
 
 #ranksContainer {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    flex-shrink: 0;
 }
 
 .rank {
@@ -108,7 +244,10 @@ body {
 .rank button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* BOOSTERS */
-#boostersToggleContainer { margin-top: 14px; }
+#boostersToggleContainer {
+    margin-top: 14px;
+    flex-shrink: 0;
+}
 
 #boostersToggleBtn {
     width: 100%;
@@ -165,21 +304,27 @@ body {
 
 /* ==============================
    COLUMNA CENTRAL — Clicker del Tren
+   Con scroll propio para pantallas pequeñas
 ============================== */
 .game-container {
     grid-column: 2;
+    height: 100vh;
+    overflow-y: auto;   /* ← scroll solo aquí si el contenido no cabe */
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 20px;
-    min-height: 100vh;
-    padding: 30px 20px;
+    padding: 30px 20px 80px 20px;
     color: #fff;
     text-align: center;
     text-shadow: 0 0 8px #000;
     animation: fadeIn 1s ease-in;
 }
+
+.game-container::-webkit-scrollbar { width: 4px; }
+.game-container::-webkit-scrollbar-thumb { background: #FFD93D44; border-radius: 3px; }
 
 /* RANGO */
 #playerRankDiv {
@@ -231,21 +376,59 @@ body {
 .train-container {
     cursor: pointer;
     user-select: none;
+    position: relative;
+    padding: 20px;
+    background: radial-gradient(circle, rgba(255,217,61,0.1) 0%, transparent 70%);
+    border-radius: 24px;
+    transition: all 0.3s ease;
+}
+
+.train-container:hover {
+    background: radial-gradient(circle, rgba(255,217,61,0.15) 0%, transparent 70%);
+    transform: scale(1.02);
 }
 
 #train {
-    width: 310px;
-    border-radius: 16px;
-    box-shadow: 0 0 28px #FFD93D;
-    transition: transform 0.1s ease, box-shadow 0.2s ease;
+    width: 420px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 0 40px #FFD93D, 0 0 80px rgba(255,217,61,0.4), 0 8px 32px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
     user-select: none;
     -webkit-user-drag: none;
     pointer-events: none;
+    filter: brightness(1.1) contrast(1.1);
+    animation: trainFloat 3s ease-in-out infinite;
+}
+
+@keyframes trainFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
 }
 
 .train-container:active #train {
-    transform: scale(0.95) rotate(-2deg);
-    box-shadow: 0 0 48px #FFD93D;
+    transform: scale(0.92) rotate(-3deg);
+    box-shadow: 0 0 60px #FFD93D, 0 0 120px rgba(255,217,61,0.6), 0 4px 16px rgba(0,0,0,0.4);
+    filter: brightness(1.2) contrast(1.2);
+}
+
+/* Efecto de partículas alrededor del tren */
+.train-container::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: radial-gradient(circle at 50% 50%, transparent 30%, rgba(255,217,61,0.05) 70%, transparent 100%);
+    border-radius: 30px;
+    animation: pulse 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.05); }
 }
 
 /* MENSAJES */
@@ -277,33 +460,41 @@ body {
 
 /* ==============================
    COLUMNA DERECHA — Tienda de Mejoras
+   Con scroll propio, título fijo arriba
 ============================== */
 #shopContainer {
     grid-column: 3;
-    position: sticky;
-    top: 0;
     height: 100vh;
-    overflow-y: visible;
+    overflow-y: auto;   /* ← scroll solo aquí */
+    overflow-x: hidden;
     background: rgba(0,0,0,0.75);
     border-left: 2px solid #FFD93D;
-    padding: 16px 12px;
+    padding: 48px 12px 80px 12px; /* padding-top para el ::before */
     z-index: 10;
     box-shadow: -4px 0 20px rgba(255,217,61,0.25);
+    position: relative;
 }
 
 #shopContainer::-webkit-scrollbar { width: 5px; }
 #shopContainer::-webkit-scrollbar-thumb { background: #FFD93D88; border-radius: 3px; }
 
+/* Título fijo de la tienda derecha */
 #shopContainer::before {
     content: "🛒 Tienda de Mejoras";
+    position: sticky;
+    top: 0;
     display: block;
     color: #FFD93D;
     font-size: 1rem;
     font-weight: bold;
     text-align: center;
-    margin-bottom: 12px;
+    padding: 12px 0 10px;
+    margin-bottom: 4px;
+    background: rgba(0,0,0,0.85);
     text-shadow: 0 0 8px #FFD93D;
     letter-spacing: 1px;
+    z-index: 1;
+    border-bottom: 1px solid #FFD93D33;
 }
 
 #upgradesContainer {
@@ -349,7 +540,7 @@ body {
 .price-cant-buy { color: #FF7F7F; }
 
 /* ==============================
-   BOTÓN VOLVER
+   BOTÓN VOLVER — fijo centrado abajo
 ============================== */
 #backBtn {
     position: fixed;
@@ -384,4 +575,141 @@ body {
 @keyframes popIn {
     0%   { transform: scale(0.8); opacity: 0; }
     100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ==============================
+   RESPONSIVE - TABLET Y MÓVIL
+============================== */
+@media (max-width: 1024px) {
+    body {
+        grid-template-columns: 220px 1fr 240px;
+    }
+    
+    #train {
+        width: 380px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Layout optimizado para móvil */
+    body {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    /* Panel izquierdo - Tienda ocupa toda la pantalla */
+    #rankShopContainer {
+        grid-column: unset;
+        height: 100vh;
+        width: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-right: none;
+        border-bottom: none;
+        padding: 15px;
+        box-shadow: none;
+        background: rgba(0,0,0,0.9);
+    }
+    
+    #rankShopTitle {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        padding: 15px 0;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+    }
+    
+    #ranksContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        padding-bottom: 20px;
+    }
+    
+    .rank {
+        min-width: 100%;
+        padding: 15px;
+        font-size: 1rem;
+    }
+    
+    .rank button {
+        padding: 12px 16px;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+    
+    /* Panel central - oculto en móvil (prioridad a la tienda) */
+    .game-container {
+        display: none;
+    }
+    
+    /* Panel derecho - oculto en móvil */
+    #shopContainer {
+        display: none;
+    }
+    
+    /* Botón volver más grande */
+    #backBtn {
+        bottom: 20px;
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        min-height: 50px;
+        border-radius: 15px;
+    }
+    
+    /* Potenciadores */
+    #boostersToggleContainer {
+        margin-top: 20px;
+    }
+    
+    #boostersToggleBtn {
+        padding: 12px 20px;
+        font-size: 1rem;
+        min-height: 44px;
+        width: 100%;
+    }
+    
+    #boostersContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 15px;
+    }
+    
+    .booster {
+        padding: 15px;
+        font-size: 1rem;
+    }
+    
+    .booster button {
+        padding: 12px 16px;
+        font-size: 1rem;
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Ajustes adicionales para móviles pequeños */
+    #rankShopContainer {
+        padding: 10px;
+    }
+    
+    .rank {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+    
+    .rank button {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+    
+    #backBtn {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
 }

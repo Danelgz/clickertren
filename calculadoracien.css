@@ -1,3 +1,39 @@
+/* ==============================
+   MUSIC TOGGLE BUTTON
+============================== */
+#musicToggleBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 217, 61, 0.3);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    color: #FFD93D;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#musicToggleBtn:hover {
+    background: rgba(255, 217, 61, 0.1);
+    border-color: rgba(255, 217, 61, 0.5);
+    transform: scale(1.05);
+}
+
+#musicToggleBtn.muted {
+    color: #FF6B6B;
+}
+
+#musicToggleBtn.muted:hover {
+    color: #FF6B6B;
+}
+
 /* RESET Y FUENTES */
 * {
     margin: 0;
@@ -11,17 +47,17 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: #000;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
 }
 
-#bg-video {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: -2;
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    25% { background-position: 50% 25%; }
+    50% { background-position: 100% 50%; }
+    75% { background-position: 50% 75%; }
+    100% { background-position: 0% 50%; }
 }
 
 body::after {
@@ -29,7 +65,7 @@ body::after {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.3);
     z-index: -1;
 }
 

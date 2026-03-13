@@ -8,24 +8,100 @@
     font-family: 'Arial', sans-serif;
 }
 
-/* ==============================
-   VIDEO DE FONDO
+/* ============================== 
+   FONDO ANIMADO ESPECTACULAR
 ============================== */
-#bg-video {
+body {
+    background: #000;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Video de fondo para PC */
+#bgVideo {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: -2;
+    z-index: -3;
 }
 
-body::after {
-    content: "";
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: -1;
+/* En móvil: fondo negro animado con toques blancos */
+@media (max-width: 768px) {
+    body {
+        background: #000;
+    }
+    
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-image: 
+            radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.6), transparent),
+            radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.7), transparent),
+            radial-gradient(1px 1px at 80% 20%, rgba(255, 255, 255, 0.5), transparent),
+            radial-gradient(2px 2px at 10% 80%, rgba(255, 255, 255, 0.6), transparent);
+        background-size: 200% 200%, 180% 180%, 220% 220%, 190% 190%, 210% 210%;
+        animation: 
+            particlesMove 30s linear infinite,
+            twinkle 3s ease-in-out infinite alternate;
+        z-index: -2;
+    }
+    
+    body::after {
+        content: "";
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+            linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%);
+        z-index: -1;
+        animation: overlayPulse 8s ease-in-out infinite alternate;
+    }
+    
+    #bgVideo {
+        display: none !important;
+    }
+}
+
+/* En PC: mostrar video y ocultar efectos */
+@media (min-width: 769px) {
+    body::before,
+    body::after {
+        display: none !important;
+    }
+}
+
+@keyframes particlesMove {
+    0% { 
+        background-position: 0% 0%, 20% 20%, 40% 40%, 60% 60%, 80% 80%;
+        transform: rotate(0deg) scale(1);
+    }
+    50% { 
+        background-position: 100% 100%, 80% 80%, 60% 60%, 40% 40%, 20% 20%;
+        transform: rotate(180deg) scale(1.1);
+    }
+    100% { 
+        background-position: 0% 0%, 20% 20%, 40% 40%, 60% 60%, 80% 80%;
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.3; }
+}
+
+@keyframes overlayPulse {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
 }

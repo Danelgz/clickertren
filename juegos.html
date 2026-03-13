@@ -6,15 +6,15 @@
     <link rel="stylesheet" href="juegos.css">
 </head>
 <body>
-
-    <!-- VIDEO DE FONDO -->
-    <video id="bg-video" autoplay loop muted>
+    <!-- Video de fondo para PC -->
+    <video id="bgVideo" autoplay muted loop>
         <source src="video/fondo.mp4" type="video/mp4">
     </video>
 
-    <!-- TIENDA DE RANGOS + BOOSTERS (columna izquierda) -->
+    <!-- ── COLUMNA IZQUIERDA: Tienda de Rangos + Potenciadores ── -->
     <div id="rankShopContainer">
-        <h3>Tienda de Rangos</h3>
+        <!-- Título sticky: siempre visible arriba aunque se scrollee -->
+        <h3 id="rankShopTitle">🏅 Tienda de Rangos</h3>
         <div id="ranksContainer"></div>
 
         <div id="boostersToggleContainer">
@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <!-- CONTENEDOR PRINCIPAL DEL JUEGO (columna central) -->
+    <!-- ── COLUMNA CENTRAL: Clicker del Tren ── -->
     <div class="game-container">
 
         <!-- RANGO ACTUAL -->
@@ -39,7 +39,7 @@
             <div>Clics totales: <span id="clickCounterDiv">0</span></div>
         </div>
 
-        <!-- TREN CLICABLE (envuelto en div para eventos) -->
+        <!-- TREN CLICABLE -->
         <div class="train-container">
             <img id="train" src="images/tren.jpg" alt="Tren" draggable="false">
         </div>
@@ -52,7 +52,7 @@
 
     </div>
 
-    <!-- TIENDA DE MEJORAS (columna derecha) -->
+    <!-- ── COLUMNA DERECHA: Tienda de Mejoras ── -->
     <div id="shopContainer">
         <div id="upgradesContainer"></div>
     </div>
@@ -60,8 +60,12 @@
     <!-- BOTÓN VOLVER AL INICIO -->
     <a href="index.html" id="backBtn">Volver a inicio</a>
 
+    <!-- BOTÓN MÚSICA -->
+    <button id="musicToggleBtn" title="Música">🔊</button>
+
     <!-- SCRIPT DEL JUEGO -->
-    <script src="juegos.js"></script>
+    <script type="module" src="juegos.js"></script>
+    <script src="music-control.js"></script>
 
 </body>
 </html>

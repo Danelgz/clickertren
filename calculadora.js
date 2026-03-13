@@ -5,9 +5,16 @@ let currentInput = '';
 let operator = null;
 let previousValue = null;
 
-function updateScreen() {
-    screen.textContent = currentInput || '0';
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const display = document.getElementById('screen');
+    const buttons = document.querySelectorAll('.btn');
+    let currentInput = '';
+    let operator = null;
+    let previousValue = null;
+
+    function updateScreen() {
+        screen.textContent = currentInput || '0';
+    }
 
 buttons.forEach(btn => {
     const num = btn.dataset.num;
@@ -72,5 +79,6 @@ buttons.forEach(btn => {
             currentInput += num;
             updateScreen();
         }
+    });
     });
 });

@@ -1,55 +1,145 @@
+// ============================================================
+// wordle.js — con guardado en Firestore por usuario
+// ============================================================
+import { db, waitForUser, getPlayerName }
+    from "./firebase-config.js";
+import {
+    doc, getDoc, setDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+// _currentUser se asigna en init() tras esperar a Firebase Auth
+let _currentUser = null;
+
 // ========================
 // PALABRAS SECRETAS
 // ========================
 const words = [
-"ABACO","ABAJO","ABRIR","ACERO","ACIDO","ACTOR","AGUJA","ALBUM","ALDEA","ALETA",
-"ALGAS","ALGUN","ALMAS","ALTAR","AMADO","AMIGA","AMIGO","ANDAR","ANGEL","ANIMO",
-"ANTES","APODO","ARANA","ARBOL","ARCOS","ARDOR","ARENA","ARMAS","AROMA","ARROZ",
-"ASADO","ASILO","ATADO","AVENA","AVION","AVISO","AYUDA","AZOTE","BAILE","BAJAR",
-"BANCO","BANDA","BARCO","BARRA","BEBER","BELLA","BELLO","BESAR","BOLSA","BOMBA",
-"BORDE","BORRA","BRISA","BROMA","BUENA","BUENO","BURRO","BUSCA","CABLE","CABRA",
-"CACAO","CAIDA","CAJON","CALLE","CALMA","CALOR","CAMPO","CANAL","CANON","CANTO",
-"CAPAZ","CARGA","CARNE","CARRO","CARTA","CASAS","CASCO","CAUSA","CELDA","CERCA",
-"CERDO","CHICA","CHICO","CICLO","CIELO","CINCO","CINTA","CIRCO","CLARA","CLARO",
-"CLASE","CLAVE","CLIMA","COBRA","COCHE","COLON","COLOR","COMER","COMUN","CONDE",
-"COPAS","CORAL","CORRE","CORTA","CORTE","CORTO","COSAS","COSTA","CREAR","CREMA",
-"CRUEL","CUERO","CUEVA","CULPA","CURSO","DADOS","DANZA","DATOS","DEBER","DEBIL",
-"DECIR","DEDOS","DEJAR","DEUDA","DIETA","DIGNO","DISCO","DOBLE","DOLOR","DROGA",
-"DUCHA","DUETO","DULCE","EBANO","ELITE","ENTRE","ENVIO","EPOCA","ERROR","ESPIA",
-"EXITO","EXTRA","FACIL","FALLA","FALSO","FALTA","FAUNA","FAVOR","FECHA","FELIZ",
-"FERIA","FINAL","FIRMA","FIRME","FLACO","FLORA","FLUJO","FONDO","FORMA","FOTOS",
-"FRASE","FRUTA","FUEGO","FUERA","FUMAR","FURIA","GAFAS","GALLO","GANAR","GATOS",
-"GENIO","GENTE","GESTO","GLOBO","GOLPE","GORDO","GRADO","GRANO","GRASA","GRAVE",
-"GRUPO","GUAPA","GUAPO","GUIAR","GUION","GUSTO","HABER","HABLA","HACER","HACIA",
-"HARTO","HASTA","HECHA","HECHO","HEROE","HIELO","HOGAR","HONOR","HORAS","HOTEL",
-"HUESO","HUEVO","HUMOR","IDEAL","IDEAS","IGUAL","IMPAR","INDIA","JAMAS","JAPON",
-"JAULA","JUEGO","JUGAR","JUNIO","JUNTA","JUNTO","JURAR","JUSTO","KILOS","LABIO",
-"LADOS","LANZA","LAPIZ","LARGA","LARGO","LAVAR","LECHE","LEGAL","LEJOS","LENTO",
-"LETRA","LEYES","LIBRE","LIBRO","LIDER","LINDA","LINDO","LINEA","LISTA","LISTO",
-"LLAMA","LLANO","LLAVE","LLENA","LLENO","LOCAL","LUCHA","LUCIR","LUGAR","MADRE",
-"MAGIA","MALTA","MANDO","MANGO","MANOS","MANTA","MAPAS","MARCA","MARCO","MASAS",
-"MATAR","MAYOR","MEDIA","MEDIO","MEJOR","MENOR","MENOS","MENTE","METAL","METRO",
-"MIEDO","MILES","MIRAR","MISMA","MISMO","MITAD","MONJE","MONTA","MONTE","MORAL",
-"MORIR","MOVER","MOVIL","MUCHO","MUJER","MUNDO","MUSEO","NADAR","NADIE","NARIZ",
-"NEGRA","NEGRO","NIEVE","NIVEL","NOBLE","NOCHE","NORTE","NOTAS","NOVIA","NOVIO",
-"NUBES","NUEVA","NUEVO","NUNCA","OBRAS","OJALA","OLIVA","ORDEN","OREJA","OTRAS",
-"OTROS","PADRE","PAGAR","PAPEL","PARAR","PARED","PARIS","PARTE","PASAR","PASEO",
-"PASOS","PASTA","PATIO","PECHO","PEDIR","PELEA","PELOS","PERRA","PERRO","PIANO",
-"PIEZA","PINTA","PISTA","PIZZA","PLANO","PLATA","PLATO","PLAYA","PLAZA","PLUMA",
-"POBRE","PODER","POEMA","POLLO","POLVO","PONER","PRIMA","PRIMO","PRISA","PULSO",
-"PUNTA","PUNTO","QUESO","RADAR","RADIO","RANGO","RAYAR","RAYOS","RAZON","REGLA",
-"REINA","REINO","RELOJ","RENTA","RESTO","REYES","REZAR","RIFLE","RITMO","ROBAR",
-"ROBOT","ROCAS","ROLLO","ROMPE","RONDA","ROSAS","RUBIA","RUEDA","RUIDO","RUMOR",
-"RUSIA","SABER","SABIA","SABOR","SACAR","SALON","SALSA","SALUD","SANTA","SANTO",
-"SELVA","SENAL","SENOR","SERIE","SERIO","SIETE","SIGLO","SIGUE","SILLA","SITIO",
-"SOBRE","SOLAR","SUAVE","SUBIR","SUCIA","SUCIO","SUELO","SUPER","TABLA","TALLA",
-"TANGO","TANTA","TANTO","TARDE","TAREA","TECHO","TECLA","TELAR","TEMER","TEMOR",
-"TENER","TENIS","TIENE","TIGRE","TIRAR","TOCAR","TODAS","TODOS","TOMAR","TONTA",
-"TONTO","TORRE","TOTAL","TRAGO","TRAJE","TRATA","TRATO","TRONO","TROZO","TRUCO",
-"TUMBA","TUNEL","TURNO","UNICA","UNICO","UNION","USADO","USTED","VACAS","VACIA",
-"VACIO","VALLE","VALOR","VAMOS","VAPOR","VECES","VELAS","VENDE","VENGA","VENIR",
-"VENTA","VERDE","VIAJE","VIDAS","VIDEO","VIEJA","VIEJO","VIENE","VILLA","VIOLA",
-"VIRUS","VISTA","VIVEN","VIVIR","VIVOS","VOCES","VOLAR","VUELA","ZORRA"
+"sobre","entre","habia","hasta","desde","puede","todos","parte","tiene","donde",
+"mismo","ahora","otros","tanto","segun","menos","mundo","antes","forma","hacer",
+"estos","mayor","hacia","ellos","hecho","mucho","quien","estan","lugar","otras",
+"mejor","nuevo","decir","todas","luego","medio","estas","tenia","nunca","poder",
+"veces","grupo","misma","nueva","mujer","cosas","tener","punto","noche","haber",
+"fuera","usted","nadie","horas","tarde","estar","padre","gente","final","madre",
+"cinco","siglo","meses","maria","seria","junto","aquel","dicho","casos","manos",
+"nivel","podia","largo","falta","hemos","trata","algun","senor","claro","orden",
+"buena","libro","igual","ellas","total","tengo","unico","pesar","calle","vista",
+"campo","saber","obras","razon","ninos","estoy","quien","fondo","papel","demas",
+"ambos","salud","media","deben","datos","julio","visto","llego","bueno","joven",
+"hacia","sigue","cerca","valor","serie","hijos","juego","epoca","banco","menor",
+"pasar","queda","hacen","resto","causa","vamos","apoyo","civil","pedro","libre",
+"comun","dejar","salir","union","favor","clase","color","decia","quiza","unica",
+"pueda","lleva","ayuda","donde","autor","suelo","viejo","tomar","siete","lucha",
+"linea","pocos","norte","cargo","plaza","poner","viene","radio","puedo","amigo",
+"habra","santa","sabia","viaje","vivir","quedo","exito","carta","miedo","negro",
+"texto","mitad","fecha","seran","ideas","llega","lejos","facil","plazo","enero",
+"atras","chile","fuego","costa","local","habla","tales","sueno","paris","capaz",
+"podra","dolor","zonas","temas","junio","marco","mucha","dicen","busca","abril",
+"lopez","armas","debia","grado","carne","llama","jorge","corte","etapa","tipos",
+"deseo","marzo","jamas","curso","pablo","larga","lider","torno","somos","cielo",
+"ambas","perez","doble","crear","casas","lista","leyes","jesus","grave","tenga",
+"lunes","junta","estos","sitio","gusta","clara","moral","gusto","hotel","salio",
+"nueve","abajo","estas","venta","ramon","aires","aguas","dicha","golpe","pobre",
+"llevo","coche","leche","tarea","plata","dando","ganar","calor","suele","miles",
+"ritmo","pasos","pesos","plano","jugar","gesto","vasco","gomez","pocas","verde",
+"pidio","comer","fines","labor","justo","actos","museo","pagar","sabes","areas",
+"santo","vieja","mario","reina","salvo","quiso","acaba","marca","pleno","brazo",
+"acaso","error","seres","poeta","altos","hojas","darle","clave","votos","logro",
+"sirve","deuda","feliz","tanta","mente","breve","firma","jaime","canal","conde",
+"carga","reyes","abrir","cuyos","negra","morir","caida","banda","frase","bases",
+"culpa","entra","hayan","diego","actor","sacar","murio","estas","saben","corto",
+"david","salon","cifra","bolsa","fuese","serio","reino","plena","venia","aznar",
+"legal","abrio","china","dedos","creer","voces","angel","temor","penso","dudas",
+"lleno","vacio","ciclo","valle","llamo","pecho","honor","pedir","mirar","clima",
+"punta","posee","entro","pacto","penal","llena","angel","disco","ideal","artes",
+"villa","venir","miami","ruido","basta","tabla","avion","cuyas","hablo","humor",
+"darse","ganas","dosis","altas","pared","perro","anade","viven","debio","hogar",
+"pieza","firme","exige","polvo","luces","virus","nacio","animo","cesar","gasto",
+"pausa","esten","playa","horno","japon","anual","norma","tomas","dulce","mando",
+"chica","unido","acabo","solar","costo","tesis","toros","ocupa","patio","corta",
+"senal","paseo","arena","dejan","barco","signo","arbol","vemos","oscar","pista",
+"marta","modos","desea","pasan","vuelo","silla","chico","conto","feria","rueda",
+"verse","hecha","ponen","rojas","matar","motor","rumbo","trato","pense","creia",
+"borde","metro","creen","dueno","bajar","rusia","vidas","subir","droga","bajas",
+"jefes","vivia","reloj","elena","danza","notas","suave","fotos","masas","arroz",
+"islas","goles","fruto","torre","salas","vital","sabor","tasas","dieta","andar",
+"pilar","rival","traje","techo","diria","ricos","salsa","amiga","haria","vivos",
+"fidel","india","tocar","bajos","malos","oeste","rural","nariz","letra","logra",
+"opera","acido","banca","canto","debil","plato","monte","etica","salen","pujol",
+"danos","salto","moscu","bomba","surge","oreja","munoz","xviii","calma","baile",
+"queso","mueve","euros","coste","ronda","kilos","rigor","ponia","cerro","palma",
+"turno","grito","deber","ramas","lento","beber","actua","senti","salia","caido",
+"huevo","corre","juega","trato","vigor","redes","venga","hagan","bella","daban",
+"sufre","luisa","regla","poema","limon","dolar","crees","renta","prima","prisa",
+"cajas","novia","caras","verlo","nieve","lados","rubio","echar","quede","suiza",
+"socio","piano","otono","leido","prado","halla","jordi","grasa","menem","parar",
+"unida","irene","nubes","dices","lanzo","pesca","solos","selva","falso","aquel",
+"chino","adios","suyos","culto","guion","niega","envio","crema","situa","filas",
+"nunez","balon","muere","hijas","lucia","ramos","felix","laura","ninas","malas",
+"vivio","arias","pagos","caldo","serlo","quito","rayos","josep","ancho","aerea",
+"duque","genes","piden","sofia","trece","penas","viuda","mesas","fallo","barra",
+"primo","suena","grito","toman","preve","colon","crece","heroe","rocas","lenta",
+"llave","haces","ajeno","hielo","drama","rango","toque","solas","subio","juana",
+"solia","minas","lanza","rojos","fases","arabe","falsa","james","verla","metal",
+"reves","ortiz","silva","evita","ruben","listo","fraga","nacer","seria","indio",
+"pasta","parto","aviso","filme","pollo","duras","noble","bello","vidal","pelea",
+"rabia","cinta","muros","copia","cuota","tramo","barro","cadiz","haran","ponga",
+"carro","flujo","hueso","duros","tumba","diana","medir","presa","apoya","video",
+"volvi","movil","trama","tenis","vayan","llevo","creyo","sexto","bahia","vinos",
+"rosas","trajo","cobre","recta","oliva","patas","novio","justa","barba","acero",
+"genio","vapor","curva","trate","diera","viena","cable","ciego","abuso","cuero",
+"fruta","cerro","bravo","lucas","traer","bordo","negar","notar","vimos","oidos",
+"julia","ojala","quita","serra","finca","gordo","vasos","trigo","preso","pedia",
+"acusa","mando","opera","peter","sudor","peces","riego","sento","simon","hueco",
+"citar","monto","acuso","asilo","nieto","falla","magia","flota","broma","copas",
+"ajena","meter","vasca","votar","cubre","pisos","video","cerdo","capas","crudo",
+"press","logro","rodea","quise","miran","milan","mateo","metio","boton","censo",
+"daria","calvo","veian","golfo","males","maria","tiros","obvio","peron","mover",
+"duelo","fijar","busco","reune","damas","lecho","gotas","cruel","metas","vease",
+"rumor","casco","celda","fumar","vacia","litro","ondas","nobel","manda","aldea",
+"locos","gases","quede","salga","smith","usado","digno","marco","placa","costo",
+"aereo","cenar","traia","bruto","lleve","trago","papas","sabio","volar","rusos",
+"pluma","risas","crean","hablo","opina","debes","asume","grano","pulso","fatal",
+"gafas","vende","lagos","tirar","abria","firmo","naval","digna","amado","aguda",
+"varon","ropas","tunel","circo","natal","queja","fibra","sello","causo","vacas",
+"rompe","darme","coger","verme","falda","autos","ocupo","pardo","ceder","canta",
+"celos","cobra","corea","saint","varia","envio","rubia","furia","lidia","trozo",
+"coral","talla","viste","bonos","duran","pagan","hondo","judio","vivas","freud",
+"abren","rivas","ariel","dadas","gallo","sobra","salta","fauna","duele","grita",
+"joyas","barca","dados","suyas","tardo","cogio","sucia","altar","venus","henry",
+"flora","ponce","urnas","marin","roque","rutas","times","macho","rasgo","frank",
+"marti","lazos","saldo","acabo","vengo","aroma","plomo","cesar","tonto","botas",
+"globo","formo","sutil","viera","veras","anton","sonar","trono","digas","veras",
+"almas","agudo","duena","cruce","movia","orina","river","tenor","palos","pelos",
+"pares","gusto","marte","naves","pongo","viajo","buque","sumar","eleva","sales",
+"roman","lorca","ayudo","gorda","cesid","raton","harto","llamo","secas","jones",
+"secos","ninez","sirva","huida","jerez","cueva","sexta","suman","velez","damos",
+"senas","verso","hagas","hable","sucio","verle","dario","fijos","lavar","viaja",
+"citas","mitos","cajon","jamon","gatos","linda","vejez","dejen","quito","lapso",
+"paula","ancha","sonar","tonos","velas","emite","ciega","rioja","ratos","actuo",
+"faena","feroz","bruno","movio","acude","girar","sainz","daran","ficha","apoyo",
+"pinta","belga","cruzo","multa","camas","colmo","bares","cobro","acoso","tomas",
+"banos","plana","prosa","haiti","ruina","besos","susto","manta","diosa","anoto",
+"tropa","yendo","latin","cruza","frias","valia","libra","acera","digan","tinta",
+"mares","celta","miras","album","rocio","tazas","extra","opone","porta","arcos",
+"temia","gozar","aleja","frios","andan","ritos","telon","toreo","mapas","tokio",
+"bolso","honda","llora","quedo","veran","calla","salto","nomas","tigre","verte",
+"etico","venas","hilos","manga","fabio","paulo","yemas","envia","llano","traen",
+"elias","pinos","corto","manto","mutua","burla","mixta","optar","becas","saenz",
+"salvo","curar","fundo","soria","tacto","nacen","freno","sigan","tango","ratas",
+"brown","texas","molde","balas","himno","sodio","lleno","razas","ligas","mejia",
+"solto","bodas","andes","ricas","cauce","gijon","ayala","sexos","turco","alude",
+"aulas","pekin","falto","focos","puros","aguja","dudar","galan","guapa","otero",
+"brisa","leves","senos","lindo","finas","tribu","vicio","usaba","cerco","suizo",
+"boxeo","huele","renfe","liano","jaula","louis","nacho","celia","temen","verbo",
+"tibia","bando","mutuo","recto","anexo","cejas","rodar","cabia","tumor","flaco",
+"narra","curas","telas","vocal","botin","debut","temer","canon","durar","parra",
+"subia","ganan","cocer","mitin","funda","berta","raras","trapo","marea","sabra",
+"guapo","avila","helms","torpe","resta","davis","hable","opino","veria","asoma",
+"podre","quema","fugaz","guias","senda","comen","elige","vayas","betis","robar",
+"lunar","xunta","entre","peste","tonta","llame","lapiz","mafia","segui","salva",
+"situo","lucio","batir","cedio","beach","films","jabon","ruedo","tubos","ruego",
+"belen","pasto","bolas","grand","pugna","roger","amada","tomen","bacon","sordo",
+"amaba"
 ];
 
 // ========================
@@ -250,13 +340,17 @@ const validWordsSet = new Set(rawValidWords.map(w => normalizeNoAccents(w)));
 class WordleGame {
     constructor(words) {
         this.words = words.map(w => normalizeNoAccents(w)).filter(w => w.length === 5);
-        this.level = parseInt(localStorage.getItem('level')) || 1;
-        this.totalWins = parseInt(localStorage.getItem('totalWins')) || 0;
-        this.winAttempts = JSON.parse(localStorage.getItem('winAttempts')) || [0,0,0,0,0,0];
+        // Datos cargados desde Firestore por loadStats()
+        this.level = 1;
+        this.totalWins = 0;
+        this.winAttempts = [0, 0, 0, 0, 0, 0];
+        this.currentStreak = 0;
+        this.maxStreak = 0;
+        this.lastPlayedDate = null;
 
-        this.currentWord = this.randomWord();
-        this.currentRow = 0;
-        this.currentCol = 0;
+        // Cargar estado del juego o inicializar nuevo
+        this.loadGameState();
+        
         this.board = [];
         this.keyMap = {};
         this.gameOver = false;
@@ -272,6 +366,7 @@ class WordleGame {
         this.bindButtons();
         this.updateStatsDisplay();
         this.updateLevelDisplay();
+        this.restoreBoardState();
 
         // Animación shake
         const style = document.createElement('style');
@@ -292,6 +387,120 @@ class WordleGame {
         return this.words[Math.floor(Math.random() * this.words.length)];
     }
 
+    // Generar una palabra basada en la fecha actual (misma palabra para todo el día)
+    getDailyWord() {
+        const today = new Date();
+        const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+        const index = seed % this.words.length;
+        return this.words[index];
+    }
+
+    // Guardar estado del juego en localStorage
+    saveGameState() {
+        const gameState = {
+            currentWord: this.currentWord,
+            currentRow: this.currentRow,
+            currentCol: this.currentCol,
+            gameOver: this.gameOver,
+            boardState: this.getBoardState(),
+            keyboardState: this.getKeyboardState(),
+            date: new Date().toDateString()
+        };
+        localStorage.setItem('wordleGameState', JSON.stringify(gameState));
+    }
+
+    // Cargar estado del juego desde localStorage
+    loadGameState() {
+        const saved = localStorage.getItem('wordleGameState');
+        const today = new Date().toDateString();
+        
+        if (saved) {
+            try {
+                const gameState = JSON.parse(saved);
+                // Si es del mismo día, restaurar el estado
+                if (gameState.date === today) {
+                    this.currentWord = gameState.currentWord;
+                    this.currentRow = gameState.currentRow || 0;
+                    this.currentCol = gameState.currentCol || 0;
+                    this.gameOver = gameState.gameOver || false;
+                    this.savedBoardState = gameState.boardState;
+                    this.savedKeyboardState = gameState.keyboardState;
+                    return;
+                }
+            } catch (e) {
+                console.warn('Error loading game state:', e);
+            }
+        }
+        
+        // Si no hay estado guardado o es de otro día, generar nueva palabra
+        this.currentWord = this.getDailyWord();
+        this.currentRow = 0;
+        this.currentCol = 0;
+        this.gameOver = false;
+        this.savedBoardState = null;
+        this.savedKeyboardState = null;
+    }
+
+    // Obtener estado actual del tablero
+    getBoardState() {
+        const boardState = [];
+        for (let r = 0; r < 6; r++) {
+            const rowState = [];
+            for (let c = 0; c < 5; c++) {
+                if (this.board[r] && this.board[r][c]) {
+                    rowState.push({
+                        text: this.board[r][c].textContent,
+                        classes: Array.from(this.board[r][c].classList)
+                    });
+                } else {
+                    rowState.push({ text: '', classes: [] });
+                }
+            }
+            boardState.push(rowState);
+        }
+        return boardState;
+    }
+
+    // Obtener estado actual del teclado
+    getKeyboardState() {
+        const keyboardState = {};
+        Object.entries(this.keyMap).forEach(([key, btn]) => {
+            keyboardState[key] = Array.from(btn.classList);
+        });
+        return keyboardState;
+    }
+
+    // Restaurar estado del tablero
+    restoreBoardState() {
+        if (this.savedBoardState) {
+            for (let r = 0; r < 6; r++) {
+                for (let c = 0; c < 5; c++) {
+                    if (this.savedBoardState[r] && this.savedBoardState[r][c]) {
+                        const tile = this.board[r][c];
+                        const state = this.savedBoardState[r][c];
+                        tile.textContent = state.text;
+                        tile.className = 'tile';
+                        state.classes.forEach(cls => tile.classList.add(cls));
+                    }
+                }
+            }
+        }
+        
+        if (this.savedKeyboardState) {
+            Object.entries(this.savedKeyboardState).forEach(([key, classes]) => {
+                const btn = this.keyMap[key];
+                if (btn) {
+                    btn.className = 'key';
+                    classes.forEach(cls => {
+                        if (cls !== 'key') btn.classList.add(cls);
+                    });
+                }
+            });
+        }
+        
+        this.updateCurrentRowClass();
+    }
+
     showMessage(msg, duration = 2000) {
         this.messageDiv.textContent = msg;
         if (duration > 0) {
@@ -307,11 +516,18 @@ class WordleGame {
             for (let c = 0; c < 5; c++) {
                 const tile = document.createElement('div');
                 tile.classList.add('tile');
+                tile.dataset.row = r;
+                tile.dataset.col = c;
+                
+                // Add click event listener to allow starting from this position
+                tile.addEventListener('click', () => this.handleTileClick(r, c));
+                
                 this.boardDiv.appendChild(tile);
                 row.push(tile);
             }
             this.board.push(row);
         }
+        this.updateCurrentRowClass();
     }
 
     initKeyboard() {
@@ -350,6 +566,8 @@ class WordleGame {
                 return;
             }
             if (raw === 'Enter') {
+                // Prevenir comportamiento por defecto (crear párrafos)
+                e.preventDefault();
                 this.handleKey('ENTER');
                 return;
             }
@@ -392,15 +610,45 @@ class WordleGame {
         return validWordsSet.has(norm);
     }
 
+    updateCurrentRowClass() {
+        // Remove current-row class from all tiles
+        this.board.forEach(row => {
+            row.forEach(tile => {
+                tile.classList.remove('current-row');
+            });
+        });
+        
+        // Add current-row class to tiles in the current row
+        if (this.currentRow < 6) {
+            this.board[this.currentRow].forEach(tile => {
+                tile.classList.add('current-row');
+            });
+        }
+    }
+
+    handleTileClick(row, col) {
+        if (this.gameOver) return;
+        
+        // Only allow clicking on the current row
+        if (row !== this.currentRow) return;
+        
+        // Just move the cursor to the clicked position in the current row
+        this.currentCol = col;
+    }
+
     handleKey(key) {
         if (this.gameOver) return;
-        if (key === "ENTER") { this.checkWord(); return; }
+        if (key === "ENTER") { 
+            this.checkWord(); 
+            return; 
+        }
         if (key === "DEL") { this.deleteLetter(); return; }
         if (this.currentCol < 5) {
             const tile = this.board[this.currentRow][this.currentCol];
             tile.textContent = key;
             tile.classList.add('filled');
             this.currentCol++;
+            this.saveGameState(); // Guardar estado después de escribir
         }
     }
 
@@ -410,6 +658,7 @@ class WordleGame {
             const tile = this.board[this.currentRow][this.currentCol];
             tile.textContent = '';
             tile.classList.remove('filled');
+            this.saveGameState(); // Guardar estado después de borrar
         }
     }
 
@@ -493,20 +742,61 @@ class WordleGame {
             if (guessNorm === wordNorm) {
                 this.totalWins++;
                 this.winAttempts[this.currentRow]++;
+                this.updateStreak(true);
                 this.showMessage('¡Correcto! 🎉', 0);
                 this.gameOver = true;
+                this.saveStats(); // guardar victorias antes de pasar de nivel
+                this.saveGameState(); // Guardar estado cuando se gana
                 setTimeout(() => this.nextLevel(), 2000);
             } else {
                 this.currentRow++;
                 this.currentCol = 0;
+                this.updateCurrentRowClass(); // Update current row highlighting
+                this.saveGameState(); // Guardar estado después de avanzar de fila
                 if (this.currentRow >= 6) {
+                    this.updateStreak(false);
                     this.showMessage(`La palabra era: ${this.currentWord}`, 0);
                     this.gameOver = true;
+                    this.saveStats();
+                    this.saveGameState(); // Guardar estado final del juego
                     setTimeout(() => this.nextLevel(), 2500);
                 }
             }
-            this.saveStats();
         }, 5 * 250 + 400);
+    }
+
+    updateStreak(won) {
+        const today = new Date().toDateString();
+        const lastDate = this.lastPlayedDate ? new Date(this.lastPlayedDate).toDateString() : null;
+        
+        // Si es el primer día jugado o un día diferente
+        if (!lastDate || lastDate !== today) {
+            // Si es un día consecutivo (ayer)
+            if (lastDate && this.isConsecutiveDay(lastDate, today)) {
+                if (won) {
+                    this.currentStreak++;
+                } else {
+                    this.currentStreak = 0;
+                }
+            } else {
+                // No es consecutivo, reiniciar racha
+                this.currentStreak = won ? 1 : 0;
+            }
+            this.lastPlayedDate = new Date().toISOString();
+        }
+        
+        // Actualizar racha máxima
+        if (this.currentStreak > this.maxStreak) {
+            this.maxStreak = this.currentStreak;
+        }
+    }
+
+    isConsecutiveDay(lastDateStr, todayStr) {
+        const lastDate = new Date(lastDateStr);
+        const today = new Date(todayStr);
+        const diffTime = today - lastDate;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays === 1;
     }
 
     nextLevel() {
@@ -518,27 +808,77 @@ class WordleGame {
             tile.textContent = '';
             tile.className = 'tile';
         }));
+        this.updateCurrentRowClass(); // Update current row highlighting after reset
         Object.values(this.keyMap).forEach(btn => {
             btn.classList.remove('correct', 'present', 'absent');
         });
-        this.currentWord = this.randomWord();
+        this.currentWord = this.getDailyWord(); // Generar nueva palabra diaria
         this.level++;
         this.updateLevelDisplay();
+        this.saveStats(); // guardar con el nivel ya incrementado
+        this.saveGameState(); // Guardar nuevo estado con nueva palabra
     }
 
     saveStats() {
-        localStorage.setItem('level', this.level);
-        localStorage.setItem('totalWins', this.totalWins);
-        localStorage.setItem('winAttempts', JSON.stringify(this.winAttempts));
         this.updateStatsDisplay();
+        if (!_currentUser) return;
+        const name = getPlayerName();
+        setDoc(doc(db, 'saves_wordle', _currentUser.uid), {
+            name,
+            level:         this.level,
+            totalWins:     this.totalWins,
+            winAttempts:   this.winAttempts,
+            currentStreak: this.currentStreak,
+            maxStreak:     this.maxStreak,
+            lastPlayedDate: this.lastPlayedDate,
+            updatedAt:     serverTimestamp()
+        }).catch(e => console.warn('[wordle save]', e));
+        setDoc(doc(db, 'leaderboard_wordle', _currentUser.uid), {
+            name,
+            score:     this.level,
+            updatedAt: serverTimestamp()
+        }).catch(e => console.warn('[wordle lb]', e));
+    }
+
+    async loadStats() {
+        if (!_currentUser) return;
+        try {
+            const snap = await getDoc(doc(db, 'saves_wordle', _currentUser.uid));
+            if (!snap.exists()) return;
+            const d = snap.data();
+            this.level           = d.level           ?? 1;
+            this.totalWins       = d.totalWins       ?? 0;
+            this.winAttempts     = d.winAttempts     ?? [0,0,0,0,0,0];
+            this.currentStreak   = d.currentStreak   ?? 0;
+            this.maxStreak       = d.maxStreak       ?? 0;
+            this.lastPlayedDate  = d.lastPlayedDate  ?? null;
+            this.updateLevelDisplay();
+            this.updateStatsDisplay();
+        } catch (e) {
+            console.warn('[wordle load]', e);
+        }
     }
 
     updateStatsDisplay() {
         const totalEl = document.getElementById('totalWins');
         if (totalEl) totalEl.textContent = this.totalWins;
+        
+        const currentStreakEl = document.getElementById('currentStreak');
+        if (currentStreakEl) currentStreakEl.textContent = this.currentStreak;
+        
+        const maxStreakEl = document.getElementById('maxStreak');
+        if (maxStreakEl) maxStreakEl.textContent = this.maxStreak;
+        
+        // Actualizar barras de distribución
+        const maxWins = Math.max(...this.winAttempts, 1);
         for (let i = 0; i < 6; i++) {
-            const el = document.getElementById('win' + (i + 1));
-            if (el) el.textContent = this.winAttempts[i];
+            const countEl = document.getElementById('win' + (i + 1));
+            const barEl = document.getElementById('bar' + (i + 1));
+            if (countEl) countEl.textContent = this.winAttempts[i];
+            if (barEl) {
+                const percentage = (this.winAttempts[i] / maxWins) * 100;
+                barEl.style.width = percentage + '%';
+            }
         }
     }
 
@@ -550,4 +890,16 @@ class WordleGame {
 // ========================
 // INICIALIZAR JUEGO
 // ========================
-const game = new WordleGame(words);
+async function init() {
+    // Esperar a que Firebase Auth confirme quién es el usuario
+    _currentUser = await waitForUser();
+
+    if (!_currentUser) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    const game = new WordleGame(words);
+    await game.loadStats();
+}
+init();

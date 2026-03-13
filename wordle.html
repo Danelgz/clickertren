@@ -8,16 +8,8 @@
 </head>
 
 <body>
-
-    <video 
-        id="bg-video"
-        autoplay
-        loop
-        muted
-        playsinline
-        poster="video/poster.jpg"
-        aria-hidden="true"
-    >
+    <!-- Video de fondo para PC -->
+    <video id="bgVideo" autoplay muted loop>
         <source src="video/fondo.mp4" type="video/mp4">
     </video>
 
@@ -38,6 +30,7 @@
             <button id="showStatsBtn" type="button">📊 Estadísticas</button>
             <a href="ranking.html" class="ranking-link">🏆 Rankings</a>
             <a href="index.html" id="backBtn">Volver a inicio</a>
+            <button id="musicToggleBtn" title="Música">🔊</button>
         </section>
 
     </main>
@@ -49,18 +42,83 @@
         aria-hidden="true"
         style="display:none"
     >
-        <h3>Estadísticas</h3>
-        <p>Total aciertos: <span id="totalWins">0</span></p>
-        <p>1 intento: <span id="win1">0</span></p>
-        <p>2 intentos: <span id="win2">0</span></p>
-        <p>3 intentos: <span id="win3">0</span></p>
-        <p>4 intentos: <span id="win4">0</span></p>
-        <p>5 intentos: <span id="win5">0</span></p>
-        <p>6 intentos: <span id="win6">0</span></p>
-        <button id="closeStatsBtn" type="button">Cerrar</button>
+        <div class="stats-header">
+            <h3>📊 ESTADÍSTICAS</h3>
+            <button id="closeStatsBtn" type="button" class="close-btn">✕</button>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number" id="totalWins">0</div>
+                <div class="stat-label">Victorias</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-number" id="currentStreak">0</div>
+                <div class="stat-label">Racha Actual</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-number" id="maxStreak">0</div>
+                <div class="stat-label">Racha Máxima</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-number" id="levelDisplay">1</div>
+                <div class="stat-label">Nivel</div>
+            </div>
+        </div>
+        
+        <div class="distribution-section">
+            <h4>Distribución de Intentos</h4>
+            <div class="distribution-grid">
+                <div class="dist-row">
+                    <span class="dist-label">1</span>
+                    <div class="dist-bar-container">
+                        <div class="dist-bar" id="bar1" style="width: 0%"></div>
+                    </div>
+                    <span class="dist-count" id="win1">0</span>
+                </div>
+                <div class="dist-row">
+                    <span class="dist-label">2</span>
+                    <div class="dist-bar-container">
+                        <div class="dist-bar" id="bar2" style="width: 0%"></div>
+                    </div>
+                    <span class="dist-count" id="win2">0</span>
+                </div>
+                <div class="dist-row">
+                    <span class="dist-label">3</span>
+                    <div class="dist-bar-container">
+                        <div class="dist-bar" id="bar3" style="width: 0%"></div>
+                    </div>
+                    <span class="dist-count" id="win3">0</span>
+                </div>
+                <div class="dist-row">
+                    <span class="dist-label">4</span>
+                    <div class="dist-bar-container">
+                        <div class="dist-bar" id="bar4" style="width: 0%"></div>
+                    </div>
+                    <span class="dist-count" id="win4">0</span>
+                </div>
+                <div class="dist-row">
+                    <span class="dist-label">5</span>
+                    <div class="dist-bar-container">
+                        <div class="dist-bar" id="bar5" style="width: 0%"></div>
+                    </div>
+                    <span class="dist-count" id="win5">0</span>
+                </div>
+                <div class="dist-row">
+                    <span class="dist-label">6</span>
+                    <div class="dist-bar-container">
+                        <div class="dist-bar" id="bar6" style="width: 0%"></div>
+                    </div>
+                    <span class="dist-count" id="win6">0</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- SIN type="module" para que funcione como script normal -->
-    <script src="wordle.js"></script>
+    <script type="module" src="wordle.js"></script>
+    <script src="music-control.js"></script>
 </body>
 </html>

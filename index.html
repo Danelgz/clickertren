@@ -8,502 +8,941 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* ── LOGIN OVERLAY ── */
-        #loginOverlay {
+        /* Video de fondo para PC */
+        #bgVideo {
             position: fixed;
-            inset: 0;
-            z-index: 200;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.82);
-            backdrop-filter: blur(6px);
-            animation: fadeIn 0.5s ease;
-        }
-
-        #loginBox {
-            background: rgba(10, 10, 10, 0.92);
-            border: 1px solid rgba(255, 217, 61, 0.35);
-            border-radius: 24px;
-            padding: 48px 44px 40px;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow:
-                0 0 60px rgba(255, 217, 61, 0.12),
-                0 0 120px rgba(255, 217, 61, 0.05),
-                inset 0 1px 0 rgba(255,255,255,0.05);
-            animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(28px) scale(0.97); }
-            to   { opacity: 1; transform: translateY(0)    scale(1); }
-        }
-
-        #loginBox .login-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            display: block;
-            filter: drop-shadow(0 0 12px rgba(255, 217, 61, 0.6));
-            animation: pulse 2.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 12px rgba(255,217,61,0.6)); }
-            50%       { transform: scale(1.08); filter: drop-shadow(0 0 22px rgba(255,217,61,0.9)); }
-        }
-
-        #loginBox h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: #FFD93D;
-            letter-spacing: 4px;
-            text-shadow: 0 0 20px rgba(255,217,61,0.5);
-            margin-bottom: 6px;
-        }
-
-        #loginBox p.login-sub {
-            font-family: 'Rajdhani', sans-serif;
-            color: #8a7d5a;
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 36px;
-        }
-
-        /* ── INPUT NOMBRE ── */
-        #loginBox .input-wrap {
-            position: relative;
-            margin-bottom: 14px;
-        }
-
-        #playerNameInput {
-            width: 100%;
-            padding: 14px 18px;
-            background: rgba(255,217,61,0.06);
-            border: 1px solid rgba(255,217,61,0.25);
-            border-radius: 12px;
-            color: #f0e6c8;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            outline: none;
-            transition: border-color 0.25s, box-shadow 0.25s;
-        }
-
-        #playerNameInput::placeholder { color: #5a5040; }
-
-        #playerNameInput:focus {
-            border-color: rgba(255,217,61,0.6);
-            box-shadow: 0 0 0 3px rgba(255,217,61,0.1);
-        }
-
-        /* ── BOTÓN ENTRAR ── */
-        #enterBtn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(90deg, #FFD93D, #FFC700);
-            border: none;
-            border-radius: 12px;
-            color: #000;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 700;
-            letter-spacing: 3px;
-            cursor: pointer;
-            box-shadow: 0 0 28px rgba(255,217,61,0.4);
-            transition: all 0.22s ease;
-            margin-bottom: 20px;
-            margin-top: 6px;
-        }
-
-        #enterBtn:hover {
-            transform: scale(1.03);
-            box-shadow: 0 0 42px rgba(255,217,61,0.6);
-        }
-
-        #enterBtn:active { transform: scale(0.98); }
-
-        /* ── SEPARADOR ── */
-        .login-divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .login-divider span {
-            flex: 1;
-            height: 1px;
-            background: rgba(255,217,61,0.18);
-        }
-
-        .login-divider p {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.75rem;
-            color: #5a5040;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            white-space: nowrap;
-        }
-
-        /* ── BOTÓN GOOGLE ── */
-        #googleBtn {
-            width: 100%;
-            padding: 14px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 12px;
-            color: #f0e6c8;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            transition: all 0.22s ease;
-        }
-
-        #googleBtn:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.3);
-            transform: scale(1.02);
-        }
-
-        #googleBtn svg {
-            width: 20px;
-            height: 20px;
-            flex-shrink: 0;
-        }
-
-        #loginError {
-            margin-top: 14px;
-            color: #FF6B6B;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.85rem;
-            min-height: 1.2em;
-            letter-spacing: 0.5px;
-        }
-
-        /* ── MAIN CONTENT (oculto hasta login) ── */
-        #mainContent {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            gap: 28px;
-            text-align: center;
-            animation: fadeIn 0.6s ease;
-        }
-
-        #mainContent.visible { display: flex; }
-
-        /* ── BARRA USUARIO ── */
-        #userBar {
-            position: fixed;
-            top: 18px;
-            right: 22px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(0,0,0,0.75);
-            border: 1px solid rgba(255,217,61,0.3);
-            border-radius: 50px;
-            padding: 8px 16px 8px 10px;
-            z-index: 100;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 0 20px rgba(255,217,61,0.1);
-        }
-
-        #userAvatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: 2px solid #FFD93D;
+            height: 100%;
             object-fit: cover;
+            z-index: -3;
+            display: none;
         }
 
-        #userAvatarInitial {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: 2px solid #FFD93D;
-            background: linear-gradient(135deg, #FFD93D, #FFC700);
-            color: #000;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            font-size: 0.85rem;
+        /* Fondo para móvil */
+        @media (max-width: 768px) {
+            body {
+                background: #000 !important;
+            }
+            
+            body::before,
+            body::after {
+                display: none !important;
+            }
+            
+            #loginOverlay {
+                background: #000 !important;
+                backdrop-filter: none !important;
+            }
+        }
+
+        /* Mostrar video en PC */
+        @media (min-width: 769px) {
+            #bgVideo {
+                display: block;
+            }
+        }
+
+        #loginOverlay {
+            position:fixed; inset:0; z-index:200;
+            display:flex; align-items:center; justify-content:center;
+            background:rgba(0,0,0,0.85); backdrop-filter:blur(6px);
+        }
+        #loginBox {
+            background:rgba(10,10,10,0.95);
+            border:1px solid rgba(255,217,61,0.35);
+            border-radius:24px; padding:48px 44px 40px;
+            width:100%; max-width:400px; text-align:center;
+            box-shadow:0 0 60px rgba(255,217,61,0.12);
+            animation:slideUp 0.45s cubic-bezier(0.22,1,0.36,1);
+        }
+        @keyframes slideUp {
+            from{opacity:0;transform:translateY(28px) scale(0.97)}
+            to  {opacity:1;transform:translateY(0) scale(1)}
+        }
+        .login-icon{font-size:3rem;display:block;margin-bottom:10px}
+        #loginBox h2{font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:900;color:#FFD93D;letter-spacing:4px;margin-bottom:6px}
+        .login-sub{font-family:'Rajdhani',sans-serif;color:#8a7d5a;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px}
+        .auth-tabs{display:flex;gap:10px;margin-bottom:18px}
+        .auth-tab{
+            flex:1;padding:12px 10px;border-radius:12px;
+            border:1px solid rgba(255,217,61,0.25);
+            background:rgba(255,217,61,0.06);
+            color:#f0e6c8;font-family:'Orbitron',sans-serif;
+            font-size:0.75rem;font-weight:700;letter-spacing:2px;
+            cursor:pointer;transition:all .2s;
+        }
+        .auth-tab.active{background:linear-gradient(90deg,#FFD93D,#FFC700);color:#000;box-shadow:0 0 28px rgba(255,217,61,0.35)}
+        .auth-panel{display:none}
+        .auth-panel.active{display:block}
+        .auth-input{
+            width:100%;padding:14px 18px;
+            background:rgba(255,217,61,0.06);border:1px solid rgba(255,217,61,0.25);
+            border-radius:12px;color:#f0e6c8;font-family:'Rajdhani',sans-serif;
+            font-size:1rem;font-weight:600;outline:none;
+            transition:border-color .25s;margin-bottom:12px;box-sizing:border-box;
+        }
+        .auth-input::placeholder{color:#5a5040}
+        .auth-input:focus{border-color:rgba(255,217,61,0.6)}
+        .primary-btn{
+            width:100%;padding:15px;
+            background:linear-gradient(90deg,#FFD93D,#FFC700);
+            border:none;border-radius:12px;color:#000;
+            font-family:'Orbitron',sans-serif;font-size:0.85rem;font-weight:700;
+            letter-spacing:3px;cursor:pointer;box-shadow:0 0 28px rgba(255,217,61,0.4);
+            transition:all .22s;margin-bottom:14px;
+        }
+        .primary-btn:hover{transform:scale(1.03)}
+        .secondary-btn{
+            width:100%;padding:14px;background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#f0e6c8;
+            font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:600;
+            cursor:pointer;transition:all .22s;
+        }
+        .secondary-btn:hover{background:rgba(255,255,255,0.1);transform:scale(1.02)}
+        .login-divider{display:flex;align-items:center;gap:12px;margin:18px 0}
+        .login-divider span{flex:1;height:1px;background:rgba(255,217,61,0.18)}
+        .login-divider p{font-family:'Rajdhani',sans-serif;font-size:.75rem;color:#5a5040;letter-spacing:2px;text-transform:uppercase}
+        #googleBtn{
+            width:100%;padding:14px;background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.15);border-radius:12px;color:#f0e6c8;
+            font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:600;
+            cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all .22s;
+        }
+        #googleBtn:hover{background:rgba(255,255,255,0.1);transform:scale(1.02)}
+        #googleBtn svg{width:20px;height:20px;flex-shrink:0}
+        #loginError{margin-top:14px;color:#FF6B6B;font-family:'Rajdhani',sans-serif;font-size:.85rem;min-height:1.2em}
+        #userBar{
+            position:fixed;top:18px;right:22px;display:none;align-items:center;gap:12px;
+            background:rgba(0,0,0,0.75);border:1px solid rgba(255,217,61,0.3);
+            border-radius:50px;padding:8px 16px 8px 10px;z-index:100;
+        }
+        #userAvatarInitial{
+            width:34px;height:34px;border-radius:50%;border:2px solid #FFD93D;
+            background:linear-gradient(135deg,#FFD93D,#FFC700);color:#000;
+            font-family:'Orbitron',sans-serif;font-weight:900;font-size:.85rem;
+            display:flex;align-items:center;justify-content:center;
+        }
+        #userAvatar{width:34px;height:34px;border-radius:50%;border:2px solid #FFD93D;object-fit:cover;display:none}
+        #userName{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;color:#FFD93D;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        #logoutBtn{background:none;border:none;color:#5a5040;font-size:1.1rem;cursor:pointer;padding:2px 4px;box-shadow:none;transition:color .2s}
+        #logoutBtn:hover{color:#FF6B6B;transform:none}
+        #musicToggleBtn{background:none;border:none;color:#5a5040;font-size:1.1rem;cursor:pointer;padding:2px 4px;box-shadow:none;transition:color .2s}
+        #musicToggleBtn:hover{color:#FFD93D;transform:none}
+        #musicToggleBtn.muted{color:#FF6B6B}
+        #musicToggleBtn.muted:hover{color:#FF6B6B}
+        #settingsBtn{background:none;border:none;color:#5a5040;font-size:1.1rem;cursor:pointer;padding:2px 4px;box-shadow:none;transition:color .2s}
+        #settingsBtn:hover{color:#FFD93D;transform:none}
+        #mainContent{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:28px;text-align:center}
+        #mainContent.visible{display:flex;animation:fadeIn .5s ease}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        #mainContent h1{font-family:'Orbitron',sans-serif;font-size:clamp(2rem,6vw,4rem);color:#FFD93D;text-shadow:0 0 20px #FFD93D;letter-spacing:4px}
+        .nav-btn{
+            padding:15px 40px;font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;
+            letter-spacing:3px;background:linear-gradient(90deg,#FFD93D,#FFC700);
+            color:#000;border-radius:14px;text-decoration:none;
+            box-shadow:0 0 20px rgba(255,217,61,0.5);transition:all .3s ease;display:block;width:280px;text-align:center;
+        }
+        .nav-btn:hover{transform:scale(1.05) translateY(-2px)}
+        
+        /* PANEL DE AJUSTES */
+        #settingsPanel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.98), rgba(20,20,20,0.98));
+            z-index: 1000;
+            overflow-y: auto;
+            backdrop-filter: blur(15px);
+        }
+        
+        .settings-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            padding: 30px 40px;
+            border-bottom: 2px solid rgba(255,217,61,0.3);
+            background: rgba(255,217,61,0.05);
         }
-
-        #userName {
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: 700;
-            font-size: 0.95rem;
+        
+        .settings-header h2 {
+            margin: 0;
             color: #FFD93D;
-            letter-spacing: 1px;
-            max-width: 140px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 0 4px 20px rgba(255,217,61,0.4);
         }
-
-        #logoutBtn {
+        
+        .close-btn {
             background: none;
             border: none;
-            color: #5a5040;
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 2px 4px;
-            line-height: 1;
-            transition: color 0.2s;
-            box-shadow: none;
-        }
-
-        #logoutBtn:hover { color: #FF6B6B; transform: none; }
-
-        /* ── TÍTULO ── */
-        #mainContent h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(2rem, 6vw, 4rem);
             color: #FFD93D;
-            text-shadow: 0 0 20px #FFD93D, 0 0 50px rgba(255,217,61,0.3);
-            letter-spacing: 4px;
-            animation: glow 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 0 0 15px #FFD93D, 0 0 35px rgba(255,217,61,0.2); }
-            to   { text-shadow: 0 0 30px #FFD93D, 0 0 70px rgba(255,217,61,0.5); }
-        }
-
-        /* ── BOTONES NAV ── */
-        .nav-btn {
-            padding: 15px 40px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: 3px;
-            background: linear-gradient(90deg, #FFD93D, #FFC700);
-            color: #000;
-            border-radius: 14px;
-            font-weight: bold;
-            text-decoration: none;
-            box-shadow: 0 0 20px rgba(255,217,61,0.5);
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255,217,61,0.2);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255,217,61,0.3);
+        }
+        
+        .settings-content {
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .setting-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255,217,61,0.05);
+            border: 2px solid rgba(255,217,61,0.2);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .setting-section:hover {
+            background: rgba(255,217,61,0.08);
+            border-color: rgba(255,217,61,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,217,61,0.1);
+        }
+        
+        .setting-section h3 {
+            margin: 0 0 20px 0;
+            color: #FFD93D;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .setting-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .setting-row input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 18px;
+            background: rgba(255,217,61,0.06);
+            border: 2px solid rgba(255,217,61,0.25);
+            border-radius: 12px;
+            color: #f0e6c8;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.25s;
+            box-sizing: border-box;
+        }
+        
+        .setting-row input[type="text"]:focus {
+            border-color: #FFD93D;
+            background: rgba(255,217,61,0.1);
+            box-shadow: 0 0 15px rgba(255,217,61,0.2);
+        }
+        
+        .setting-row button {
+            padding: 12px 24px;
+            background: linear-gradient(90deg, #FFD93D, #FFC700);
+            border: none;
+            border-radius: 12px;
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .setting-row button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255,217,61,0.4);
+        }
+        
+        .setting-message {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .setting-message.success {
+            background: rgba(82, 196, 26, 0.2);
+            border: 1px solid rgba(82, 196, 26, 0.3);
+            color: #52c41a;
             display: block;
-            width: 280px;
         }
-
-        .nav-btn:hover {
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 0 35px rgba(255,217,61,0.75);
+        
+        .setting-message.error {
+            background: rgba(255, 77, 79, 0.2);
+            border: 1px solid rgba(255, 77, 79, 0.3);
+            color: #ff4d4f;
+            display: block;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
+        
+        .music-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .music-option {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,217,61,0.2);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .music-option:hover {
+            background: rgba(255,217,61,0.1);
+            border-color: rgba(255,217,61,0.4);
+            transform: translateY(-2px);
+        }
+        
+        .music-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .music-option input[type="radio"]:checked + .music-label {
+            background: rgba(255,217,61,0.15);
+            border-color: #FFD93D;
+        }
+        
+        .music-option input[type="radio"]:checked + .music-label::before {
+            content: '✓';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #FFD93D;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .music-label {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+            position: relative;
+        }
+        
+        .music-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #FFD93D;
+            letter-spacing: 1px;
+        }
+        
+        .music-desc {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            color: #8a7d5a;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .settings-content {
+                padding: 20px;
+            }
+            
+            .setting-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .setting-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .setting-row input[type="text"] {
+                min-width: auto;
+            }
+            
+            .music-option {
+                padding: 15px;
+            }
+        }
+        
+        /* Responsive design para móvil */
+        @media (max-width: 768px) {
+            #loginBox {
+                margin: 20px;
+                padding: 30px 25px;
+                max-width: none;
+                width: calc(100% - 40px);
+            }
+            
+            .login-icon {
+                font-size: 2.5rem;
+                margin-bottom: 8px;
+            }
+            
+            #loginBox h2 {
+                font-size: 1.3rem;
+                letter-spacing: 2px;
+            }
+            
+            .login-sub {
+                font-size: 0.8rem;
+                margin-bottom: 18px;
+            }
+            
+            .auth-input {
+                padding: 12px 15px;
+                font-size: 0.95rem;
+            }
+            
+            .primary-btn, .secondary-btn, #googleBtn {
+                padding: 12px;
+                font-size: 0.8rem;
+            }
+            
+            #userBar {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px 6px 8px;
+                gap: 8px;
+            }
+            
+            #userAvatarInitial, #userAvatar {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+            
+            #userName {
+                font-size: 0.85rem;
+                max-width: 100px;
+            }
+            
+            #musicToggleBtn, #logoutBtn, #settingsBtn {
+                font-size: 0.95rem;
+                padding: 1px 3px;
+            }
+            
+            #mainContent {
+                padding: 20px 15px;
+                gap: 20px;
+            }
+            
+            #mainContent h1 {
+                font-size: clamp(1.8rem, 8vw, 3rem);
+                letter-spacing: 2px;
+            }
+            
+            .nav-btn {
+                width: 100%;
+                max-width: 280px;
+                padding: 12px 30px;
+                font-size: 0.9rem;
+                letter-spacing: 2px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #loginBox {
+                margin: 15px;
+                padding: 25px 20px;
+            }
+            
+            .login-icon {
+                font-size: 2rem;
+            }
+            
+            #loginBox h2 {
+                font-size: 1.2rem;
+            }
+            
+            .auth-tabs {
+                gap: 8px;
+                margin-bottom: 15px;
+            }
+            
+            .auth-tab {
+                padding: 10px 8px;
+                font-size: 0.7rem;
+                letter-spacing: 1px;
+            }
+            
+            .auth-input {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .primary-btn, .secondary-btn, #googleBtn {
+                padding: 10px;
+                font-size: 0.75rem;
+            }
+            
+            #userBar {
+                top: 10px;
+                right: 10px;
+                padding: 4px 8px 4px 6px;
+                gap: 6px;
+            }
+            
+            #userAvatarInitial, #userAvatar {
+                width: 24px;
+                height: 24px;
+                font-size: 0.7rem;
+            }
+            
+            #userName {
+                font-size: 0.8rem;
+                max-width: 80px;
+            }
+            
+            #mainContent {
+                padding: 15px 10px;
+                gap: 15px;
+            }
+            
+            #mainContent h1 {
+                font-size: clamp(1.5rem, 10vw, 2.5rem);
+            }
+            
+            .nav-btn {
+                padding: 10px 25px;
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Video de fondo -->
-    <video autoplay loop muted id="bg-video" playsinline>
+    <!-- Video de fondo para PC -->
+    <video id="bgVideo" autoplay muted loop>
         <source src="video/fondo.mp4" type="video/mp4">
     </video>
 
-    <!-- ══════════════════════════════
-         PANTALLA DE LOGIN
-    ══════════════════════════════ -->
     <div id="loginOverlay">
         <div id="loginBox">
             <span class="login-icon">🚂</span>
             <h2>TRENCLICKER</h2>
-            <p class="login-sub">Introduce tu nombre para jugar</p>
+            <p class="login-sub">Crea tu cuenta o inicia sesión para guardar tu progreso</p>
 
-            <div class="input-wrap">
-                <input
-                    type="text"
-                    id="playerNameInput"
-                    placeholder="Tu nombre de jugador"
-                    maxlength="20"
-                    autocomplete="off"
-                    spellcheck="false"
-                />
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabLogin"  type="button">INICIAR</button>
+                <button class="auth-tab"        id="tabSignup" type="button">CREAR</button>
             </div>
 
-            <button id="enterBtn">⚡ ENTRAR</button>
-
-            <div class="login-divider">
-                <span></span>
-                <p>o inicia sesión con</p>
-                <span></span>
+            <div class="auth-panel active" id="panelLogin">
+                <input class="auth-input" type="text" id="loginUsername" placeholder="Usuario" maxlength="20" autocomplete="username" spellcheck="false">
+                <input class="auth-input" type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
+                <button class="primary-btn" id="loginBtn" type="button">INICIAR SESIÓN</button>
+                <div class="login-divider"><span></span><p>o</p><span></span></div>
+                <button id="googleBtn" class="secondary-btn" type="button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Continuar con Google
+                </button>
             </div>
 
-            <button id="googleBtn">
-                <!-- Google logo SVG -->
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <div class="auth-panel" id="panelSignup">
+                <input class="auth-input" type="text" id="signupUsername" placeholder="Elige un usuario" maxlength="20" autocomplete="username" spellcheck="false">
+                <input class="auth-input" type="password" id="signupPassword" placeholder="Crea una contraseña" autocomplete="new-password">
+                <input class="auth-input" type="password" id="signupPassword2" placeholder="Repite la contraseña" autocomplete="new-password">
+                <button class="primary-btn" id="signupBtn" type="button">CREAR CUENTA</button>
+                <div class="login-divider"><span></span><p>o</p><span></span></div>
+                <button id="googleBtn2" class="secondary-btn" type="button">
+                <svg viewBox="0 0 24 24">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                 </svg>
                 Continuar con Google
-            </button>
-
+                </button>
+            </div>
             <div id="loginError"></div>
         </div>
     </div>
 
-    <!-- ══════════════════════════════
-         BARRA DE USUARIO (top-right)
-    ══════════════════════════════ -->
-    <div id="userBar" style="display:none;">
+    <div id="userBar">
         <div id="userAvatarInitial"></div>
-        <img id="userAvatar" style="display:none;" alt="avatar">
+        <img id="userAvatar" alt="avatar">
         <span id="userName"></span>
+        <button id="musicToggleBtn" title="Música">🔊</button>
         <button id="logoutBtn" title="Cerrar sesión">✕</button>
     </div>
 
-    <!-- ══════════════════════════════
-         CONTENIDO PRINCIPAL
-    ══════════════════════════════ -->
     <div id="mainContent">
         <h1>PÁGINA DE DANEL</h1>
-
-        <a href="juegos.html"     id="startGameBtn" class="nav-btn">🚂 Tren Clicker</a>
-        <a href="calculadora.html" id="calculatorBtn" class="nav-btn">🧮 Calculadora</a>
-        <a href="wordle.html"     id="wordleBtn"    class="nav-btn">🔤 Wordle</a>
-        <a href="ranking.html"    id="rankingBtn"   class="nav-btn">🏆 Rankings</a>
+        <a href="juegos.html"      class="nav-btn" id="btnTren">🚂 Tren Clicker</a>
+        <a href="calculadora.html" class="nav-btn" id="btnCalc">🧮 Calculadora</a>
+        <a href="wordle.html"      class="nav-btn" id="btnWordle">🔤 Wordle</a>
+        <a href="ranking.html"     class="nav-btn" id="btnRank">🏆 Rankings</a>
+        <a href="settings.html"    class="nav-btn" id="btnSettings">⚙️ Ajustes</a>
     </div>
 
-    <!-- Sonido de clic -->
     <audio id="clickSound" src="audio/click.mp3"></audio>
 
     <script type="module">
-        import { initializeApp }           from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-        import { getAuth, signInWithPopup, signOut,
-                 GoogleAuthProvider, onAuthStateChanged }
+        import { auth, db }
+            from "./firebase-config.js";
+        import { signInWithPopup, signOut,
+                 GoogleAuthProvider, onAuthStateChanged,
+                 createUserWithEmailAndPassword, signInWithEmailAndPassword,
+                 updateProfile }
             from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import { doc, setDoc, getDoc, serverTimestamp }
+            from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey:            "AIzaSyAxuWMkoJ3PvE0Iq_dSI3Hc5MJL_MPsw2U",
-            authDomain:        "trenclicker.firebaseapp.com",
-            projectId:         "trenclicker",
-            storageBucket:     "trenclicker.firebasestorage.app",
-            messagingSenderId: "390144624024",
-            appId:             "1:390144624024:web:b5d36b5a30411cea1197ed"
-        };
-
-        const app      = initializeApp(firebaseConfig);
-        const auth     = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // ── DOM refs ──────────────────────────────
-        const loginOverlay    = document.getElementById('loginOverlay');
-        const mainContent     = document.getElementById('mainContent');
-        const userBar         = document.getElementById('userBar');
-        const userAvatar      = document.getElementById('userAvatar');
-        const userAvatarInit  = document.getElementById('userAvatarInitial');
-        const userNameEl      = document.getElementById('userName');
-        const loginError      = document.getElementById('loginError');
-        const playerNameInput = document.getElementById('playerNameInput');
-        const enterBtn        = document.getElementById('enterBtn');
-        const googleBtn       = document.getElementById('googleBtn');
-        const logoutBtn       = document.getElementById('logoutBtn');
-        const clickSound      = document.getElementById('clickSound');
+        const loginOverlay = document.getElementById('loginOverlay');
+        const mainContent  = document.getElementById('mainContent');
+        const userBar      = document.getElementById('userBar');
+        const userAvatar   = document.getElementById('userAvatar');
+        const userAvatarI  = document.getElementById('userAvatarInitial');
+        const userNameEl   = document.getElementById('userName');
+        const loginError   = document.getElementById('loginError');
+        const clickSound   = document.getElementById('clickSound');
 
-        // ── Helpers ───────────────────────────────
-        function showMain(displayName, photoURL) {
-            loginOverlay.style.display  = 'none';
-            mainContent.classList.add('visible');
-            userBar.style.display       = 'flex';
-            userNameEl.textContent      = displayName;
+        const tabLogin      = document.getElementById('tabLogin');
+        const tabSignup     = document.getElementById('tabSignup');
+        const panelLogin    = document.getElementById('panelLogin');
+        const panelSignup   = document.getElementById('panelSignup');
 
-            if (photoURL) {
-                userAvatar.src          = photoURL;
-                userAvatar.style.display = 'block';
-                userAvatarInit.style.display = 'none';
+        const loginUsername = document.getElementById('loginUsername');
+        const loginPassword = document.getElementById('loginPassword');
+        const signupUsername = document.getElementById('signupUsername');
+        const signupPassword = document.getElementById('signupPassword');
+        const signupPassword2 = document.getElementById('signupPassword2');
+
+        // isGoogle: si viene de Google, guardamos en localStorage para que persista
+        function showMain(uid, name, photo, isGoogle = false) {
+            sessionStorage.setItem('playerUID',  uid);
+            sessionStorage.setItem('playerName', name);
+
+            // Mantener localStorage para que los juegos (y rankings) tengan identidad estable
+            localStorage.setItem('playerUID',  uid);
+            localStorage.setItem('playerName', name);
+
+            // Google → también en localStorage para persistir entre sesiones
+            if (isGoogle) {
+                if (photo) localStorage.setItem('playerPhoto', photo);
             } else {
-                userAvatarInit.textContent   = displayName.charAt(0).toUpperCase();
-                userAvatarInit.style.display = 'flex';
-                userAvatar.style.display     = 'none';
+                localStorage.removeItem('playerPhoto');
             }
 
-            localStorage.setItem('playerName', displayName);
+            loginOverlay.style.display = 'none';
+            mainContent.classList.add('visible');
+            userBar.style.display = 'flex';
+            userNameEl.textContent = name;
+
+            if (photo) {
+                userAvatar.src = photo;
+                userAvatar.style.display  = 'block';
+                userAvatarI.style.display = 'none';
+            } else {
+                userAvatarI.textContent   = name.charAt(0).toUpperCase();
+                userAvatarI.style.display = 'flex';
+                userAvatar.style.display  = 'none';
+            }
         }
 
-        function showError(msg) {
-            loginError.textContent = msg;
+        function showError(m) {
+            loginError.textContent = m;
             setTimeout(() => loginError.textContent = '', 3500);
         }
 
-        // ── Escuchar estado de Auth (Google) ──────
+        function setAuthMode(mode) {
+            const isLogin = mode === 'login';
+            tabLogin.classList.toggle('active', isLogin);
+            tabSignup.classList.toggle('active', !isLogin);
+            panelLogin.classList.toggle('active', isLogin);
+            panelSignup.classList.toggle('active', !isLogin);
+            loginError.textContent = '';
+        }
+
+        tabLogin.onclick  = () => setAuthMode('login');
+        tabSignup.onclick = () => setAuthMode('signup');
+
+        function normalizeUsername(raw) {
+            return (raw || '')
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, '_')
+                .replace(/[^a-z0-9_\.]/g, '');
+        }
+
+        function usernameToEmail(username) {
+            return `${username}@tren.local`;
+        }
+
+        // Si hay sesión de Google activa → restaurar automáticamente
         onAuthStateChanged(auth, user => {
             if (user) {
-                showMain(user.displayName || user.email, user.photoURL);
-            } else {
-                // Comprobar si hay nombre guardado localmente
-                const saved = localStorage.getItem('playerName');
-                if (saved) showMain(saved, null);
+                const name = user.displayName || user.email || 'Anónimo';
+                showMain(user.uid, name, user.photoURL, !!user.email);
+                return;
             }
+            // Sin sesión → se queda el overlay de login
         });
 
-        // ── Entrar con nombre ─────────────────────
-        enterBtn.addEventListener('click', () => {
-            const name = playerNameInput.value.trim();
-            if (!name) { showError('⚠️ Escribe tu nombre para continuar'); return; }
-            if (name.length < 2) { showError('⚠️ El nombre debe tener al menos 2 caracteres'); return; }
-            clickSound.play().catch(() => {});
-            showMain(name, null);
-        });
+        document.getElementById('loginBtn').onclick = async () => {
+            const username = normalizeUsername(loginUsername.value);
+            const pass = loginPassword.value;
+            if (!username || username.length < 3) {
+                showError('⚠️ Usuario inválido (mínimo 3 caracteres)');
+                return;
+            }
+            if (!pass || pass.length < 6) {
+                showError('⚠️ Contraseña inválida (mínimo 6 caracteres)');
+                return;
+            }
+            try {
+                loginError.textContent = '';
+                await signInWithEmailAndPassword(auth, usernameToEmail(username), pass);
+                clickSound.play().catch(() => {});
+            } catch (e) {
+                if (e?.code === 'auth/invalid-credential' || e?.code === 'auth/wrong-password' || e?.code === 'auth/user-not-found') {
+                    showError('⚠️ Usuario o contraseña incorrectos');
+                } else {
+                    showError('⚠️ No se pudo iniciar sesión');
+                }
+            }
+        };
 
-        playerNameInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter') enterBtn.click();
-        });
+        document.getElementById('signupBtn').onclick = async () => {
+            const username = normalizeUsername(signupUsername.value);
+            const pass1 = signupPassword.value;
+            const pass2 = signupPassword2.value;
+            if (!username || username.length < 3) {
+                showError('⚠️ Usuario inválido (mínimo 3 caracteres)');
+                return;
+            }
+            if (!pass1 || pass1.length < 6) {
+                showError('⚠️ Contraseña inválida (mínimo 6 caracteres)');
+                return;
+            }
+            if (pass1 !== pass2) {
+                showError('⚠️ Las contraseñas no coinciden');
+                return;
+            }
 
-        // ── Google Sign-In ────────────────────────
-        googleBtn.addEventListener('click', async () => {
+            try {
+                loginError.textContent = '';
+                const cred = await createUserWithEmailAndPassword(auth, usernameToEmail(username), pass1);
+                await updateProfile(cred.user, { displayName: username });
+                setDoc(doc(db, 'usernames', username), { uid: cred.user.uid, createdAt: serverTimestamp() })
+                    .catch(() => {});
+                clickSound.play().catch(() => {});
+            } catch (e) {
+                if (e?.code === 'auth/email-already-in-use') {
+                    showError('⚠️ Ese usuario ya existe');
+                } else {
+                    showError('⚠️ No se pudo crear la cuenta');
+                }
+            }
+        };
+
+        // Google Sign-In
+        async function doGoogleLogin() {
             try {
                 loginError.textContent = '';
                 await signInWithPopup(auth, provider);
-                // onAuthStateChanged lo maneja
-            } catch (err) {
-                if (err.code !== 'auth/popup-closed-by-user') {
+                // onAuthStateChanged gestiona el resultado
+            } catch (e) {
+                if (e.code !== 'auth/popup-closed-by-user')
                     showError('⚠️ Error al iniciar con Google');
-                    console.error(err);
-                }
             }
-        });
+        }
 
-        // ── Cerrar sesión ─────────────────────────
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-            } catch (_) {}
+        document.getElementById('googleBtn').onclick  = doGoogleLogin;
+        document.getElementById('googleBtn2').onclick = doGoogleLogin;
+
+        // Cerrar sesión
+        document.getElementById('logoutBtn').onclick = async () => {
+            try { await signOut(auth); } catch (_) {}
+            sessionStorage.removeItem('playerUID');
+            sessionStorage.removeItem('playerName');
+            localStorage.removeItem('playerUID');
             localStorage.removeItem('playerName');
+            localStorage.removeItem('playerPhoto');
             mainContent.classList.remove('visible');
-            userBar.style.display  = 'none';
+            userBar.style.display = 'none';
             loginOverlay.style.display = 'flex';
-            playerNameInput.value  = '';
+            loginUsername.value = '';
+            loginPassword.value = '';
+            signupUsername.value = '';
+            signupPassword.value = '';
+            signupPassword2.value = '';
+        };
+
+        // Sonido botones
+        ['btnTren','btnCalc','btnWordle','btnRank','btnSettings'].forEach(id => {
+            document.getElementById(id)?.addEventListener('click', () =>
+                clickSound.play().catch(() => {}));
         });
 
-        // ── Sonido en botones de nav ──────────────
-        ['startGameBtn','calculatorBtn','wordleBtn','rankingBtn'].forEach(id => {
-            document.getElementById(id)?.addEventListener('click', () => {
-                clickSound.play().catch(() => {});
-            });
-        });
+        // ── Control de música de fondo (global) ───────────────────────
+        const musicToggleBtn = document.getElementById('musicToggleBtn');
+        let bgMusic = null;
+        const musicChoice = localStorage.getItem('musicChoice') || 'chuchu';
+        const isMixMode = musicChoice === 'mix';
+
+        // Crear audio global si no existe
+        function ensureBgMusic() {
+            if (bgMusic) return;
+            bgMusic = document.createElement('audio');
+            
+            // Usar la fuente de música actual si existe, sino aplicar preferencia
+            let musicSrc;
+            if (currentMusicSrc) {
+                musicSrc = currentMusicSrc;
+            } else {
+                // Aplicar preferencia de música guardada
+                const musicChoice = localStorage.getItem('musicChoice') || 'chuchu';
+                switch (musicChoice) {
+                    case 'chuchu':
+                        musicSrc = 'audio/chuchu.mp3';
+                        break;
+                    case 'antonimo':
+                        musicSrc = 'audio/antonimo.mp3';
+                        break;
+                    case 'bebita':
+                        musicSrc = 'audio/bebita.mp3';
+                        break;
+                    case 'chiqui':
+                        musicSrc = 'audio/chiqui.mp3';
+                        break;
+                    case 'mix':
+                        // Elegir aleatoriamente solo si no hay música actual
+                        const choices = ['chuchu', 'antonimo', 'bebita', 'chiqui'];
+                        const randomChoice = choices[Math.floor(Math.random() * choices.length)];
+                        switch (randomChoice) {
+                            case 'chuchu': musicSrc = 'audio/chuchu.mp3'; break;
+                            case 'antonimo': musicSrc = 'audio/antonimo.mp3'; break;
+                            case 'bebita': musicSrc = 'audio/bebita.mp3'; break;
+                            case 'chiqui': musicSrc = 'audio/chiqui.mp3'; break;
+                        }
+                        break;
+                    default:
+                        musicSrc = 'audio/chuchu.mp3';
+                }
+                localStorage.setItem('currentMusicSrc', musicSrc);
+            }
+            
+            bgMusic.src = musicSrc;
+            
+            // Configurar bucle según el modo
+            if (isMixMode) {
+                bgMusic.loop = false;
+                // Añadir event listener para cambiar de canción cuando termine
+                bgMusic.addEventListener('ended', playNextRandomTrack);
+            } else {
+                bgMusic.loop = true;
+            }
+            
+            // Aplicar volumen guardado
+            const savedVolume = localStorage.getItem('musicVolume') || '5';
+            bgMusic.volume = savedVolume / 100;
+            
+            document.body.appendChild(bgMusic);
+        }
+
+        // Función para reproducir la siguiente canción aleatoria (modo mix)
+        function playNextRandomTrack() {
+            if (!isMixMode || !bgMusic) return;
+            
+            // Elegir una canción diferente a la actual
+            const availableTracks = ['audio/chuchu.mp3', 'audio/antonimo.mp3', 'audio/bebita.mp3', 'audio/chiqui.mp3']
+                .filter(track => track !== bgMusic.src);
+            const randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+            
+            bgMusic.src = randomTrack;
+            localStorage.setItem('currentMusicSrc', randomTrack);
+            
+            // Reproducir si no está silenciado
+            if (!bgMusic.muted) {
+                bgMusic.play().catch(() => {});
+            }
+        }
+
+        // Leer preferencia guardada
+        const musicMuted = localStorage.getItem('musicMuted') === 'true';
+        const musicWasPlaying = localStorage.getItem('musicPlaying') === 'true';
+
+        // Inicializar estado del botón y audio
+        function initMusicState() {
+            ensureBgMusic();
+            if (musicMuted) {
+                bgMusic.muted = true;
+                musicToggleBtn.textContent = '🔇';
+                musicToggleBtn.classList.add('muted');
+            } else {
+                bgMusic.muted = false;
+                // Si la música estaba reproduciéndose antes, continuar reproduciendo
+                if (musicWasPlaying) {
+                    bgMusic.play().catch(() => {});
+                }
+                musicToggleBtn.textContent = '🔊';
+                musicToggleBtn.classList.remove('muted');
+            }
+        }
+
+        // Toggle música
+        musicToggleBtn.onclick = () => {
+            if (!bgMusic) initMusicState();
+            const nowMuted = !bgMusic.muted;
+            bgMusic.muted = nowMuted;
+            localStorage.setItem('musicMuted', nowMuted);
+            
+            if (nowMuted) {
+                // Si se silencia, guardar que no está reproduciendo
+                localStorage.setItem('musicPlaying', 'false');
+                musicToggleBtn.textContent = '🔇';
+                musicToggleBtn.classList.add('muted');
+            } else {
+                // Si se activa, guardar que está reproduciendo
+                localStorage.setItem('musicPlaying', 'true');
+                bgMusic.play().catch(() => {});
+                musicToggleBtn.textContent = '🔊';
+                musicToggleBtn.classList.remove('muted');
+            }
+        };
+
+        // Inicializar al cargar
+        initMusicState();
     </script>
+    <script src="music-control.js"></script>
 </body>
 </html>

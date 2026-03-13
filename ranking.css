@@ -1,4 +1,36 @@
 /* ==============================
+   MUSIC TOGGLE BUTTON
+============================== */
+#musicToggleBtn {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 217, 61, 0.3);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
+    color: #FFD93D;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#musicToggleBtn:hover {
+    background: rgba(255, 217, 61, 0.1);
+    border-color: rgba(255, 217, 61, 0.5);
+    transform: scale(1.05);
+}
+
+#musicToggleBtn.muted {
+    color: #FF6B6B;
+}
+
+#musicToggleBtn.muted:hover {
+    color: #FF6B6B;
+}
+
+/* ==============================
    RESET
 ============================== */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -20,29 +52,102 @@
     --r3: #cd7f32;
 }
 
-/* ==============================
-   BODY & FONDO
+/* ============================== 
+   FONDO ANIMADO ESPECTACULAR
 ============================== */
 body {
     font-family: 'Rajdhani', Arial, sans-serif;
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
+    background: #000;
+    position: relative;
 }
 
-#bg-video {
+/* Video de fondo para PC */
+#bgVideo {
     position: fixed;
-    inset: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    z-index: -2;
+    z-index: -3;
+}
+
+/* En móvil: fondo negro animado con toques blancos */
+@media (max-width: 768px) {
+    body {
+        background: #000;
+    }
+    
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-image: 
+            radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.6), transparent),
+            radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.7), transparent),
+            radial-gradient(1px 1px at 80% 20%, rgba(255, 255, 255, 0.5), transparent),
+            radial-gradient(2px 2px at 10% 80%, rgba(255, 255, 255, 0.6), transparent);
+        background-size: 200% 200%, 180% 180%, 220% 220%, 190% 190%, 210% 210%;
+        animation: 
+            particlesMove 30s linear infinite,
+            twinkle 3s ease-in-out infinite alternate;
+        z-index: -2;
+    }
+    
+    #bgVideo {
+        display: none !important;
+    }
+}
+
+/* En PC: mostrar video y ocultar efectos */
+@media (min-width: 769px) {
+    body::before {
+        display: none !important;
+    }
 }
 
 .overlay {
     position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.70);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+        linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%);
     z-index: -1;
+    animation: overlayPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes particlesMove {
+    0% { 
+        background-position: 0% 0%, 20% 20%, 40% 40%, 60% 60%, 80% 80%;
+        transform: rotate(0deg) scale(1);
+    }
+    50% { 
+        background-position: 100% 100%, 80% 80%, 60% 60%, 40% 40%, 20% 20%;
+        transform: rotate(180deg) scale(1.1);
+    }
+    100% { 
+        background-position: 0% 0%, 20% 20%, 40% 40%, 60% 60%, 80% 80%;
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.3; }
+}
+
+@keyframes overlayPulse {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
 }
 
 /* ==============================
@@ -248,6 +353,14 @@ body {
     vertical-align: middle;
 }
 
+.rank-extra {
+    margin-left: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
 /* Puntuación */
 .rank-score {
     font-family: 'Orbitron', sans-serif;
@@ -313,4 +426,238 @@ body {
 .back-link:hover {
     background: rgba(255,217,61,0.14);
     border-color: var(--gold);
+}
+
+/* ==============================
+   RESPONSIVE - MOBILE
+============================== */
+@media (max-width: 768px) {
+    .page-wrap {
+        padding: 30px 15px 50px;
+        gap: 30px;
+    }
+    
+    .page-header {
+        padding: 30px 15px;
+    }
+    
+    .page-header h1 {
+        font-size: clamp(2rem, 8vw, 3.2rem);
+        letter-spacing: 3px;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
+        margin-top: 6px;
+    }
+    
+    .boards-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .board-card {
+        border-radius: 15px;
+    }
+    
+    .board-head {
+        padding: 18px 20px;
+        gap: 12px;
+    }
+    
+    .board-icon {
+        font-size: 2.2rem;
+    }
+    
+    .board-head h2 {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+    
+    .board-head p {
+        font-size: 0.7rem;
+        margin-top: 2px;
+    }
+    
+    .board-list {
+        padding: 8px 0;
+        min-height: 50px;
+    }
+    
+    .board-list li {
+        padding: 10px 20px;
+        gap: 12px;
+    }
+    
+    .rank-pos {
+        font-size: 0.75rem;
+        min-width: 24px;
+    }
+    
+    .medal {
+        font-size: 1.2rem;
+        min-width: 24px;
+    }
+    
+    .rank-name {
+        font-size: 0.95rem;
+    }
+    
+    .you-badge {
+        font-size: 0.55rem;
+        padding: 1px 4px;
+        margin-left: 4px;
+    }
+    
+    .rank-extra {
+        font-size: 0.7rem;
+        margin-left: 4px;
+    }
+    
+    .rank-score {
+        font-size: 0.8rem;
+    }
+    
+    .empty-msg {
+        padding: 30px 20px;
+        font-size: 0.85rem;
+    }
+    
+    .page-actions {
+        gap: 12px;
+    }
+    
+    .page-actions button {
+        padding: 11px 24px;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+    
+    .back-link {
+        padding: 11px 24px;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+    
+    /* Botón música */
+    #musicToggleBtn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 1000;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-wrap {
+        padding: 20px 10px 40px;
+        gap: 25px;
+    }
+    
+    .page-header {
+        padding: 20px 10px;
+    }
+    
+    .page-header h1 {
+        font-size: clamp(1.8rem, 10vw, 2.8rem);
+        letter-spacing: 2px;
+    }
+    
+    .subtitle {
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+    }
+    
+    .boards-grid {
+        gap: 15px;
+    }
+    
+    .board-card {
+        border-radius: 12px;
+    }
+    
+    .board-head {
+        padding: 15px 15px;
+        gap: 10px;
+    }
+    
+    .board-icon {
+        font-size: 1.8rem;
+    }
+    
+    .board-head h2 {
+        font-size: 0.9rem;
+    }
+    
+    .board-head p {
+        font-size: 0.65rem;
+    }
+    
+    .board-list li {
+        padding: 8px 15px;
+        gap: 10px;
+    }
+    
+    .rank-pos {
+        font-size: 0.7rem;
+        min-width: 20px;
+    }
+    
+    .medal {
+        font-size: 1rem;
+        min-width: 20px;
+    }
+    
+    .rank-name {
+        font-size: 0.85rem;
+    }
+    
+    .you-badge {
+        font-size: 0.5rem;
+        padding: 1px 3px;
+    }
+    
+    .rank-extra {
+        font-size: 0.65rem;
+    }
+    
+    .rank-score {
+        font-size: 0.75rem;
+    }
+    
+    .empty-msg {
+        padding: 25px 15px;
+        font-size: 0.8rem;
+    }
+    
+    .page-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+    
+    .page-actions button {
+        width: 100%;
+        padding: 10px 20px;
+        font-size: 0.7rem;
+    }
+    
+    .back-link {
+        width: 100%;
+        padding: 10px 20px;
+        font-size: 0.7rem;
+        text-align: center;
+    }
+    
+    /* Botón música */
+    #musicToggleBtn {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+        top: 10px;
+        right: 10px;
+    }
 }

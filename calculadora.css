@@ -1,3 +1,39 @@
+/* ==============================
+   MUSIC TOGGLE BUTTON
+============================== */
+#musicToggleBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 217, 61, 0.3);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    color: #FFD93D;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#musicToggleBtn:hover {
+    background: rgba(255, 217, 61, 0.1);
+    border-color: rgba(255, 217, 61, 0.5);
+    transform: scale(1.05);
+}
+
+#musicToggleBtn.muted {
+    color: #FF6B6B;
+}
+
+#musicToggleBtn.muted:hover {
+    color: #FF6B6B;
+}
+
 /* RESET Y FUENTES */
 * {
     margin: 0;
@@ -12,26 +48,96 @@ body {
     align-items: center;
     min-height: 100vh;
     background: #000;
+    position: relative;
+    overflow-x: hidden;
 }
 
-/* VIDEO DE FONDO */
-#bg-video {
+/* Video de fondo para PC */
+#bgVideo {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: -2;
+    z-index: -3;
 }
 
-body::after {
-    content: "";
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: -1;
+/* En móvil: fondo negro animado con toques blancos */
+@media (max-width: 768px) {
+    body {
+        background: #000;
+    }
+    
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-image: 
+            radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.8), transparent),
+            radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.6), transparent),
+            radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.7), transparent),
+            radial-gradient(1px 1px at 80% 20%, rgba(255, 255, 255, 0.5), transparent),
+            radial-gradient(2px 2px at 10% 80%, rgba(255, 255, 255, 0.6), transparent);
+        background-size: 200% 200%, 180% 180%, 220% 220%, 190% 190%, 210% 210%;
+        animation: 
+            particlesMove 30s linear infinite,
+            twinkle 3s ease-in-out infinite alternate;
+        z-index: -2;
+    }
+    
+    body::after {
+        content: "";
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+            linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%);
+        z-index: -1;
+        animation: overlayPulse 8s ease-in-out infinite alternate;
+    }
+    
+    #bgVideo {
+        display: none !important;
+    }
+}
+
+/* En PC: mostrar video y ocultar efectos */
+@media (min-width: 769px) {
+    body::before,
+    body::after {
+        display: none !important;
+    }
+}
+
+@keyframes particlesMove {
+    0% { 
+        background-position: 0% 0%, 20% 20%, 40% 40%, 60% 60%, 80% 80%;
+        transform: rotate(0deg) scale(1);
+    }
+    50% { 
+        background-position: 100% 100%, 80% 80%, 60% 60%, 40% 40%, 20% 20%;
+        transform: rotate(180deg) scale(1.1);
+    }
+    100% { 
+        background-position: 0% 0%, 20% 20%, 40% 40%, 60% 60%, 80% 80%;
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.3; }
+}
+
+@keyframes overlayPulse {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
 }
 
 /* CONTENEDOR CALCULADORA */
@@ -134,4 +240,134 @@ body::after {
 #backBtnCalc:hover {
     transform: scale(1.05);
     box-shadow: 0 0 25px #FFD93D;
+}
+
+/* ==============================
+   RESPONSIVE - MOBILE
+============================== */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .calculator-container {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px;
+        gap: 15px;
+    }
+    
+    .calculator-title {
+        font-size: 2rem;
+    }
+    
+    .screen {
+        height: 50px;
+        font-size: 1.5rem;
+        padding: 8px;
+    }
+    
+    .buttons {
+        grid-auto-rows: 60px;
+        gap: 8px;
+    }
+    
+    .btn {
+        font-size: 1.2rem;
+        border-radius: 10px;
+    }
+    
+    /* Botón música */
+    #musicToggleBtn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+        top: 15px;
+        right: 15px;
+    }
+    
+    #backBtnCalc {
+        bottom: 15px;
+        left: 15px;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+    
+    .calculator-container {
+        width: 100%;
+        max-width: 320px;
+        padding: 15px;
+        gap: 12px;
+    }
+    
+    .calculator-title {
+        font-size: 1.8rem;
+    }
+    
+    .screen {
+        height: 45px;
+        font-size: 1.3rem;
+        padding: 6px;
+    }
+    
+    .buttons {
+        grid-auto-rows: 50px;
+        gap: 6px;
+    }
+    
+    .btn {
+        font-size: 1rem;
+        border-radius: 8px;
+    }
+    
+    /* Botón música */
+    #musicToggleBtn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        top: 10px;
+        right: 10px;
+    }
+    
+    #backBtnCalc {
+        bottom: 10px;
+        left: 10px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .calculator-container {
+        width: 100%;
+        max-width: 280px;
+        padding: 12px;
+        gap: 10px;
+    }
+    
+    .calculator-title {
+        font-size: 1.5rem;
+    }
+    
+    .screen {
+        height: 40px;
+        font-size: 1.1rem;
+        padding: 5px;
+    }
+    
+    .buttons {
+        grid-auto-rows: 45px;
+        gap: 5px;
+    }
+    
+    .btn {
+        font-size: 0.9rem;
+        border-radius: 6px;
+    }
 }

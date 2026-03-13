@@ -1,5 +1,26 @@
 {
   "dependencies": {
     "firebase": "^12.9.0"
-  }
+  },
+  "name": "trenchuchu",
+  "version": "1.0.0",
+  "description": "\"# Trenclicker\" \r \"# Trenclicker\"",
+  "main": "calculadora.js",
+  "devDependencies": {},
+  "scripts": {
+    "dev": "live-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Danelgz/clickertren.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Danelgz/clickertren/issues"
+  },
+  "homepage": "https://github.com/Danelgz/clickertren#readme"
 }
