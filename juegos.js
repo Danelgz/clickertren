@@ -221,21 +221,51 @@ function renderUpgrades() {
                 <div class="${canBuy ? 'price-can-buy' : 'price-cant-buy'}">Precio: ${formatNumber(price)}</div>
                 ${lockedByRank ? `<div>🔒 Requiere: ${ranks[up.requiredRank].name}</div>` : ''}
             </div>
-            <button ${canBuy ? '' : 'disabled'}>Comprar</button>
+            <div class="quantity-buttons">
+                <button class="qty-btn" data-qty="1" ${!canBuy ? 'disabled' : ''}>x1</button>
+                <button class="qty-btn" data-qty="10" ${points >= calculateBulkPrice(up, 10) && !lockedByRank ? '' : 'disabled'}>x10</button>
+                <button class="qty-btn" data-qty="100" ${points >= calculateBulkPrice(up, 100) && !lockedByRank ? '' : 'disabled'}>x100</button>
+            </div>
         `;
-        div.querySelector('button').onclick = () => {
-            if (!canBuy) return;
-            points -= price;
-            up.count++;
-            if (up.type === 'pps') pointsPerSecond += up.value;
-            else pointsPerClick += up.value;
-            multiplicador = pointsPerClick * (activeBooster ? activeBooster.multiplier : 1);
-            showMessage(`Comprado: ${up.name}`);
-            saveData();
-            updateDisplay();
-        };
+        
+        div.querySelectorAll('.qty-btn').forEach(btn => {
+            btn.onclick = () => {
+                const qty = parseInt(btn.dataset.qty);
+                const bulkPrice = calculateBulkPrice(up, qty);
+                if (points >= bulkPrice && !lockedByRank) {
+                    buyUpgrade(up, qty, bulkPrice);
+                }
+            };
+        });
+        
         upgradesContainer.appendChild(div);
     });
+}
+
+function calculateBulkPrice(upgrade, quantity) {
+    let totalPrice = 0;
+    let currentCount = upgrade.count;
+    for (let i = 0; i < quantity; i++) {
+        totalPrice += Math.floor(upgrade.basePrice * Math.pow(1.4, currentCount));
+        currentCount++;
+    }
+    return totalPrice;
+}
+
+function buyUpgrade(upgrade, quantity, totalPrice) {
+    points -= totalPrice;
+    upgrade.count += quantity;
+    
+    if (upgrade.type === 'pps') {
+        pointsPerSecond += upgrade.value * quantity;
+    } else {
+        pointsPerClick += upgrade.value * quantity;
+    }
+    
+    multiplicador = pointsPerClick * (activeBooster ? activeBooster.multiplier : 1);
+    showMessage(`Comprado: ${quantity}x ${upgrade.name}`);
+    saveData();
+    updateDisplay();
 }
 
 // ================================
