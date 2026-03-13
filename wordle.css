@@ -219,9 +219,9 @@ h2 {
 /* ======================== */
 #game-board {
     display: grid;
-    grid-template-columns: repeat(5, 64px);
-    grid-template-rows: repeat(6, 64px);
-    gap: 10px;
+    grid-template-columns: repeat(6, 54px);
+    grid-template-rows: repeat(6, 54px);
+    gap: 8px;
     margin: 10px 0;
 }
 
@@ -229,12 +229,12 @@ h2 {
 /* CASILLAS */
 /* ======================== */
 .tile {
-    width: 64px;
-    height: 64px;
+    width: 54px;
+    height: 54px;
     border: 2px solid #444;
     background: #111;
     color: white;
-    font-size: 32px;
+    font-size: 28px;
     font-weight: bold;
     display: flex;
     align-items: center;
@@ -686,7 +686,7 @@ button:hover {
     
     /* Tablero más pequeño */
     #game-board {
-        grid-template-columns: repeat(5, 50px);
+        grid-template-columns: repeat(6, 50px);
         grid-template-rows: repeat(6, 50px);
         gap: 8px;
         margin: 8px 0;
@@ -766,7 +766,7 @@ button:hover {
     
     /* Tablero aún más pequeño */
     #game-board {
-        grid-template-columns: repeat(5, 40px);
+        grid-template-columns: repeat(6, 40px);
         grid-template-rows: repeat(6, 40px);
         gap: 6px;
         margin: 6px 0;
@@ -838,7 +838,7 @@ button:hover {
 @media (max-width: 360px) {
     /* Para móviles muy pequeños */
     #game-board {
-        grid-template-columns: repeat(5, 35px);
+        grid-template-columns: repeat(6, 35px);
         grid-template-rows: repeat(6, 35px);
         gap: 4px;
     }
