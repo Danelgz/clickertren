@@ -1,10 +1,10 @@
 // ============================================================
-// wordle1v1.js — Wordle 1v1 Multijugador
+// wordle1v1.js — Wordle 1v1 Multijugador en tiempo real
 // ============================================================
 import { db, waitForUser, getPlayerName }
     from "./firebase-config.js";
 import {
-    doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot, collection, query, where, orderBy, limit
+    doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot, collection, query, where, limit, orderBy, deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 // ========================
@@ -14,383 +14,544 @@ let currentUser = null;
 let currentRoom = null;
 let roomCode = null;
 let isRoomCreator = false;
-let gameState = {
-    currentRound: 1,
-    totalRounds: 5,
-    player1CompletedRounds: 0,
-    player2CompletedRounds: 0,
-    currentWord: '',
-    player1Words: [],
-    player2Words: [],
-    roundWords: [],
-    gameStatus: 'waiting', // waiting, playing, finished
-    player1Finished: false,
-    player2Finished: false,
-    // Estado individual de cada jugador
-    player1State: {
-        currentRow: 0,
-        currentGuess: '',
-        attempts: []
-    },
-    player2State: {
-        currentRow: 0,
-        currentGuess: '',
-        attempts: []
-    }
-};
+let gameInstance = null;
+
+// Pantallas
+const roomScreen = document.getElementById('roomScreen');
+const gameScreen = document.getElementById('gameScreen');
+const resultsScreen = document.getElementById('resultsScreen');
 
 // ========================
 // PALABRAS SECRETAS
 // ========================
 const words = [
-    "ABACO","ABEJA","ACABO","ACOTE","ACTUA","ACUDO","ADAMA","ADEMA","ADORO","AFUFA",
-    "AGOTA","AGUDO","AHOGO","AHUYA","AIREO","AJUST","ALADO","ALBAS","ALERO","ALOJA",
-    "ALTAR","ALUMA","ALZAR","AMAGO","AMANO","AMARO","AMATE","AMIGO","AMIGO","AMORT",
-    "AMUGA","ANCLA","ANEGO","ANIMO","ANODO","APARA","APENA","APOYO","APREN","APURA",
-    "ARADO","ARANA","ARANO","ARENA","ARGON","AROMA","AROYA","ARPON","ARRAS","ARROZ",
-    "ARSEA","ARZON","ASADO","ASEAR","ASIDO","ASOMA","ASPON","ASTIL","ATACA","ATEOS",
-    "ATIZA","ATONO","ATRAS","AUDAZ","AUNAR","AUNOS","AURA","AUTOR","AVALA","AVENA",
-    "AVISO","AYUDA","AYUNO","AZADA","AZAR","AZOTE","BADUL","BAHIA","BAILE","BAJEO",
-    "BALON","BALSA","BANCO","BANDO","BANOS","BARBA","BARCA","BARON","BASAL","BASTO",
-    "BATON","BAURA","BAUTA","BAVOS","BAYOS","BAZAR","BEADA","BEBAN","BEBEN","BEBIA",
-    "BEBIO","BEBON","BECER","BECER","BECER","BEGON","BELEN","BELGA","BELLO","BEMOL",
-    "BENDI","BENDO","BENEF","BENEM","BENEO","BENES","BENGA","BENGO","BENOS","BENTE",
-    "BENTO","BEPOL","BEREN","BERGA","BERGL","BERIA","BERIE","BERIO","BERIS","BERLA",
-    "BERLE","BERLO","BERME","BERMI","BERMO","BERNA","BERNE","BERNO","BERRO","BERTA",
-    "BESAR","BESON","BESTI","BETUN","BEUNA","BEUNE","BEUNO","BIENV","BIENA","BIENE",
-    "BIENO","BIENS","BIENT","BIENV","BIENZ","BIFAZ","BIFOR","BIJAO","BIJAR","BIJEA",
-    "BIJEE","BIJEO","BIJES","BIJOS","BILBA","BILIS","BILLO","BILSA","BILSO","BIMBA",
-    "BIMBE","BIMBO","BIMBO","BIMSA","BIMSO","BINAR","BINBA","BINBE","BINBO","BINSA",
-    "BINSO","BINTA","BINTE","BINTO","BIOLO","BIPAR","BIRLA","BIRLE","BIRLO","BIROS",
-    "BITAC","BITAD","BITAN","BITAR","BITAS","BITCO","BITES","BITLA","BITLE","BITLO",
-    "BITOS","BITSA","BITSO","BIUNA","BIUNE","BIUNO","BIZCO","BIZKA","BIZON","BLAND",
-    "BLASA","BLASE","BLASO","BLENO","BLENU","BLENO","BLUSA","BOATO","BOBAL","BOBDA",
-    "BOBDE","BOBDO","BOBIA","BOBIE","BOBIO","BOBIS","BOBLE","BOBLO","BOBNA","BOBNE",
-    "BODAS","BOEMA","BOFEO","BOFES","BOFON","BOGAD","BOGAN","BOGAR","BOGAS","BOGEO",
-    "BOGUE","BOHIO","BOINA","BOIRA","BOIRO","BOJEA","BOJEE","BOJEO","BOJES","BOJIN",
-    "BOKER","BOLAR","BOLAS","BOLEA","BOLEE","BOLEO","BOLES","BOLIC","BOLSA","BOLSO",
-    "BOMBA","BOMBE","BOMBO","BONAN","BONAR","BONAS","BONDA","BONDE","BONDO","BONDY",
-    "BONIE","BONIO","BONIS","BONITO","BONSA","BONSO","BONYL","BOQUE","BORDE","BORDO",
-    "BORLA","BORLE","BORLO","BORNA","BORNE","BORNO","BORON","BORRA","BORRE","BORRO",
-    "BOSAR","BOSCA","BOSCO","BOSLA","BOSLE","BOSLO","BOSNA","BOSNE","BOSNO","BOTAD",
-    "BOTAN","BOTAR","BOTAS","BOTEN","BOTES","BOTIN","BOTLA","BOTLE","BOTLO","BOTNA",
-    "BOTNE","BOTNO","BOTON","BOVED","BOZAL","BOZCA","BOZCO","BOZLA","BOZLE","BOZLO",
-    "BRACA","BRACE","BRACO","BRAGA","BRAHA","BRAHE","BRAHO","BRAIL","BRAIN","BRAIO",
-    "BRAIS","BRAJA","BRAJE","BRAJO","BRAMA","BRAME","BRAMO","BRANA","BRANE","BRANO",
-    "BRAOS","BRASA","BRASE","BRASO","BRAVA","BRAVE","BRAVO","BRAZA","BRAZE","BRAZO",
-    "BREBA","BREBE","BREBO","BRENA","BRENE","BRENO","BRESA","BRESE","BRESO","BRIAR",
-    "BRIAS","BRIEN","BRIEO","BRIES","BRIGA","BRIGE","BRIGO","BRIN","BRINA","BRINE",
-    "BRINO","BRION","BRISA","BRISE","BRISO","BRITO","BRIOS","BRIOS","BRIXE","BRIXO",
-    "BROCA","BROCE","BROCO","BRODA","BRODE","BRODO","BROGA","BROGE","BROGO","BROJA",
-    "BROJE","BROJO","BROKA","BROKE","BROKO","BROLA","BROLE","BROLO","BROMA","BROME",
-    "BROMO","BROSA","BROSE","BROSO","BROTA","BROTE","BROTO","BROYA","BROYE","BROYO",
-    "BROZA","BRUJA","BRUJE","BRUJO","BRULA","BRULE","BRULO","BRUMA","BRUME","BRUMO",
-    "BRUNA","BRUNE","BRUNO","BRUSA","BRUSE","BRUSO","BUCAL","BUCLE","BUCLE","BUCNA",
-    "BUCNE","BUCNO","BUDIN","BUELO","BUENO","BUHON","BUHOS","BUIRA","BUIRE","BUIRO",
-    "BUIZA","BUIZE","BUIZO","BUJAR","BUJEA","BUJEE","BUJEO","BUJES","BUJIA","BUJIE",
-    "BUJIO","BUJON","BULAS","BULDO","BULEO","BULGA","BULGE","BULGO","BULIA","BULIE",
-    "BULIO","BULIS","BULLE","BULLI","BULLO","BULOS","BULSA","BULSE","BULSO","BUMBA",
-    "BUNCA","BUNCE","BUNCO","BUNKA","BUNKE","BUNKO","BUNOS","BUNSA","BUNSE","BUNSO",
-    "BUQUE","BURAR","BUREO","BURGA","BURGE","BURGO","BURIL","BURLA","BURLE","BURLO",
-    "BURON","BURRA","BURRE","BURRO","BURSA","BURSE","BURSO","BUSA","BUSE","BUSCA",
-    "BUSCO","BUSLA","BUSLE","BUSLO","BUSMA","BUSME","BUSMO","BUSNA","BUSNE","BUSNO",
-    "BUTAC","BUTAD","BUTAN","BUTAR","BUTAS","BUTCA","BUTCE","BUTCO","BUTEN","BUTES",
-    "BUTLA","BUTLE","BUTLO","BUTNA","BUTNE","BUTNO","BUTON","BUTRE","BUXEA","BUXEE",
-    "BUXEO","BUXES","BUZAR","BUZCA","BUZCO","BUZON","CABAL","CABAS","CABEA","CABEE",
-    "CABEO","CABES","CABLE","CABRA","CABRO","CACAO","CACHE","CACHO","CACIA","CACIO",
-    "CADAS","CADEA","CADEE","CADEO","CADES","CAECA","CAECE","CAECO","CAEFE","CAEFI",
-    "CAEFO","CAESA","CAESE","CAESO","CAFTA","CAFTE","CAFTO","CAIDA","CAIDE","CAIDO",
-    "CAIFA","CAIFE","CAIFO","CAIGA","CAIGE","CAIGO","CAIGS","CAILA","CAILE","CAILO",
-    "CAIMA","CAIME","CAIMO","CAINA","CAINE","CAINO","CAION","CAIPA","CAIPE","CAIPO",
-    "CAIRA","CAIRE","CAIRO","CAISA","CAISE","CAISO","CAITA","CAITE","CAITO","CAIVA",
-    "CAIVE","CAIVO","CAJAS","CAJEA","CAJEE","CAJEO","CAJES","CAJON","CALAR","CALDA",
-    "CALDE","CALDO","CALEA","CALEE","CALEO","CALES","CALFA","CALFE","CALFO","CALGA",
-    "CALGE","CALGO","CALID","CALIF","CALIG","CALIO","CALIZ","CALLA","CALLE","CALLO",
-    "CALMA","CALME","CALMO","CALON","CALOS","CALVA","CALVO","CAMA","CAMBA","CAMBE",
-    "CAMBO","CAMEA","CAMEE","CAMEO","CAMEO","CAMIN","CAMIO","CAMON","CAMOS","CAMPA",
-    "CAMPE","CAMPO","CAMP","CANA","CANAL","CANAS","CANCE","CANCO","CANDA","CANDE",
-    "CANDO","CANEA","CANEE","CANEO","CANES","CANGA","CANGE","CANGO","CANON","CANTA",
-    "CANTE","CANTO","CAÑA","CAÑON","CAPA","CAPAZ","CAPON","CAPOR","CAPOT","CAPTA",
-    "CAPTE","CAPTO","CAPUL","CARA","CARB","CARCA","CARCE","CARCO","CARDA","CARDE",
-    "CARDO","CAREA","CAREE","CAREO","CARES","CARGA","CARIE","CARIO","CARIS","CARLA",
-    "CARLE","CARLO","CARMA","CARME","CARMO","CARNA","CARNE","CARNO","CARON","CARPA",
-    "CARPE","CARPO","CARRE","CARRO","CARRA","CARRE","CARRO","CARSA","CARSE","CARSO",
-    "CARTA","CARTE","CARTO","CARVA","CARVE","CARVO","CASAR","CASBA","CASBE","CASBO",
-    "CASC","CASCA","CASCE","CASCO","CASDA","CASDE","CASDO","CASEA","CASEE","CASEO",
-    "CASES","CASFA","CASFE","CASFO","CASGA","CASGE","CASGO","CASHA","CASHE","CASHO",
-    "CASIA","CASIE","CASIO","CASKA","CASKE","CASKO","CASLA","CASLE","CASLO","CASMA",
-    "CASME","CASMO","CASNA","CASNE","CASNO","CASON","CASP","CASPA","CASPE","CASPO",
-    "CASRA","CASRE","CASRO","CASSA","CASSE","CASSO","CASTA","CASTE","CASTO","CASVA",
-    "CASVE","CASVO","CATAB","CATEA","CATEE","CATEO","CATES","CATIN","CATON","CATOS",
-    "CAUDA","CAUDO","CAUGA","CAUGE","CAUGO","CAULA","CAULE","CAULO","CAUMA","CAUME",
-    "CAUMO","CAUSA","CAUSE","CAUSO","CAVAL","CAVEA","CAVEE","CAVEO","CAVES","CAVIA",
-    "CAVIE","CAVIO","CAVLA","CAVLE","CAVLO","CAVNA","CAVNE","CAVNO","CAYAD","CAYAN",
-    "CAYAR","CAYAS","CAYEN","CAYES","CAYGA","CAYGE","CAYGO","CAYLA","CAYLE","CAYLO",
-    "CAYNA","CAYNE","CAYNO","CAYOS","CAZAB","CAZAD","CAZAF","CAZAG","CAZAH","CAZAJ",
-    "CAZAL","CAZAM","CAZAN","CAZAP","CAZAR","CAZAS","CAZAT","CAZAV","CAZBA","CAZBE",
-    "CAZBO","CAZCA","CAZCE","CAZCO","CAZDA","CAZDE","CAZDO","CAZEA","CAZEE","CAZEO",
-    "CAZES","CAZFA","CAZFE","CAZFO","CAZGA","CAZGE","CAZGO","CAZHA","CAZHE","CAZHO",
-    "CAZIA","CAZIE","CAZIO","CAZLA","CAZLE","CAZLO","CAZMA","CAZME","CAZMO","CAZNA",
-    "CAZNE","CAZNO","CAZON","CAZPA","CAZPE","CAZPO","CAZRA","CAZRE","CAZRO","CAZSA",
-    "CAZSE","CAZSO","CAZTA","CAZTE","CAZTO","CAZVA","CAZVE","CAZVO","CEBAD","CEBAF",
-    "CEBAG","CEBAH","CEBAJ","CEBAL","CEBAM","CEBAN","CEBAP","CEBAR","CEBAS","CEBAT",
-    "CEBAV","CEBDA","CEBDE","CEBDO","CEBEA","CEBEE","CEBEO","CEBES","CEBFA","CEBFE",
-    "CEBFO","CEBGA","CEBGE","CEBGO","CEBIA","CEBIE","CEBIO","CEBLA","CEBLE","CEBLO",
-    "CEBMA","CEBME","CEBMO","CEBNA","CEBNE","CEBNO","CEBON","CEBPA","CEBPE","CEBPO",
-    "CEBRA","CEBRE","CEBRO","CEBSA","CEBSE","CEBSO","CEBTA","CEBTE","CEBTO","CEBVA",
-    "CEBVE","CEBVO","CECA","CECEA","CECEE","CECEO","CECES","CECID","CECIF","CECIG",
-    "CECIH","CECIJ","CECIL","CECIM","CECIN","CECIO","CECIP","CECIQ","CECIR","CECIS",
-    "CECIT","CECIU","CECIV","CECIZ","CECOL","CECOM","CECON","CECOR","CECOS","CECOT",
-    "CECUB","CECUD","CECUE","CECUF","CECUG","CECUH","CECUI","CECUJ","CECUL","CECUM",
-    "CECUN","CECUO","CECUP","CECUR","CECUT","CECUV","CECUX","CECUY","CECUZ","CEDAC",
-    "CEDAD","CEDAF","CEDAG","CEDAH","CEDAJ","CEDAL","CEDAM","CEDAN","CEDAP","CEDAR",
-    "CEDAS","CEDAT","CEDAV","CEDAZ","CEDBA","CEDBE","CEDBO","CEDCA","CEDCE","CEDCO",
-    "CEDDA","CEDDE","CEDDI","CEDDO","CEDFA","CEDFE","CEDFO","CEDGA","CEDGE","CEDGO",
-    "CEDIA","CEDIE","CEDIO","CEDLA","CEDLE","CEDLO","CEDMA","CEDME","CEDMO","CEDNA",
-    "CEDNE","CEDNO","CEDON","CEDPA","CEDPE","CEDPO","CEDRA","CEDRE","CEDRO","CEDSA",
-    "CEDSE","CEDSO","CEDTA","CEDTE","CEDTO","CEDVA","CEDVE","CEDVO","CEEBR","CEECA",
-    "CEECE","CEECO","CEEFA","CEEFE","CEEFO","CEEIA","CEEIE","CEEIO","CEEKA","CEEKE",
-    "CEEKO","CEELE","CEELI","CEELO","CEEMA","CEEME","CEEMO","CEENA","CEENE","CEENO",
-    "CEEPA","CEEPE","CEEPO","CEERA","CEERE","CEERO","CEESA","CEESE","CEESO","CEETA",
-    "CEEVO","CEGAD","CEGAF","CEGAG","CEGAH","CEGAJ","CEGAL","CEGAM","CEGAN","CEGAP",
-    "CEGAR","CEGAS","CEGAT","CEGAV","CEGAZ","CEGBA","CEGBE","CEGBO","CEGCA","CEGCE",
-    "CEGCO","CEGDA","CEGDE","CEGDO","CEGEA","CEGEE","CEGEO","CEGES","CEGFA","CEGFE",
-    "CEGFO","CEGGA","CEGGE","CEGGO","CEGIA","CEGIE","CEGIO","CEGLA","CEGLE","CEGLO",
-    "CEGMA","CEGME","CEGMO","CEGNA","CEGNE","CEGNO","CEGON","CEGPA","CEGPE","CEGPO",
-    "CEGRA","CEGRE","CEGRO","CEGSA","CEGSE","CEGSO","CEGTA","CEGTE","CEGTO","CEGVA",
-    "CEGVE","CEGVO","CEIBA","CEIBE","CEIBO","CEJAD","CEJAF","CEJAG","CEJAH","CEJAJ",
-    "CEJAL","CEJAM","CEJAN","CEJAP","CEJAR","CEJAS","CEJAT","CEJAV","CEJAZ","CEJBA",
-    "CEJBE","CEJBO","CEJCA","CEJCE","CEJCO","CEJDA","CEJDE","CEJDO","CEJEA","CEJEE",
-    "CEJEO","CEJES","CEJFA","CEJFE","CEJFO","CEJGA","CEJGE","CEJGO","CEJIA","CEJIE",
-    "CEJIO","CEJLA","CEJLE","CEJLO","CEJMA","CEJME","CEJMO","CEJNA","CEJNE","CEJNO",
-    "CEJON","CEJPA","CEJPE","CEJPO","CEJRA","CEJRE","CEJRO","CEJSA","CEJSE","CEJSO",
-    "CEJTA","CEJTE","CEJTO","CEJVA","CEJVE","CEJVO","CELA","CELAD","CELAF","CELAG",
-    "CELAH","CELAJ","CELAL","CELAM","CELAN","CELAP","CELAR","CELAS","CELAT","CELAV",
-    "CELAZ","CELBA","CELBE","CELBO","CELCA","CELCE","CELC","CELC","CELDA","CELDE",
-    "CELDO","CELEA","CELEE","CELEO","CELES","CELFA","CELFE","CELFO","CELGA","CELGE",
-    "CELGO","CELIA","CELIE","CELIO","CELLA","CELLE","CELLO","CELMA","CELME","CELMO",
-    "CELNA","CELNE","CELNO","CELON","CELP","CELPA","CELPE","CELPO","CELRA","CELRE",
-    "CELRO","CELSA","CELSE","CELSO","CELTA","CELTE","CELTO","CELVA","CELVE","CELVO",
-    "CEMAL","CEMAS","CEMAT","CEMAZ","CEMBA","CEMBE","CEMBO","CEMCA","CEMCE","CEMCO",
-    "CEMDA","CEMDE","CEMDO","CEMEA","CEMEE","CEMEO","CEMES","CEMFA","CEMFE","CEMFO",
-    "CEMGA","CEMGE","CEMGO","CEMIA","CEMIE","CEMIO","CEMLA","CEMLE","CEMLO","CEMMA",
-    "CEMME","CEMMO","CEMNA","CEMNE","CEMNO","CEMON","CEMPA","CEMPE","CEMPO","CEMRA",
-    "CEMRE","CEMRO","CEMSA","CEMSE","CEMSO","CEMTA","CEMTE","CEMTO","CEMVA","CEMVE",
-    "CEMVO","CENAD","CENAF","CENAG","CENAH","CENAJ","CENAL","CENAM","CENAN","CENAP",
-    "CENAR","CENAS","CENAT","CENAV","CENAZ","CENBA","CENBE","CENBO","CENCA","CENCE",
-    "CENCO","CENDA","CENDE","CENDO","CENEA","CENEE","CENEO","CENES","CENFA","CENFE",
-    "CENFO","CENGA","CENGE","CENGO","CENIA","CENIE","CENIO","CENLA","CENLE","CENLO",
-    "CENMA","CENME","CENMO","CENNA","CENNE","CENNO","CENON","CENPA","CENPE","CENPO",
-    "CENRA","CENRE","CENRO","CENSA","CENSE","CENSO","CENTA","CENTE","CENTO","CENVA",
-    "CENVE","CENVO","CEÑAL","CEÑAS","CEÑDA","CEÑDE","CEÑDO","CEÑEA","CEÑEE","CEÑEO",
-    "CEÑES","CEÑFA","CEÑFE","CEÑFO","CEÑGA","CEÑGE","CEÑGO","CEÑIA","CEÑIE","CEÑIO",
-    "CEÑLA","CEÑLE","CEÑLO","CEÑMA","CEÑME","CEÑMO","CEÑNA","CEÑNE","CEÑNO","CEÑON",
-    "CEÑPA","CEÑPE","CEÑPO","CEÑRA","CEÑRE","CEÑRO","CEÑSA","CEÑSE","CEÑSO","CEÑTA",
-    "CEÑTE","CEÑTO","CEÑVA","CEÑVE","CEÑVO","CEPAA","CEPAD","CEPAE","CEPAF","CEPAG",
-    "CEPAH","CEPAJ","CEPAL","CEPAM","CEPAN","CEPAP","CEPAR","CEPAS","CEPAT","CEPAV",
-    "CEPAZ","CEPBA","CEPBE","CEPBO","CEPCA","CEPCE","CEPCO","CEPDA","CEPDE","CEPDO",
-    "CEPEA","CEPEE","CEPEO","CEPES","CEPFA","CEPFE","CEPFO","CEPGA","CEPGE","CEPGO",
-    "CEPIA","CEPIE","CEPIO","CEPLA","CEPLE","CEPLO","CEPMA","CEPME","CEPMO","CEPNA",
-    "CEPNE","CEPNO","CEPON","CEPPA","CEPPE","CEPPO","CEPRA","CEPRE","CEPRO","CEPSA",
-    "CEPSE","CEPSO","CEPTA","CEPTE","CEPTO","CEPVA","CEPVE","CEPVO","CEQUA","CEQUE",
-    "CEQUI","CEQUL","CEQUN","CERAL","CEREA","CEREE","CEREO","CERES","CERFA","CERFE",
-    "CERFO","CERGA","CERGE","CERGO","CERIA","CERIE","CERIO","CERLA","CERLE","CERLO",
-    "CERMA","CERME","CERMO","CERNA","CERNE","CERNO","CERON","CERPA","CERPE","CERPO",
-    "CERRA","CERRE","CERRO","CERSA","CERSE","CERSO","CERTA","CERTE","CERTO","CERVA",
-    "CERVE","CERVO","CESAD","CESAF","CESAG","CESAH","CESAJ","CESAL","CESAM","CESAN",
-    "CESAP","CESAR","CESAS","CESAT","CESAV","CESAZ","CESBA","CESBE","CESBO","CESCA",
-    "CESCE","CESCO","CESDA","CESDE","CESDO","CESEA","CESEE","CESEO","CESES","CESFA",
-    "CESFE","CESFO","CESGA","CESGE","CESGO","CESIA","CESIE","CESIO","CESLA","CESLE",
-    "CESLO","CESMA","CESME","CESMO","CESNA","CESNE","CESNO","CESON","CESPA","CESPE",
-    "CESPO","CESRA","CESRE","CESRO","CESSA","CESSE","CESSO","CESTA","CESTE","CESTO",
-    "CESVA","CESVE","CESVO","CETAD","CETAF","CETAG","CETAH","CETAJ","CETAL","CETAM",
-    "CETAN","CETAP","CETAR","CETAS","CETAT","CETAV","CETAZ","CETBA","CETBE","CETBO",
-    "CETCA","CETCE","CETCO","CETDA","CETDE","CETDO","CETEA","CETEE","CETEO","CETES",
-    "CETFA","CETFE","CETFO","CETGA","CETGE","CETGO","CETIA","CETIE","CETIO","CETLA",
-    "CETLE","CETLO","CETMA","CETME","CETMO","CETNA","CETNE","CETNO","CETON","CETPA",
-    "CETPE","CETPO","CETRA","CETRE","CETRO","CETSA","CETSE","CETSO","CETTA","CETTE",
-    "CETTO","CETVA","CETVE","CETVO","CEUCA","CEUCE","CEUCO","CEUDA","CEUDE","CEUDO",
-    "CEUFA","CEUFE","CEUFO","CEUGA","CEUGE","CEUGO","CEUJA","CEUJE","CEUJO","CEULA",
-    "CEULE","CEULO","CEUMA","CEUME","CEUMO","CEUNA","CEUNE","CEUNO","CEUÑA","CEUÑE",
-    "CEUÑO","CEUPA","CEUPE","CEUPO","CEURA","CEURE","CEURO","CEUSA","CEUSE","CEUSO",
-    "CEUTA","CEUTE","CEUTO","CEUVA","CEUVE","CEUVO","CEVAD","CEVAE","CEVAF","CEVAG",
-    "CEVAH","CEVAJ","CEVAL","CEVAM","CEVAN","CEVAP","CEVAR","CEVAS","CEVAT","CEVAV",
-    "CEVAZ","CEVBA","CEVBE","CEVBO","CEVCA","CEVCE","CEVCO","CEVDA","CEVDE","CEVDO",
-    "CEVEA","CEVEE","CEVEO","CEVES","CEVFA","CEVFE","CEVFO","CEVGA","CEVGE","CEVGO",
-    "CEVIA","CEVIE","CEVIO","CEVLA","CEVLE","CEVLO","CEVMA","CEVME","CEVMO","CEVNA",
-    "CEVNE","CEVNO","CEVON","CEVPA","CEVPE","CEVPO","CEVRA","CEVRE","CEVRO","CEVSA",
-    "CEVSE","CEVSO","CEVTA","CEVTE","CEVTO","CEVVA","CEVVE","CEVVO","CHACA","CHACE",
-    "CHACO","CHADA","CHADE","CHADO","CHAGA","CHAGE","CHAGO","CHALA","CHALE","CHALO",
-    "CHAMA","CHAME","CHAMO","CHANA","CHANE","CHANO","CHAPA","CHAPE","CHAPO","CHARA",
-    "CHARE","CHARO","CHASA","CHASE","CHASO","CHATA","CHATE","CHATO","CHAUN","CHAVO",
-    "CHAYA","CHAYE","CHAYO","CHAZA","CHAZO","CHACO","CHACO","CHACO","CHACO","CHACO"
+"ABACO","ABAJO","ABRIR","ACERO","ACIDO","ACTOR","AGUJA","ALBUM","ALDEA","ALETA",
+"ALGAS","ALGUN","ALMAS","ALTAR","AMADO","AMIGA","AMIGO","ANDAR","ANGEL","ANIMO",
+"ANTES","APODO","ARANA","ARBOL","ARCOS","ARDOR","ARENA","ARMAS","AROMA","ARROZ",
+"ASADO","ASILO","ATADO","AVENA","AVION","AVISO","AYUDA","AZOTE","BAILE","BAJAR",
+"BANCO","BANDA","BARCO","BARRA","BEBER","BELLA","BELLO","BESAR","BOLSA","BOMBA",
+"BORDE","BORRA","BRISA","BROMA","BUENA","BUENO","BURRO","BUSCA","CABLE","CABRA",
+"CACAO","CAIDA","CAJON","CALLE","CALMA","CALOR","CAMPO","CANAL","CANON","CANTO",
+"CAPAZ","CARGA","CARNE","CARRO","CARTA","CASAS","CASCO","CAUSA","CELDA","CERCA",
+"CERDO","CHICA","CHICO","CICLO","CIELO","CINCO","CINTA","CIRCO","CLARA","CLARO",
+"CLASE","CLAVE","CLIMA","COBRA","COCHE","COLON","COLOR","COMER","COMUN","CONDE",
+"COPAS","CORAL","CORRE","CORTA","CORTE","CORTO","COSAS","COSTA","CREAR","CREMA",
+"CRUEL","CUERO","CUEVA","CULPA","CURSO","DADOS","DANZA","DATOS","DEBER","DEBIL",
+"DECIR","DEDOS","DEJAR","DEUDA","DIETA","DIGNO","DISCO","DOBLE","DOLOR","DROGA",
+"DUCHA","DUETO","DULCE","EBANO","ELITE","ENTRE","ENVIO","EPOCA","ERROR","ESPIA",
+"EXITO","EXTRA","FACIL","FALLA","FALSO","FALTA","FAUNA","FAVOR","FECHA","FELIZ",
+"FERIA","FINAL","FIRMA","FIRME","FLACO","FLORA","FLUJO","FONDO","FORMA","FOTOS",
+"FRASE","FRUTA","FUEGO","FUERA","FUMAR","FURIA","GAFAS","GALLO","GANAR","GATOS",
+"GENIO","GENTE","GESTO","GLOBO","GOLPE","GORDO","GRADO","GRANO","GRASA","GRAVE",
+"GRUPO","GUAPA","GUAPO","GUIAR","GUION","GUSTO","HABER","HABLA","HACER","HACIA",
+"HARTO","HASTA","HECHA","HECHO","HEROE","HIELO","HOGAR","HONOR","HORAS","HOTEL",
+"HUESO","HUEVO","HUMOR","IDEAL","IDEAS","IGUAL","IMPAR","INDIA","JAMAS","JAPON",
+"JAULA","JUEGO","JUGAR","JUNIO","JUNTA","JUNTO","JURAR","JUSTO","KILOS","LABIO",
+"LADOS","LANZA","LAPIZ","LARGA","LARGO","LAVAR","LECHE","LEGAL","LEJOS","LENTO",
+"LETRA","LEYES","LIBRE","LIBRO","LIDER","LINDA","LINDO","LINEA","LISTA","LISTO",
+"LLAMA","LLANO","LLAVE","LLENA","LLENO","LOCAL","LUCHA","LUCIR","LUGAR","MADRE",
+"MAGIA","MALTA","MANDO","MANGO","MANOS","MANTA","MAPAS","MARCA","MARCO","MASAS",
+"MATAR","MAYOR","MEDIA","MEDIO","MEJOR","MENOR","MENOS","MENTE","METAL","METRO",
+"MIEDO","MILES","MIRAR","MISMA","MISMO","MITAD","MONJE","MONTA","MONTE","MORAL",
+"MORIR","MOVER","MOVIL","MUCHO","MUJER","MUNDO","MUSEO","NADAR","NADIE","NARIZ",
+"NEGRA","NEGRO","NIEVE","NIVEL","NOBLE","NOCHE","NORTE","NOTAS","NOVIA","NOVIO",
+"NUBES","NUEVA","NUEVO","NUNCA","OBRAS","OJALA","OLIVA","ORDEN","OREJA","OTRAS",
+"OTROS","PADRE","PAGAR","PAPEL","PARAR","PARED","PARIS","PARTE","PASAR","PASEO",
+"PASOS","PASTA","PATIO","PECHO","PEDIR","PELEA","PELOS","PERRA","PERRO","PIANO",
+"PIEZA","PINTA","PISTA","PIZZA","PLANO","PLATA","PLATO","PLAYA","PLAZA","PLUMA",
+"POBRE","PODER","POEMA","POLLO","POLVO","PONER","PRIMA","PRIMO","PRISA","PULSO",
+"PUNTA","PUNTO","QUESO","RADAR","RADIO","RANGO","RAYAR","RAYOS","RAZON","REGLA",
+"REINA","REINO","RELOJ","RENTA","RESTO","REYES","REZAR","RIFLE","RITMO","ROBAR",
+"ROBOT","ROCAS","ROLLO","ROMPE","RONDA","ROSAS","RUBIA","RUEDA","RUIDO","RUMOR",
+"RUSIA","SABER","SABIA","SABOR","SACAR","SALON","SALSA","SALUD","SANTA","SANTO",
+"SELVA","SENAL","SENOR","SERIE","SERIO","SIETE","SIGLO","SIGUE","SILLA","SITIO",
+"SOBRE","SOLAR","SUAVE","SUBIR","SUCIA","SUCIO","SUELO","SUPER","TABLA","TALLA",
+"TANGO","TANTA","TANTO","TARDE","TAREA","TECHO","TECLA","TELAR","TEMER","TEMOR",
+"TENER","TENIS","TIENE","TIGRE","TIRAR","TOCAR","TODAS","TODOS","TOMAR","TONTA",
+"TONTO","TORRE","TOTAL","TRAGO","TRAJE","TRATA","TRATO","TRONO","TROZO","TRUCO",
+"TUMBA","TUNEL","TURNO","UNICA","UNICO","UNION","USADO","USTED","VACAS","VACIA",
+"VACIO","VALLE","VALOR","VAMOS","VAPOR","VECES","VELAS","VENDE","VENGA","VENIR",
+"VENTA","VERDE","VIAJE","VIDAS","VIDEO","VIEJA","VIEJO","VIENE","VILLA","VIOLA",
+"VIRUS","VISTA","VIVEN","VIVIR","VIVOS","VOCES","VOLAR","VUELA","ZORRA"
 ];
 
-// ========================
-// INICIALIZACIÓN
-// ========================
-document.addEventListener('DOMContentLoaded', async () => {
-    await initializeApp();
-    setupEventListeners();
-    showScreen('roomScreen');
-});
+// Función de normalización
+function normalize(str) {
+    return str.toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/Ñ/g, "N");
+}
 
-async function initializeApp() {
-    currentUser = await waitForUser();
-    if (!currentUser) {
-        window.location.href = 'index.html';
-        return;
+function normalizeNoAccents(str) {
+    return str.toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+// ========================
+// CLASE WORDLE1V1GAME
+// ========================
+class Wordle1v1Game {
+    constructor(roomData) {
+        this.roomData = roomData;
+        this.playerId = currentUser.uid;
+        this.playerName = getPlayerName();
+        this.isCreator = isRoomCreator;
+        
+        // Determinar si somos jugador 1 o 2
+        this.isPlayer1 = this.isCreator;
+        
+        // Estado del juego
+        this.currentRound = roomData.currentRound || 1;
+        this.totalRounds = roomData.totalRounds;
+        this.words = roomData.words || [];
+        this.currentWordIndex = roomData.currentWordIndex || 0;
+        this.currentWord = this.words[this.currentWordIndex] || '';
+        
+        // Tableros
+        this.myBoard = [];
+        this.opponentBoard = [];
+        this.boardDiv = document.getElementById('game-board');
+        this.opponentBoardDiv = document.getElementById('opponent-board');
+        
+        // Teclado
+        this.keyMap = {};
+        this.keyboardDiv = document.getElementById('keyboard');
+        
+        // Game state
+        this.currentRow = 0;
+        this.currentCol = 0;
+        this.gameOver = false;
+        this.roundOver = false;
+        
+        // UI Elements
+        this.messageDiv = document.getElementById('game-message');
+        this.currentRoundSpan = document.getElementById('currentRound');
+        this.totalRoundsSpan = document.getElementById('totalRounds');
+        this.player1NameSpan = document.getElementById('player1Name');
+        this.player2NameSpan = document.getElementById('player2Name');
+        this.player1PointsSpan = document.getElementById('player1Points');
+        this.player2PointsSpan = document.getElementById('player2Points');
+        
+        this.init();
     }
-}
-
-// ========================
-// GESTIÓN DE PANTALLAS
-// ========================
-function showScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(screen => {
-        screen.classList.remove('active');
-    });
-    document.getElementById(screenId).classList.add('active');
-}
-
-// ========================
-// EVENT LISTENERS
-// ========================
-function setupEventListeners() {
-    // Botones de sala
-    document.getElementById('createRoomBtn').addEventListener('click', showCreateRoomPanel);
-    document.getElementById('joinRoomBtn').addEventListener('click', showJoinRoomPanel);
-    document.getElementById('confirmCreateBtn').addEventListener('click', createRoom);
-    document.getElementById('confirmJoinBtn').addEventListener('click', joinRoom);
-    document.getElementById('cancelCreateBtn').addEventListener('click', hideRoomPanels);
-    document.getElementById('cancelJoinBtn').addEventListener('click', hideRoomPanels);
-    document.getElementById('cancelRoomBtn').addEventListener('click', cancelRoom);
-    document.getElementById('leaveGameBtn').addEventListener('click', leaveGame);
-
-    // Panel de estadísticas
-    document.getElementById('showStatsBtn').addEventListener('click', showStatsPanel);
-    document.getElementById('closeStatsBtn').addEventListener('click', hideStatsPanel);
-
-    // Panel de fin de partida
-    document.getElementById('playAgainBtn').addEventListener('click', playAgain);
-    document.getElementById('backToMenuBtn').addEventListener('click', backToMenu);
-
-    // Teclado físico
-    document.addEventListener('keydown', handlePhysicalKeyboard);
-}
-
-// ========================
-// GESTIÓN DE SALAS
-// ========================
-function showCreateRoomPanel() {
-    document.getElementById('createRoomPanel').style.display = 'block';
-    document.getElementById('joinRoomPanel').style.display = 'none';
-}
-
-function showJoinRoomPanel() {
-    document.getElementById('joinRoomPanel').style.display = 'block';
-    document.getElementById('createRoomPanel').style.display = 'none';
-}
-
-function hideRoomPanels() {
-    document.getElementById('createRoomPanel').style.display = 'none';
-    document.getElementById('joinRoomPanel').style.display = 'none';
-}
-
-async function createRoom() {
-    const rounds = parseInt(document.getElementById('roundsSelect').value);
-    roomCode = generateRoomCode();
-    isRoomCreator = true;
-
-    // Crear documento de sala en Firestore
-    const roomRef = doc(db, 'wordle1v1_rooms', roomCode);
-    await setDoc(roomRef, {
-        creatorId: currentUser.uid,
-        creatorName: await getPlayerName(),
-        opponentId: null,
-        opponentName: null,
-        totalRounds: rounds,
-        currentRound: 1,
-        player1CompletedRounds: 0,
-        player2CompletedRounds: 0,
-        player1Finished: false,
-        player2Finished: false,
-        status: 'waiting',
-        createdAt: serverTimestamp(),
-        currentWord: '',
-        roundWords: [],
-        player1Words: [],
-        player2Words: []
-    });
-
-    // Mostrar código de sala
-    document.getElementById('generatedCode').textContent = roomCode;
-    document.getElementById('roomCodeDisplay').style.display = 'block';
-    hideRoomPanels();
-
-    // Escuchar cambios en la sala
-    listenToRoom(roomCode);
-}
-
-async function joinRoom() {
-    const inputCode = document.getElementById('roomCodeInput').value.toUpperCase().trim();
-    if (!inputCode || inputCode.length !== 6) {
-        showMessage('Código de sala inválido', 'error');
-        return;
-    }
-
-    const roomRef = doc(db, 'wordle1v1_rooms', inputCode);
-    const roomSnap = await getDoc(roomRef);
-
-    if (!roomSnap.exists()) {
-        showMessage('Sala no encontrada', 'error');
-        return;
-    }
-
-    const roomData = roomSnap.data();
-    if (roomData.status !== 'waiting') {
-        showMessage('Sala llena o en juego', 'error');
-        return;
-    }
-
-    if (roomData.creatorId === currentUser.uid) {
-        showMessage('No puedes unirte a tu propia sala', 'error');
-        return;
-    }
-
-    // Unirse a la sala
-    roomCode = inputCode;
-    isRoomCreator = false;
     
-    await updateDoc(roomRef, {
-        opponentId: currentUser.uid,
-        opponentName: await getPlayerName(),
-        status: 'playing'
-    });
-
-    // Iniciar el juego
-    startGame(roomData);
-}
-
-function cancelRoom() {
-    if (roomCode && isRoomCreator) {
-        const roomRef = doc(db, 'wordle1v1_rooms', roomCode);
-        deleteRoom(roomRef);
+    async init() {
+        // Si no hay palabras, generarlas
+        if (this.words.length === 0) {
+            await this.generateWords();
+        }
+        
+        this.updateUI();
+        this.initBoards();
+        this.initKeyboard();
+        this.bindKeyboard();
+        this.bindButtons();
+        this.updateScoreboard();
     }
-    roomCode = null;
-    isRoomCreator = false;
-    document.getElementById('roomCodeDisplay').style.display = 'none';
-    hideRoomPanels();
-}
+    
+    async generateWords() {
+        const shuffled = [...words].sort(() => Math.random() - 0.5);
+        this.words = shuffled.slice(0, this.totalRounds);
+        
+        // Actualizar en Firebase
+        await updateDoc(doc(db, 'wordle1v1_rooms', roomCode), {
+            words: this.words,
+            currentWordIndex: 0
+        });
+        
+        this.currentWord = this.words[0];
+    }
+    
+    updateUI() {
+        this.currentRoundSpan.textContent = this.currentRound;
+        this.totalRoundsSpan.textContent = this.totalRounds;
+        
+        // Actualizar nombres de jugadores
+        if (this.roomData.player1) {
+            this.player1NameSpan.textContent = this.roomData.player1.name + (this.isPlayer1 ? ' (Tú)' : '');
+        }
+        if (this.roomData.player2) {
+            this.player2NameSpan.textContent = this.roomData.player2.name + (!this.isPlayer1 ? ' (Tú)' : '');
+        }
+        
+        // Actualizar títulos de tableros
+        document.getElementById('player1BoardTitle').textContent = this.isPlayer1 ? 'Tu Tablero' : 'Oponente';
+        document.getElementById('player2BoardTitle').textContent = !this.isPlayer1 ? 'Tu Tablero' : 'Oponente';
+    }
+    
+    initBoards() {
+        // Inicializar mi tablero
+        this.boardDiv.innerHTML = '';
+        this.myBoard = [];
+        for (let r = 0; r < 6; r++) {
+            const row = [];
+            for (let c = 0; c < 5; c++) {
+                const tile = document.createElement('div');
+                tile.classList.add('tile');
+                tile.dataset.row = r;
+                tile.dataset.col = c;
+                this.boardDiv.appendChild(tile);
+                row.push(tile);
+            }
+            this.myBoard.push(row);
+        }
+        
+        // Inicializar tablero del oponente
+        this.opponentBoardDiv.innerHTML = '';
+        this.opponentBoard = [];
+        for (let r = 0; r < 6; r++) {
+            const row = [];
+            for (let c = 0; c < 5; c++) {
+                const tile = document.createElement('div');
+                tile.classList.add('tile');
+                tile.dataset.row = r;
+                tile.dataset.col = c;
+                this.opponentBoardDiv.appendChild(tile);
+                row.push(tile);
+            }
+            this.opponentBoard.push(row);
+        }
+        
+        // Cargar estado existente si lo hay
+        this.loadBoardState();
+    }
+    
+    initKeyboard() {
+        this.keyboardDiv.innerHTML = '';
+        this.keyMap = {};
+        const rows = [
+            ["Q","W","E","R","T","Y","U","I","O","P"],
+            ["A","S","D","F","G","H","J","K","L","Ñ"],
+            ["ENTER","Z","X","C","V","B","N","M","DEL"]
+        ];
+        rows.forEach(row => {
+            const rowDiv = document.createElement('div');
+            rowDiv.classList.add('key-row');
+            row.forEach(k => {
+                const btn = document.createElement('div');
+                btn.classList.add('key');
+                btn.textContent = k;
+                if (k === 'ENTER' || k === 'DEL') btn.classList.add('special');
+                rowDiv.appendChild(btn);
+                this.keyMap[k] = btn;
+                btn.addEventListener('click', () => this.handleKey(k));
+            });
+            this.keyboardDiv.appendChild(rowDiv);
+        });
+    }
+    
+    bindKeyboard() {
+        document.addEventListener('keydown', e => {
+            if (this.gameOver || this.roundOver) return;
+            const raw = e.key;
 
-async function deleteRoom(roomRef) {
-    try {
-        await roomRef.delete();
-    } catch (error) {
-        console.error('Error al eliminar sala:', error);
+            if (raw === 'Backspace' || raw === 'Delete') {
+                this.handleKey('DEL');
+                return;
+            }
+            if (raw === 'Enter') {
+                e.preventDefault();
+                this.handleKey('ENTER');
+                return;
+            }
+
+            let key = raw.toUpperCase();
+            key = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+            if (/^[A-ZÑ]$/.test(key)) {
+                this.handleKey(key);
+            }
+        });
+    }
+    
+    bindButtons() {
+        document.getElementById('leaveRoomBtn').addEventListener('click', () => this.leaveRoom());
+    }
+    
+    handleKey(key) {
+        if (this.gameOver || this.roundOver) return;
+        
+        if (key === "ENTER") { 
+            this.checkWord(); 
+            return; 
+        }
+        if (key === "DEL") { 
+            this.deleteLetter(); 
+            return; 
+        }
+        if (this.currentCol < 5) {
+            const tile = this.myBoard[this.currentRow][this.currentCol];
+            tile.textContent = key;
+            tile.classList.add('filled');
+            this.currentCol++;
+            this.saveBoardState();
+        }
+    }
+    
+    deleteLetter() {
+        if (this.currentCol > 0) {
+            this.currentCol--;
+            const tile = this.myBoard[this.currentRow][this.currentCol];
+            tile.textContent = '';
+            tile.classList.remove('filled');
+            this.saveBoardState();
+        }
+    }
+    
+    isValidWord(guess) {
+        const norm = normalizeNoAccents(guess.toUpperCase());
+        return words.includes(norm);
+    }
+    
+    async checkWord() {
+        if (this.currentCol < 5) {
+            this.showMessage('✏️ Escribe 5 letras');
+            return;
+        }
+
+        let guess = "";
+        for (let c = 0; c < 5; c++) guess += this.myBoard[this.currentRow][c].textContent;
+
+        if (!this.isValidWord(guess)) {
+            this.showMessage('❌ Palabra no válida');
+            const row = this.myBoard[this.currentRow];
+            row.forEach(tile => tile.classList.add('shake'));
+            setTimeout(() => row.forEach(tile => tile.classList.remove('shake')), 500);
+            return;
+        }
+
+        const guessNorm = normalizeNoAccents(guess);
+        const wordNorm = normalizeNoAccents(this.currentWord);
+
+        const letterCount = {};
+        for (let l of wordNorm) {
+            letterCount[l] = (letterCount[l] || 0) + 1;
+        }
+
+        const results = new Array(5).fill('absent');
+
+        // Primero: correctas
+        for (let c = 0; c < 5; c++) {
+            if (guessNorm[c] === wordNorm[c]) {
+                results[c] = 'correct';
+                letterCount[guessNorm[c]]--;
+            }
+        }
+
+        // Segundo: presentes
+        for (let c = 0; c < 5; c++) {
+            if (results[c] === 'correct') continue;
+            const letter = guessNorm[c];
+            if (letterCount[letter] > 0) {
+                results[c] = 'present';
+                letterCount[letter]--;
+            }
+        }
+
+        // Animación reveal y actualización de teclado
+        for (let c = 0; c < 5; c++) {
+            const tile = this.myBoard[this.currentRow][c];
+            const keyChar = guess[c];
+            const result = results[c];
+
+            setTimeout(() => {
+                tile.classList.add('reveal');
+                setTimeout(() => {
+                    tile.classList.remove('reveal');
+                    tile.classList.add(result);
+
+                    // Colorear tecla
+                    const keyBtn = this.keyMap[keyChar];
+                    if (keyBtn) {
+                        if (result === 'correct') {
+                            keyBtn.classList.remove('present', 'absent');
+                            keyBtn.classList.add('correct');
+                        } else if (result === 'present' && !keyBtn.classList.contains('correct')) {
+                            keyBtn.classList.remove('absent');
+                            keyBtn.classList.add('present');
+                        } else if (!keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) {
+                            keyBtn.classList.add('absent');
+                        }
+                    }
+                }, 300);
+            }, c * 250);
+        }
+
+        // Guardar intento en Firebase
+        await this.saveAttempt(guess, results);
+
+        // Comprobación final
+        setTimeout(async () => {
+            if (guessNorm === wordNorm) {
+                this.showMessage('¡Correcto! 🎉');
+                this.roundOver = true;
+                await this.endRound(true);
+            } else {
+                this.currentRow++;
+                this.currentCol = 0;
+                this.saveBoardState();
+                if (this.currentRow >= 6) {
+                    this.showMessage(`La palabra era: ${this.currentWord}`);
+                    this.roundOver = true;
+                    await this.endRound(false);
+                }
+            }
+        }, 6 * 250 + 400);
+    }
+    
+    async saveAttempt(guess, results) {
+        const playerKey = this.isPlayer1 ? 'player1' : 'player2';
+        const attempts = this.roomData[playerKey]?.attempts || [];
+        
+        attempts.push({
+            round: this.currentRound,
+            wordIndex: this.currentWordIndex,
+            guess: guess,
+            results: results,
+            timestamp: serverTimestamp()
+        });
+        
+        await updateDoc(doc(db, 'wordle1v1_rooms', roomCode), {
+            [`${playerKey}.attempts`]: attempts
+        });
+    }
+    
+    async endRound(won) {
+        const playerKey = this.isPlayer1 ? 'player1' : 'player2';
+        const points = this.roomData[playerKey]?.points || 0;
+        
+        await updateDoc(doc(db, 'wordle1v1_rooms', roomCode), {
+            [`${playerKey}.points`]: points + (won ? 1 : 0),
+            [`${playerKey}.roundComplete`]: true,
+            [`${playerKey}.won`]: won
+        });
+        
+        // Esperar al otro jugador
+        this.showMessage('Esperando al oponente...');
+    }
+    
+    async nextRound() {
+        this.currentRound++;
+        this.currentWordIndex++;
+        this.currentRow = 0;
+        this.currentCol = 0;
+        this.roundOver = false;
+        this.currentWord = this.words[this.currentWordIndex];
+        
+        // Limpiar tableros
+        this.clearBoards();
+        
+        // Actualizar Firebase
+        await updateDoc(doc(db, 'wordle1v1_rooms', roomCode), {
+            currentRound: this.currentRound,
+            currentWordIndex: this.currentWordIndex,
+            'player1.roundComplete': false,
+            'player2.roundComplete': false,
+            'player1.won': null,
+            'player2.won': null
+        });
+        
+        this.updateUI();
+        this.showMessage(`Ronda ${this.currentRound} - ¡A jugar!`);
+    }
+    
+    clearBoards() {
+        // Limpiar mi tablero
+        this.myBoard.forEach(row => {
+            row.forEach(tile => {
+                tile.textContent = '';
+                tile.className = 'tile';
+            });
+        });
+        
+        // Limpiar tablero oponente
+        this.opponentBoard.forEach(row => {
+            row.forEach(tile => {
+                tile.textContent = '';
+                tile.className = 'tile';
+            });
+        });
+        
+        // Limpiar teclado
+        Object.values(this.keyMap).forEach(btn => {
+            btn.classList.remove('correct', 'present', 'absent');
+        });
+    }
+    
+    loadBoardState() {
+        const playerKey = this.isPlayer1 ? 'player1' : 'player2';
+        const attempts = this.roomData[playerKey]?.attempts || [];
+        
+        // Cargar intentos de la ronda actual
+        const currentRoundAttempts = attempts.filter(a => 
+            a.round === this.currentRound && a.wordIndex === this.currentWordIndex
+        );
+        
+        currentRoundAttempts.forEach((attempt, index) => {
+            if (index < 6) {
+                for (let c = 0; c < 5; c++) {
+                    const tile = this.myBoard[index][c];
+                    tile.textContent = attempt.guess[c];
+                    tile.classList.add('filled', attempt.results[c]);
+                    
+                    // Actualizar teclado
+                    const keyBtn = this.keyMap[attempt.guess[c]];
+                    if (keyBtn) {
+                        if (attempt.results[c] === 'correct') {
+                            keyBtn.classList.remove('present', 'absent');
+                            keyBtn.classList.add('correct');
+                        } else if (attempt.results[c] === 'present' && !keyBtn.classList.contains('correct')) {
+                            keyBtn.classList.remove('absent');
+                            keyBtn.classList.add('present');
+                        } else if (!keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) {
+                            keyBtn.classList.add('absent');
+                        }
+                    }
+                }
+                this.currentRow = index + 1;
+            }
+        });
+        
+        this.currentCol = this.currentRow < 6 ? 0 : 0;
+    }
+    
+    saveBoardState() {
+        // El estado se guarda automáticamente en Firebase con cada intento
+    }
+    
+    updateScoreboard() {
+        const p1Points = this.roomData.player1?.points || 0;
+        const p2Points = this.roomData.player2?.points || 0;
+        
+        this.player1PointsSpan.textContent = p1Points;
+        this.player2PointsSpan.textContent = p2Points;
+    }
+    
+    showMessage(msg) {
+        this.messageDiv.textContent = msg;
+    }
+    
+    async leaveRoom() {
+        if (confirm('¿Estás seguro de que quieres salir de la sala?')) {
+            await this.deleteRoom();
+            window.location.href = 'index.html';
+        }
+    }
+    
+    async deleteRoom() {
+        try {
+            await deleteDoc(doc(db, 'wordle1v1_rooms', roomCode));
+        } catch (error) {
+            console.error('Error deleting room:', error);
+        }
     }
 }
 
+// ========================
+// FUNCIONES DE SALA
+// ========================
 function generateRoomCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let code = '';
@@ -400,636 +561,265 @@ function generateRoomCode() {
     return code;
 }
 
-// ========================
-// ESCUCHAR CAMBIOS EN SALA
-// ========================
-function listenToRoom(code) {
-    const roomRef = doc(db, 'wordle1v1_rooms', code);
+async function createRoom() {
+    const rounds = parseInt(document.getElementById('roundsSelect').value);
+    const code = generateRoomCode();
     
-    onSnapshot(roomRef, (doc) => {
-        if (!doc.exists()) {
-            showMessage('La sala fue eliminada', 'error');
-            cancelRoom();
+    try {
+        await setDoc(doc(db, 'wordle1v1_rooms', code), {
+            createdBy: currentUser.uid,
+            createdAt: serverTimestamp(),
+            totalRounds: rounds,
+            currentRound: 1,
+            currentWordIndex: 0,
+            words: [],
+            player1: {
+                uid: currentUser.uid,
+                name: getPlayerName(),
+                points: 0,
+                attempts: [],
+                roundComplete: false,
+                won: null
+            },
+            player2: null,
+            gameStarted: false
+        });
+        
+        roomCode = code;
+        isRoomCreator = true;
+        currentRoom = code;
+        
+        document.getElementById('generatedCode').textContent = code;
+        document.getElementById('roomCodeDisplay').style.display = 'block';
+        document.getElementById('createRoomBtn').disabled = true;
+        document.getElementById('joinRoomBtn').disabled = true;
+        
+        // Escuchar cambios en la sala
+        listenToRoom(code);
+        
+        document.getElementById('roomStatus').textContent = '🕐 Esperando oponente...';
+        
+    } catch (error) {
+        console.error('Error creating room:', error);
+        document.getElementById('roomStatus').textContent = '❌ Error al crear la sala';
+    }
+}
+
+async function joinRoom() {
+    const code = document.getElementById('joinCodeInput').value.toUpperCase();
+    
+    if (!code || code.length !== 6) {
+        document.getElementById('roomStatus').textContent = '❌ Código de sala inválido';
+        return;
+    }
+    
+    try {
+        const roomDoc = await getDoc(doc(db, 'wordle1v1_rooms', code));
+        
+        if (!roomDoc.exists()) {
+            document.getElementById('roomStatus').textContent = '❌ La sala no existe';
             return;
         }
-
-        const roomData = doc.data();
-        currentRoom = roomData;
-
-        // Sincronizar palabra actual
-        if (roomData.currentWord && roomData.currentWord !== gameState.currentWord) {
-            gameState.currentWord = roomData.currentWord;
+        
+        const roomData = roomDoc.data();
+        
+        if (roomData.player2) {
+            document.getElementById('roomStatus').textContent = '❌ La sala está llena';
+            return;
         }
-
-        if (roomData.status === 'playing' && !isRoomCreator) {
-            startGame(roomData);
-        } else if (roomData.status === 'playing' && isRoomCreator && gameState.gameStatus !== 'playing') {
-            startGame(roomData);
-        } else if (roomData.status === 'finished') {
-            endGame(roomData);
-        }
-    });
-}
-
-// ========================
-// GESTIÓN DEL JUEGO
-// ========================
-async function startGame(roomData) {
-    gameState = {
-        currentRound: roomData.currentRound,
-        totalRounds: roomData.totalRounds,
-        player1CompletedRounds: roomData.player1CompletedRounds || 0,
-        player2CompletedRounds: roomData.player2CompletedRounds || 0,
-        currentWord: roomData.currentWord || '',
-        player1Words: roomData.player1Words || [],
-        player2Words: roomData.player2Words || [],
-        roundWords: roomData.roundWords || [],
-        gameStatus: 'playing',
-        player1Finished: roomData.player1Finished || false,
-        player2Finished: roomData.player2Finished || false,
-        // Estado individual de cada jugador
-        player1State: {
-            currentRow: 0,
-            currentGuess: '',
-            attempts: []
-        },
-        player2State: {
-            currentRow: 0,
-            currentGuess: '',
-            attempts: []
-        }
-    };
-
-    showScreen('gameScreen');
-    initializeGame();
-    updateUI();
-    
-    // Esperar a que la palabra esté disponible
-    if (!gameState.currentWord && isRoomCreator) {
-        await generateNewWord();
-    } else if (!gameState.currentWord) {
-        // Esperar a que el creador genere la palabra
-        showMessage('Esperando palabra...', 'info');
-    }
-}
-
-function initializeGame() {
-    createBoard();
-    createKeyboard();
-    // Inicializar estado del jugador actual
-    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
-    playerState.currentRow = 0;
-    playerState.currentGuess = '';
-    playerState.attempts = [];
-}
-
-function createBoard() {
-    const board = document.getElementById('game-board');
-    board.innerHTML = '';
-
-    for (let i = 0; i < 6; i++) {
-        const row = document.createElement('div');
-        row.className = 'game-row';
-        row.setAttribute('data-row', i);
-
-        for (let j = 0; j < 5; j++) {
-            const tile = document.createElement('div');
-            tile.className = 'game-tile';
-            tile.setAttribute('data-row', i);
-            tile.setAttribute('data-col', j);
-            row.appendChild(tile);
-        }
-        board.appendChild(row);
-    }
-}
-
-function createKeyboard() {
-    const keyboard = document.getElementById('keyboard');
-    keyboard.innerHTML = '';
-
-    const rows = [
-        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ñ'],
-        ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE']
-    ];
-
-    rows.forEach((row, index) => {
-        const keyboardRow = document.createElement('div');
-        keyboardRow.className = 'keyboard-row';
-
-        row.forEach(key => {
-            const keyElement = document.createElement('button');
-            keyElement.className = 'key';
-            if (key === 'ENTER' || key === 'BACKSPACE') {
-                keyElement.classList.add('wide');
-            }
-            keyElement.textContent = key === 'BACKSPACE' ? '⌫' : key;
-            keyElement.addEventListener('click', () => handleKeyPress(key));
-            keyboardRow.appendChild(keyElement);
+        
+        // Unirse a la sala
+        await updateDoc(doc(db, 'wordle1v1_rooms', code), {
+            player2: {
+                uid: currentUser.uid,
+                name: getPlayerName(),
+                points: 0,
+                attempts: [],
+                roundComplete: false,
+                won: null
+            },
+            gameStarted: true
         });
-
-        keyboard.appendChild(keyboardRow);
-    });
-}
-
-// ========================
-// LÓGICA DEL JUEGO
-// ========================
-function handleKeyPress(key) {
-    if (gameState.gameStatus !== 'playing') return;
-    
-    // Obtener estado del jugador actual
-    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
-
-    if (key === 'ENTER') {
-        submitGuess();
-    } else if (key === 'BACKSPACE') {
-        deleteLetter();
-    } else if (playerState.currentGuess.length < 5) {
-        addLetter(key);
+        
+        roomCode = code;
+        isRoomCreator = false;
+        currentRoom = code;
+        
+        // Escuchar cambios en la sala
+        listenToRoom(code);
+        
+    } catch (error) {
+        console.error('Error joining room:', error);
+        document.getElementById('roomStatus').textContent = '❌ Error al unirse a la sala';
     }
 }
 
-function handlePhysicalKeyboard(event) {
-    if (gameState.gameStatus !== 'playing') return;
-
-    const key = event.key.toUpperCase();
-    if (key === 'ENTER') {
-        event.preventDefault();
-        handleKeyPress('ENTER');
-    } else if (key === 'BACKSPACE') {
-        event.preventDefault();
-        handleKeyPress('BACKSPACE');
-    } else if (key.length === 1 && key >= 'A' && key <= 'Z') {
-        event.preventDefault();
-        handleKeyPress(key);
-    }
-}
-
-function addLetter(letter) {
-    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
-    if (playerState.currentGuess.length < 5) {
-        playerState.currentGuess += letter;
-        updateCurrentRow();
-    }
-}
-
-function deleteLetter() {
-    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
-    if (playerState.currentGuess.length > 0) {
-        playerState.currentGuess = playerState.currentGuess.slice(0, -1);
-        updateCurrentRow();
-    }
-}
-
-function updateCurrentRow() {
-    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
-    const row = playerState.currentRow;
-    const tiles = document.querySelectorAll(`[data-row="${row}"]`);
-    
-    tiles.forEach((tile, index) => {
-        if (index < playerState.currentGuess.length) {
-            tile.textContent = playerState.currentGuess[index];
-            tile.classList.add('filled');
-        } else {
-            tile.textContent = '';
-            tile.classList.remove('filled');
+function listenToRoom(code) {
+    const unsubscribe = onSnapshot(doc(db, 'wordle1v1_rooms', code), (doc) => {
+        if (!doc.exists()) {
+            document.getElementById('roomStatus').textContent = '❌ La sala ha sido eliminada';
+            return;
         }
-    });
-}
-
-async function submitGuess() {
-    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
-    
-    if (!gameState.currentWord) {
-        showMessage('Esperando palabra...', 'error');
-        return;
-    }
-
-    if (playerState.currentGuess.length !== 5) {
-        showMessage('La palabra debe tener 5 letras', 'error');
-        return;
-    }
-
-    if (!isValidWord(playerState.currentGuess)) {
-        showMessage('Palabra no válida', 'error');
-        return;
-    }
-
-    // Evaluar la palabra
-    const result = evaluateGuess(playerState.currentGuess, gameState.currentWord);
-    updateRowWithResult(result);
-    updateKeyboard(result);
-
-    // Guardar intento
-    const playerKey = isRoomCreator ? 'player1Words' : 'player2Words';
-    const words = [...gameState[playerKey], { word: playerState.currentGuess, result }];
-    gameState[playerKey] = words;
-    playerState.attempts.push({ word: playerState.currentGuess, result });
-
-    // Actualizar Firestore
-    await updateRoomData({ [playerKey]: words });
-
-    if (playerState.currentGuess === gameState.currentWord) {
-        // Ganó la ronda
-        await handleRoundWin();
-    } else if (playerState.currentRow === 5) {
-        // Perdió la ronda
-        await handleRoundLoss();
-    } else {
-        // Siguiente intento
-        playerState.currentRow++;
-        playerState.currentGuess = '';
-    }
-}
-
-function evaluateGuess(guess, target) {
-    const result = [];
-    const targetArray = target.split('');
-    const guessArray = guess.split('');
-
-    // Primera pasada: letras correctas
-    for (let i = 0; i < 5; i++) {
-        if (guessArray[i] === targetArray[i]) {
-            result[i] = 'correct';
-            targetArray[i] = null;
-            guessArray[i] = null;
-        }
-    }
-
-    // Segunda pasada: letras presentes
-    for (let i = 0; i < 5; i++) {
-        if (guessArray[i] !== null) {
-            const index = targetArray.indexOf(guessArray[i]);
-            if (index !== -1) {
-                result[i] = 'present';
-                targetArray[index] = null;
+        
+        const roomData = doc.data();
+        
+        // Si ambos jugadores están en la sala y el juego ha comenzado
+        if (roomData.player1 && roomData.player2 && roomData.gameStarted) {
+            // Cambiar a pantalla de juego
+            roomScreen.classList.remove('active');
+            gameScreen.classList.add('active');
+            
+            // Inicializar juego
+            if (!gameInstance) {
+                gameInstance = new Wordle1v1Game(roomData);
             } else {
-                result[i] = 'absent';
-            }
-        }
-    }
-
-    return result;
-}
-
-function updateRowWithResult(result) {
-    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
-    const row = playerState.currentRow;
-    const tiles = document.querySelectorAll(`[data-row="${row}"]`);
-    
-    tiles.forEach((tile, index) => {
-        setTimeout(() => {
-            tile.classList.add(result[index]);
-        }, index * 100);
-    });
-}
-
-function updateKeyboard(result) {
-    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
-    const row = playerState.currentRow;
-    const guess = playerState.currentGuess;
-    const keys = document.querySelectorAll('.key');
-    
-    keys.forEach(key => {
-        const letter = key.textContent;
-        const index = guess.indexOf(letter);
-        
-        if (index !== -1) {
-            const currentStatus = key.classList.contains('correct') ? 'correct' :
-                                 key.classList.contains('present') ? 'present' :
-                                 key.classList.contains('absent') ? 'absent' : null;
-            
-            const newStatus = result[index];
-            
-            if (!currentStatus || 
-                (currentStatus === 'absent' && newStatus !== 'absent') ||
-                (currentStatus === 'present' && newStatus === 'correct')) {
-                key.classList.remove('correct', 'present', 'absent');
-                key.classList.add(newStatus);
+                gameInstance.roomData = roomData;
+                gameInstance.updateUI();
+                gameInstance.updateScoreboard();
+                
+                // Actualizar tablero del oponente
+                updateOpponentBoard(roomData);
+                
+                // Verificar si ambos jugadores completaron la ronda
+                checkRoundComplete(roomData);
+                
+                // Verificar si el juego terminó
+                checkGameEnd(roomData);
             }
         }
     });
 }
 
-function isValidWord(word) {
-    return words.includes(word.toUpperCase());
-}
-
-// ========================
-// GESTIÓN DE RONDAS
-// ========================
-async function generateNewWord() {
-    const word = words[Math.floor(Math.random() * words.length)];
-    gameState.currentWord = word;
-    gameState.roundWords.push(word);
+function updateOpponentBoard(roomData) {
+    const opponentKey = gameInstance.isPlayer1 ? 'player2' : 'player1';
+    const attempts = roomData[opponentKey]?.attempts || [];
     
-    await updateRoomData({
-        currentWord: word,
-        roundWords: gameState.roundWords
+    // Cargar intentos del oponente de la ronda actual
+    const currentRoundAttempts = attempts.filter(a => 
+        a.round === gameInstance.currentRound && a.wordIndex === gameInstance.currentWordIndex
+    );
+    
+    currentRoundAttempts.forEach((attempt, index) => {
+        if (index < 6) {
+            for (let c = 0; c < 5; c++) {
+                const tile = gameInstance.opponentBoard[index][c];
+                tile.textContent = attempt.guess[c];
+                tile.classList.add('filled', attempt.results[c]);
+            }
+        }
     });
 }
 
-async function handleRoundWin() {
-    const playerKey = isRoomCreator ? 'player1CompletedRounds' : 'player2CompletedRounds';
-    const finishedKey = isRoomCreator ? 'player1Finished' : 'player2Finished';
-    
-    gameState[playerKey]++;
-    
-    showMessage('¡Adivinaste la palabra!', 'success');
-    
-    // Marcar si este jugador ha terminado todas sus rondas
-    if (gameState[playerKey] >= gameState.totalRounds) {
-        gameState[finishedKey] = true;
-        await updateRoomData({ [finishedKey]: true });
-        
-        // Este jugador ha completado todas sus rondas, terminar el juego
+async function checkRoundComplete(roomData) {
+    if (roomData.player1?.roundComplete && roomData.player2?.roundComplete) {
+        // Ambos jugadores completaron la ronda
         setTimeout(async () => {
-            await endGame();
+            if (gameInstance.currentRound < gameInstance.totalRounds) {
+                await gameInstance.nextRound();
+            } else {
+                // El juego ha terminado
+                await endGame(roomData);
+            }
         }, 2000);
+    }
+}
+
+async function endGame(roomData) {
+    const p1Points = roomData.player1?.points || 0;
+    const p2Points = roomData.player2?.points || 0;
+    
+    let winner = '';
+    let winnerPoints = 0;
+    
+    if (p1Points > p2Points) {
+        winner = roomData.player1.name;
+        winnerPoints = p1Points;
+    } else if (p2Points > p1Points) {
+        winner = roomData.player2.name;
+        winnerPoints = p2Points;
     } else {
-        // Continuar con la siguiente ronda
-        setTimeout(async () => {
-            await nextRound();
-        }, 2000);
+        winner = 'Empate';
+        winnerPoints = p1Points;
     }
     
-    // Actualizar el contador de rondas completadas
-    await updateRoomData({ [playerKey]: gameState[playerKey] });
-}
-
-async function handleRoundLoss() {
-    showMessage(`La palabra era: ${gameState.currentWord}`, 'error');
+    // Actualizar ranking del ganador
+    if (winner !== 'Empate') {
+        await updateRanking(winner, winnerPoints);
+    }
     
-    // En el nuevo modo, si no adivinas la palabra, igual pasas a la siguiente ronda
+    // Mostrar pantalla de resultados
+    gameScreen.classList.remove('active');
+    resultsScreen.classList.add('active');
+    
+    document.getElementById('winnerName').textContent = winner;
+    document.getElementById('winnerPoints').textContent = `${winnerPoints} puntos`;
+    
+    // Eliminar sala
     setTimeout(async () => {
-        const playerKey = isRoomCreator ? 'player1CompletedRounds' : 'player2CompletedRounds';
-        const finishedKey = isRoomCreator ? 'player1Finished' : 'player2Finished';
-        
-        gameState[playerKey]++;
-        
-        // Marcar si este jugador ha terminado todas sus rondas
-        if (gameState[playerKey] >= gameState.totalRounds) {
-            gameState[finishedKey] = true;
-            await updateRoomData({ [finishedKey]: true, [playerKey]: gameState[playerKey] });
-            
-            // Este jugador ha completado todas sus rondas, terminar el juego
-            setTimeout(async () => {
-                await endGame();
-            }, 1000);
-        } else {
-            // Continuar con la siguiente ronda
-            await updateRoomData({ [playerKey]: gameState[playerKey] });
-            setTimeout(async () => {
-                await nextRound();
-            }, 2000);
+        try {
+            await deleteDoc(doc(db, 'wordle1v1_rooms', roomCode));
+        } catch (error) {
+            console.error('Error deleting room:', error);
         }
-    }, 3000);
+    }, 5000);
 }
 
-async function nextRound() {
-    gameState.currentRound++;
+async function updateRanking(playerName, points) {
+    try {
+        const rankingDoc = await getDoc(doc(db, 'ranking_wordle1v1', playerName));
+        const currentData = rankingDoc.exists() ? rankingDoc.data() : { points: 0, wins: 0 };
+        
+        await setDoc(doc(db, 'ranking_wordle1v1', playerName), {
+            name: playerName,
+            points: currentData.points + points,
+            wins: currentData.wins + 1,
+            lastPlayed: serverTimestamp()
+        });
+    } catch (error) {
+        console.error('Error updating ranking:', error);
+    }
+}
+
+// ========================
+// INICIALIZACIÓN
+// ========================
+async function init() {
+    currentUser = await waitForUser();
     
-    // Reiniciar estado de ambos jugadores
-    gameState.player1State.currentRow = 0;
-    gameState.player1State.currentGuess = '';
-    gameState.player1State.attempts = [];
+    if (!currentUser) {
+        window.location.href = 'index.html';
+        return;
+    }
     
-    gameState.player2State.currentRow = 0;
-    gameState.player2State.currentGuess = '';
-    gameState.player2State.attempts = [];
-    
-    gameState.player1Words = [];
-    gameState.player2Words = [];
-    
-    await updateRoomData({
-        currentRound: gameState.currentRound,
-        player1Words: [],
-        player2Words: []
+    // Event listeners
+    document.getElementById('createRoomBtn').addEventListener('click', createRoom);
+    document.getElementById('joinRoomBtn').addEventListener('click', joinRoom);
+    document.getElementById('copyCodeBtn').addEventListener('click', copyRoomCode);
+    document.getElementById('backToMenuBtn').addEventListener('click', () => {
+        window.location.href = 'index.html';
     });
-
-    if (isRoomCreator) {
-        await generateNewWord();
-    }
-
-    initializeGame();
-    updateUI();
-}
-
-async function endGame() {
-    gameState.gameStatus = 'finished';
+    document.getElementById('backToMenuBtn2').addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+    document.getElementById('playAgainBtn').addEventListener('click', () => {
+        location.reload();
+    });
     
-    const roomRef = doc(db, 'wordle1v1_rooms', roomCode);
-    await updateDoc(roomRef, { status: 'finished' });
-
-    showGameOverPanel();
-    saveStats();
+    // Mostrar pantalla de sala
+    roomScreen.classList.add('active');
 }
 
-function showGameOverPanel() {
-    const panel = document.getElementById('gameOverPanel');
-    const title = document.getElementById('gameOverTitle');
-    const finalScore = document.getElementById('finalScore');
-    const message = document.getElementById('gameOverMessage');
-
-    const player1Completed = gameState.player1CompletedRounds;
-    const player2Completed = gameState.player2CompletedRounds;
-    
-    // El ganador es quien completó más rondas (o quien terminó primero)
-    const player1Won = player1Completed > player2Completed || 
-                       (player1Completed === player2Completed && gameState.player1Finished && !gameState.player2Finished);
-    const player2Won = player2Completed > player1Completed || 
-                       (player1Completed === player2Completed && gameState.player2Finished && !gameState.player1Finished);
-    
-    const isWinner = isRoomCreator ? player1Won : player2Won;
-    const isDraw = !player1Won && !player2Won;
-
-    title.textContent = isDraw ? '¡Empate!' : (isWinner ? '¡Victoria!' : '¡Derrota!');
-    
-    finalScore.innerHTML = `
-        <div>
-            <div>${currentRoom?.creatorName || 'Jugador 1'}</div>
-            <div>${player1Completed}/${gameState.totalRounds} rondas</div>
-        </div>
-        <div>
-            <div>${currentRoom?.opponentName || 'Jugador 2'}</div>
-            <div>${player2Completed}/${gameState.totalRounds} rondas</div>
-        </div>
-    `;
-
-    if (isDraw) {
-        message.textContent = '¡Ambos jugadores completaron las mismas rondas!';
-    } else {
-        message.textContent = isWinner ? '¡Completaste tus rondas primero!' : 'Tu oponente completó sus rondas primero';
-    }
-
-    panel.style.display = 'flex';
+function copyRoomCode() {
+    const code = document.getElementById('generatedCode').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copyCodeBtn');
+        const originalText = btn.textContent;
+        btn.textContent = '✅ Copiado';
+        setTimeout(() => {
+            btn.textContent = originalText;
+        }, 2000);
+    });
 }
 
-function saveStats() {
-    const stats = {
-        totalGames: (parseInt(localStorage.getItem('wordle1v1_totalGames') || '0') + 1),
-        wins: parseInt(localStorage.getItem('wordle1v1_wins') || '0'),
-        losses: parseInt(localStorage.getItem('wordle1v1_losses') || '0'),
-        currentStreak: parseInt(localStorage.getItem('wordle1v1_currentStreak') || '0'),
-        maxStreak: parseInt(localStorage.getItem('wordle1v1_maxStreak') || '0')
-    };
-
-    const isWinner = isRoomCreator ? 
-        gameState.player1CompletedRounds > gameState.player2CompletedRounds || 
-        (gameState.player1CompletedRounds === gameState.player2CompletedRounds && gameState.player1Finished && !gameState.player2Finished) :
-        gameState.player2CompletedRounds > gameState.player1CompletedRounds || 
-        (gameState.player1CompletedRounds === gameState.player2CompletedRounds && gameState.player2Finished && !gameState.player1Finished);
-
-    if (isWinner) {
-        stats.wins++;
-        stats.currentStreak++;
-        stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
-    } else {
-        stats.losses++;
-        stats.currentStreak = 0;
-    }
-
-    localStorage.setItem('wordle1v1_totalGames', stats.totalGames.toString());
-    localStorage.setItem('wordle1v1_wins', stats.wins.toString());
-    localStorage.setItem('wordle1v1_losses', stats.losses.toString());
-    localStorage.setItem('wordle1v1_currentStreak', stats.currentStreak.toString());
-    localStorage.setItem('wordle1v1_maxStreak', stats.maxStreak.toString());
-}
-
-// ========================
-// ACTUALIZACIÓN DE UI
-// ========================
-function updateUI() {
-    document.getElementById('currentRound').textContent = gameState.currentRound;
-    document.getElementById('totalRounds').textContent = gameState.totalRounds;
-    
-    // Mostrar progreso en lugar de puntuación
-    const player1Progress = `${gameState.player1CompletedRounds}/${gameState.totalRounds}`;
-    const player2Progress = `${gameState.player2CompletedRounds}/${gameState.totalRounds}`;
-    
-    document.getElementById('player1Score').textContent = player1Progress;
-    document.getElementById('player2Score').textContent = player2Progress;
-    
-    if (currentRoom) {
-        document.getElementById('player1Name').textContent = currentRoom.creatorName || 'Jugador 1';
-        document.getElementById('player2Name').textContent = currentRoom.opponentName || 'Jugador 2';
-    }
-}
-
-function showMessage(text, type = 'info') {
-    const messageEl = document.getElementById('game-message');
-    messageEl.textContent = text;
-    messageEl.className = type;
-    
-    setTimeout(() => {
-        messageEl.textContent = '';
-        messageEl.className = '';
-    }, 3000);
-}
-
-// ========================
-// PANEL DE ESTADÍSTICAS
-// ========================
-function showStatsPanel() {
-    const panel = document.getElementById('statsPanel');
-    panel.style.display = 'flex';
-    updateStatsDisplay();
-}
-
-function hideStatsPanel() {
-    document.getElementById('statsPanel').style.display = 'none';
-}
-
-function updateStatsDisplay() {
-    const totalGames = parseInt(localStorage.getItem('wordle1v1_totalGames') || '0');
-    const wins = parseInt(localStorage.getItem('wordle1v1_wins') || '0');
-    const losses = parseInt(localStorage.getItem('wordle1v1_losses') || '0');
-    const currentStreak = parseInt(localStorage.getItem('wordle1v1_currentStreak') || '0');
-    const maxStreak = parseInt(localStorage.getItem('wordle1v1_maxStreak') || '0');
-    const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
-
-    document.getElementById('totalWins').textContent = wins;
-    document.getElementById('totalLosses').textContent = losses;
-    document.getElementById('winRate').textContent = winRate + '%';
-    document.getElementById('currentStreak').textContent = currentStreak;
-}
-
-// ========================
-// ACCIONES POST-JUEGO
-// ========================
-function playAgain() {
-    document.getElementById('gameOverPanel').style.display = 'none';
-    showScreen('roomScreen');
-    resetGame();
-}
-
-function backToMenu() {
-    document.getElementById('gameOverPanel').style.display = 'none';
-    showScreen('roomScreen');
-    resetGame();
-}
-
-function leaveGame() {
-    if (confirm('¿Estás seguro de que quieres abandonar la partida?')) {
-        if (roomCode) {
-            const roomRef = doc(db, 'wordle1v1_rooms', roomCode);
-            if (isRoomCreator) {
-                deleteRoom(roomRef);
-            } else {
-                updateDoc(roomRef, { 
-                    status: 'abandoned',
-                    opponentId: null,
-                    opponentName: null
-                });
-            }
-        }
-        resetGame();
-        showScreen('roomScreen');
-    }
-}
-
-function resetGame() {
-    gameState = {
-        currentRound: 1,
-        totalRounds: 5,
-        player1CompletedRounds: 0,
-        player2CompletedRounds: 0,
-        currentWord: '',
-        player1Words: [],
-        player2Words: [],
-        roundWords: [],
-        gameStatus: 'waiting',
-        player1Finished: false,
-        player2Finished: false,
-        // Estado individual de cada jugador
-        player1State: {
-            currentRow: 0,
-            currentGuess: '',
-            attempts: []
-        },
-        player2State: {
-            currentRow: 0,
-            currentGuess: '',
-            attempts: []
-        }
-    };
-    
-    currentRoom = null;
-    roomCode = null;
-    isRoomCreator = false;
-    
-    hideRoomPanels();
-    document.getElementById('roomCodeDisplay').style.display = 'none';
-    document.getElementById('gameOverPanel').style.display = 'none';
-}
-
-// ========================
-// UTILIDADES
-// ========================
-async function updateRoomData(data) {
-    if (!roomCode) return;
-    
-    const roomRef = doc(db, 'wordle1v1_rooms', roomCode);
-    await updateDoc(roomRef, data);
-}
+// Iniciar aplicación
+init();

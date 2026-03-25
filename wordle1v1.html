@@ -16,147 +16,112 @@
     <!-- Pantalla de Sala -->
     <div id="roomScreen" class="screen active">
         <div class="room-container">
-            <header class="room-header">
-                <h1>WORDLE 1v1</h1>
-                <p>Crea o únete a una sala para jugar</p>
+            <header class="game-header">
+                <h1>⚔️ WORDLE 1V1</h1>
+                <h2>Crea o únete a una sala</h2>
             </header>
 
-            <div class="room-actions">
-                <button id="createRoomBtn" class="room-btn primary">
-                    🎮 Crear Sala
-                </button>
-                <button id="joinRoomBtn" class="room-btn secondary">
-                    🔗 Unirse a Sala
-                </button>
+            <div class="room-sections">
+                <!-- Crear Sala -->
+                <div class="room-section">
+                    <h3>🏠 Crear Sala</h3>
+                    <div class="form-group">
+                        <label for="roundsSelect">Número de rondas:</label>
+                        <select id="roundsSelect">
+                            <option value="1">1 ronda</option>
+                            <option value="3">3 rondas</option>
+                            <option value="5" selected>5 rondas</option>
+                            <option value="10">10 rondas</option>
+                            <option value="20">20 rondas</option>
+                        </select>
+                    </div>
+                    <button id="createRoomBtn" class="primary-btn">🎮 Crear Sala</button>
+                    <div id="roomCodeDisplay" class="room-code" style="display:none;">
+                        <p>Código de sala:</p>
+                        <div class="code-text" id="generatedCode"></div>
+                        <button id="copyCodeBtn" class="secondary-btn">📋 Copiar</button>
+                    </div>
+                </div>
+
+                <!-- Unirse a Sala -->
+                <div class="room-section">
+                    <h3>🚪 Unirse a Sala</h3>
+                    <div class="form-group">
+                        <input type="text" id="joinCodeInput" placeholder="Introduce el código de sala" maxlength="6">
+                    </div>
+                    <button id="joinRoomBtn" class="primary-btn">➡️ Unirse a Sala</button>
+                </div>
             </div>
 
-            <div id="createRoomPanel" class="room-panel" style="display: none;">
-                <h3>Configurar Sala</h3>
-                <div class="config-section">
-                    <label for="roundsSelect">Número de Rondas:</label>
-                    <select id="roundsSelect" class="config-select">
-                        <option value="1">1 Ronda</option>
-                        <option value="3">3 Rondas</option>
-                        <option value="5" selected>5 Rondas</option>
-                        <option value="10">10 Rondas</option>
-                        <option value="20">20 Rondas</option>
-                    </select>
-                </div>
-                <button id="confirmCreateBtn" class="confirm-btn">Crear Sala</button>
-                <button id="cancelCreateBtn" class="cancel-btn">Cancelar</button>
-            </div>
-
-            <div id="joinRoomPanel" class="room-panel" style="display: none;">
-                <h3>Unirse a Sala</h3>
-                <div class="config-section">
-                    <label for="roomCodeInput">Código de Sala:</label>
-                    <input type="text" id="roomCodeInput" class="code-input" placeholder="Ej: ABC123" maxlength="6">
-                </div>
-                <button id="confirmJoinBtn" class="confirm-btn">Unirse</button>
-                <button id="cancelJoinBtn" class="cancel-btn">Cancelar</button>
-            </div>
-
-            <div id="roomCodeDisplay" class="code-display" style="display: none;">
-                <h3>Código de Sala</h3>
-                <div class="code-box">
-                    <span id="generatedCode"></span>
-                </div>
-                <p class="waiting-text">Esperando oponente...</p>
-                <button id="cancelRoomBtn" class="cancel-btn">Cancelar Sala</button>
-            </div>
+            <div id="roomStatus" class="room-status"></div>
+            
+            <button id="backToMenuBtn" class="back-btn">🔙 Volver al inicio</button>
         </div>
-
-        <a href="index.html" class="back-btn">Volver a inicio</a>
-        <button id="musicToggleBtn" title="Música">🔊</button>
     </div>
 
     <!-- Pantalla de Juego -->
     <div id="gameScreen" class="screen">
-        <main id="game-container">
+        <div class="game-container">
             <header class="game-header">
+                <h1>⚔️ WORDLE 1V1</h1>
                 <div class="game-info">
-                    <h1>WORDLE 1v1</h1>
-                    <div class="round-info">
-                        Ronda <span id="currentRound">1</span> de <span id="totalRounds">5</span>
-                    </div>
-                </div>
-                <div class="score-info">
-                    <div class="player-score">
-                        <span class="player-name" id="player1Name">Tú</span>
-                        <span class="score" id="player1Score">0/5</span>
-                    </div>
-                    <div class="vs">VS</div>
-                    <div class="player-score">
-                        <span class="player-name" id="player2Name">Oponente</span>
-                        <span class="score" id="player2Score">0/5</span>
-                    </div>
+                    <div class="round-info">Ronda <span id="currentRound">1</span> / <span id="totalRounds">5</span></div>
+                    <div class="room-code-small">Sala: <span id="roomCodeSmall"></span></div>
                 </div>
             </header>
 
+            <!-- Marcador -->
+            <div class="scoreboard">
+                <div class="player-score">
+                    <div class="player-name" id="player1Name">Jugador 1</div>
+                    <div class="player-points" id="player1Points">0</div>
+                </div>
+                <div class="vs">VS</div>
+                <div class="player-score">
+                    <div class="player-name" id="player2Name">Jugador 2</div>
+                    <div class="player-points" id="player2Points">0</div>
+                </div>
+            </div>
+
             <div id="game-message" aria-live="polite"></div>
 
-            <section id="game-board" aria-label="Tablero de juego"></section>
+            <!-- Tableros de ambos jugadores -->
+            <div class="boards-container">
+                <div class="player-board">
+                    <h3 id="player1BoardTitle">Tu Tablero</h3>
+                    <section id="game-board" aria-label="Tablero de juego"></section>
+                </div>
+                <div class="player-board">
+                    <h3 id="player2BoardTitle">Oponente</h3>
+                    <section id="opponent-board" aria-label="Tablero del oponente"></section>
+                </div>
+            </div>
 
             <section id="keyboard" aria-label="Teclado virtual"></section>
 
-            <section class="game-controls">
-                <button id="showStatsBtn" type="button">📊 Estadísticas</button>
-                <a href="ranking.html" class="ranking-link">🏆 Rankings</a>
-                <button id="leaveGameBtn" class="leave-btn">Abandonar Partida</button>
-            </section>
-        </main>
-    </div>
-
-    <!-- Panel de Estadísticas -->
-    <div 
-        id="statsPanel"
-        role="dialog"
-        aria-modal="true"
-        aria-hidden="true"
-        style="display:none"
-    >
-        <div class="stats-header">
-            <h3>📊 ESTADÍSTICAS 1v1</h3>
-            <button id="closeStatsBtn" type="button" class="close-btn">✕</button>
-        </div>
-        
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-number" id="totalWins">0</div>
-                <div class="stat-label">Victorias</div>
+            <div class="game-controls">
+                <button id="leaveRoomBtn" class="danger-btn">🚪 Salir de la sala</button>
             </div>
-            
-            <div class="stat-item">
-                <div class="stat-number" id="totalLosses">0</div>
-                <div class="stat-label">Derrotas</div>
-            </div>
-            
-            <div class="stat-item">
-                <div class="stat-number" id="winRate">0%</div>
-                <div class="stat-label">Tasa Victoria</div>
-            </div>
-            
-            <div class="stat-item">
-                <div class="stat-number" id="currentStreak">0</div>
-                <div class="stat-label">Racha Actual</div>
-            </div>
-        </div>
-        
-        <div class="recent-matches">
-            <h4>Partidas Recientes</h4>
-            <div id="recentMatchesList" class="matches-list"></div>
         </div>
     </div>
 
-    <!-- Panel de Fin de Partida -->
-    <div id="gameOverPanel" class="overlay-panel" style="display: none;">
-        <div class="panel-content">
-            <h2 id="gameOverTitle">¡Partida Terminada!</h2>
-            <div id="finalScore" class="final-score"></div>
-            <div id="gameOverMessage" class="game-over-message"></div>
-            <div class="game-over-actions">
-                <button id="playAgainBtn" class="primary-btn">Jugar de Nuevo</button>
-                <button id="backToMenuBtn" class="secondary-btn">Menú Principal</button>
+    <!-- Pantalla de Resultados -->
+    <div id="resultsScreen" class="screen">
+        <div class="results-container">
+            <header class="game-header">
+                <h1>🏆 RESULTADOS</h1>
+            </header>
+
+            <div class="final-scoreboard">
+                <div class="player-result">
+                    <div class="player-name" id="winnerName">Ganador</div>
+                    <div class="final-points" id="winnerPoints">0 puntos</div>
+                </div>
+            </div>
+
+            <div class="results-actions">
+                <button id="playAgainBtn" class="primary-btn">🔄 Jugar de nuevo</button>
+                <button id="backToMenuBtn2" class="secondary-btn">🔙 Volver al menú</button>
             </div>
         </div>
     </div>

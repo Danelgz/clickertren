@@ -14,6 +14,11 @@ service cloud.firestore {
       allow write: if true;
     }
 
+    match /ranking_wordle1v1/{docId} {
+      allow read:  if true;
+      allow write: if true;
+    }
+
     // Partidas guardadas: lectura y escritura abierta
     // (cada usuario solo lee/escribe su propio UID como doc ID)
     match /saves_train/{docId} {
