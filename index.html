@@ -607,6 +607,7 @@
         <a href="juegos.html"      class="nav-btn" id="btnTren">🚂 Tren Clicker</a>
         <a href="calculadora.html" class="nav-btn" id="btnCalc">🧮 Calculadora</a>
         <a href="wordle.html"      class="nav-btn" id="btnWordle">🔤 Wordle</a>
+        <a href="wordle1v1.html"   class="nav-btn" id="btnWordle1v1">⚔️ Wordle 1v1</a>
         <a href="ranking.html"     class="nav-btn" id="btnRank">🏆 Rankings</a>
         <a href="settings.html"    class="nav-btn" id="btnSettings">⚙️ Ajustes</a>
     </div>
@@ -808,7 +809,7 @@
         };
 
         // Sonido botones
-        ['btnTren','btnCalc','btnWordle','btnRank','btnSettings'].forEach(id => {
+        ['btnTren','btnCalc','btnWordle','btnWordle1v1','btnRank','btnSettings'].forEach(id => {
             document.getElementById(id)?.addEventListener('click', () =>
                 clickSound.play().catch(() => {}));
         });

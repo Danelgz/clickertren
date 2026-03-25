@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Wordle 1v1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="wordle1v1.css">
+</head>
+
+<body>
+    <!-- Video de fondo para PC -->
+    <video id="bgVideo" autoplay muted loop>
+        <source src="video/fondo.mp4" type="video/mp4">
+    </video>
+
+    <!-- Pantalla de Sala -->
+    <div id="roomScreen" class="screen active">
+        <div class="room-container">
+            <header class="room-header">
+                <h1>WORDLE 1v1</h1>
+                <p>Crea o únete a una sala para jugar</p>
+            </header>
+
+            <div class="room-actions">
+                <button id="createRoomBtn" class="room-btn primary">
+                    🎮 Crear Sala
+                </button>
+                <button id="joinRoomBtn" class="room-btn secondary">
+                    🔗 Unirse a Sala
+                </button>
+            </div>
+
+            <div id="createRoomPanel" class="room-panel" style="display: none;">
+                <h3>Configurar Sala</h3>
+                <div class="config-section">
+                    <label for="roundsSelect">Número de Rondas:</label>
+                    <select id="roundsSelect" class="config-select">
+                        <option value="1">1 Ronda</option>
+                        <option value="3">3 Rondas</option>
+                        <option value="5" selected>5 Rondas</option>
+                        <option value="10">10 Rondas</option>
+                        <option value="20">20 Rondas</option>
+                    </select>
+                </div>
+                <button id="confirmCreateBtn" class="confirm-btn">Crear Sala</button>
+                <button id="cancelCreateBtn" class="cancel-btn">Cancelar</button>
+            </div>
+
+            <div id="joinRoomPanel" class="room-panel" style="display: none;">
+                <h3>Unirse a Sala</h3>
+                <div class="config-section">
+                    <label for="roomCodeInput">Código de Sala:</label>
+                    <input type="text" id="roomCodeInput" class="code-input" placeholder="Ej: ABC123" maxlength="6">
+                </div>
+                <button id="confirmJoinBtn" class="confirm-btn">Unirse</button>
+                <button id="cancelJoinBtn" class="cancel-btn">Cancelar</button>
+            </div>
+
+            <div id="roomCodeDisplay" class="code-display" style="display: none;">
+                <h3>Código de Sala</h3>
+                <div class="code-box">
+                    <span id="generatedCode"></span>
+                </div>
+                <p class="waiting-text">Esperando oponente...</p>
+                <button id="cancelRoomBtn" class="cancel-btn">Cancelar Sala</button>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-btn">Volver a inicio</a>
+        <button id="musicToggleBtn" title="Música">🔊</button>
+    </div>
+
+    <!-- Pantalla de Juego -->
+    <div id="gameScreen" class="screen">
+        <main id="game-container">
+            <header class="game-header">
+                <div class="game-info">
+                    <h1>WORDLE 1v1</h1>
+                    <div class="round-info">
+                        Ronda <span id="currentRound">1</span> de <span id="totalRounds">5</span>
+                    </div>
+                </div>
+                <div class="score-info">
+                    <div class="player-score">
+                        <span class="player-name" id="player1Name">Tú</span>
+                        <span class="score" id="player1Score">0</span>
+                    </div>
+                    <div class="vs">VS</div>
+                    <div class="player-score">
+                        <span class="player-name" id="player2Name">Oponente</span>
+                        <span class="score" id="player2Score">0</span>
+                    </div>
+                </div>
+            </header>
+
+            <div id="game-message" aria-live="polite"></div>
+
+            <section id="game-board" aria-label="Tablero de juego"></section>
+
+            <section id="keyboard" aria-label="Teclado virtual"></section>
+
+            <section class="game-controls">
+                <button id="showStatsBtn" type="button">📊 Estadísticas</button>
+                <a href="ranking.html" class="ranking-link">🏆 Rankings</a>
+                <button id="leaveGameBtn" class="leave-btn">Abandonar Partida</button>
+            </section>
+        </main>
+    </div>
+
+    <!-- Panel de Estadísticas -->
+    <div 
+        id="statsPanel"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden="true"
+        style="display:none"
+    >
+        <div class="stats-header">
+            <h3>📊 ESTADÍSTICAS 1v1</h3>
+            <button id="closeStatsBtn" type="button" class="close-btn">✕</button>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number" id="totalWins">0</div>
+                <div class="stat-label">Victorias</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-number" id="totalLosses">0</div>
+                <div class="stat-label">Derrotas</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-number" id="winRate">0%</div>
+                <div class="stat-label">Tasa Victoria</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-number" id="currentStreak">0</div>
+                <div class="stat-label">Racha Actual</div>
+            </div>
+        </div>
+        
+        <div class="recent-matches">
+            <h4>Partidas Recientes</h4>
+            <div id="recentMatchesList" class="matches-list"></div>
+        </div>
+    </div>
+
+    <!-- Panel de Fin de Partida -->
+    <div id="gameOverPanel" class="overlay-panel" style="display: none;">
+        <div class="panel-content">
+            <h2 id="gameOverTitle">¡Partida Terminada!</h2>
+            <div id="finalScore" class="final-score"></div>
+            <div id="gameOverMessage" class="game-over-message"></div>
+            <div class="game-over-actions">
+                <button id="playAgainBtn" class="primary-btn">Jugar de Nuevo</button>
+                <button id="backToMenuBtn" class="secondary-btn">Menú Principal</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="wordle1v1.js"></script>
+    <script src="music-control.js"></script>
+</body>
+</html>
