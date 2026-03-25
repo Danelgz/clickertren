@@ -25,7 +25,18 @@ let gameState = {
     roundWords: [],
     gameStatus: 'waiting', // waiting, playing, finished
     player1Finished: false,
-    player2Finished: false
+    player2Finished: false,
+    // Estado individual de cada jugador
+    player1State: {
+        currentRow: 0,
+        currentGuess: '',
+        attempts: []
+    },
+    player2State: {
+        currentRow: 0,
+        currentGuess: '',
+        attempts: []
+    }
 };
 
 // ========================
@@ -435,7 +446,18 @@ async function startGame(roomData) {
         roundWords: roomData.roundWords || [],
         gameStatus: 'playing',
         player1Finished: roomData.player1Finished || false,
-        player2Finished: roomData.player2Finished || false
+        player2Finished: roomData.player2Finished || false,
+        // Estado individual de cada jugador
+        player1State: {
+            currentRow: 0,
+            currentGuess: '',
+            attempts: []
+        },
+        player2State: {
+            currentRow: 0,
+            currentGuess: '',
+            attempts: []
+        }
     };
 
     showScreen('gameScreen');
@@ -454,9 +476,11 @@ async function startGame(roomData) {
 function initializeGame() {
     createBoard();
     createKeyboard();
-    gameState.currentRow = 0;
-    gameState.currentTile = 0;
-    gameState.currentGuess = '';
+    // Inicializar estado del jugador actual
+    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
+    playerState.currentRow = 0;
+    playerState.currentGuess = '';
+    playerState.attempts = [];
 }
 
 function createBoard() {
@@ -513,12 +537,15 @@ function createKeyboard() {
 // ========================
 function handleKeyPress(key) {
     if (gameState.gameStatus !== 'playing') return;
+    
+    // Obtener estado del jugador actual
+    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
 
     if (key === 'ENTER') {
         submitGuess();
     } else if (key === 'BACKSPACE') {
         deleteLetter();
-    } else if (gameState.currentGuess.length < 5) {
+    } else if (playerState.currentGuess.length < 5) {
         addLetter(key);
     }
 }
@@ -540,26 +567,29 @@ function handlePhysicalKeyboard(event) {
 }
 
 function addLetter(letter) {
-    if (gameState.currentGuess.length < 5) {
-        gameState.currentGuess += letter;
+    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
+    if (playerState.currentGuess.length < 5) {
+        playerState.currentGuess += letter;
         updateCurrentRow();
     }
 }
 
 function deleteLetter() {
-    if (gameState.currentGuess.length > 0) {
-        gameState.currentGuess = gameState.currentGuess.slice(0, -1);
+    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
+    if (playerState.currentGuess.length > 0) {
+        playerState.currentGuess = playerState.currentGuess.slice(0, -1);
         updateCurrentRow();
     }
 }
 
 function updateCurrentRow() {
-    const row = gameState.currentRow;
+    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
+    const row = playerState.currentRow;
     const tiles = document.querySelectorAll(`[data-row="${row}"]`);
     
     tiles.forEach((tile, index) => {
-        if (index < gameState.currentGuess.length) {
-            tile.textContent = gameState.currentGuess[index];
+        if (index < playerState.currentGuess.length) {
+            tile.textContent = playerState.currentGuess[index];
             tile.classList.add('filled');
         } else {
             tile.textContent = '';
@@ -569,44 +599,47 @@ function updateCurrentRow() {
 }
 
 async function submitGuess() {
+    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
+    
     if (!gameState.currentWord) {
         showMessage('Esperando palabra...', 'error');
         return;
     }
 
-    if (gameState.currentGuess.length !== 5) {
+    if (playerState.currentGuess.length !== 5) {
         showMessage('La palabra debe tener 5 letras', 'error');
         return;
     }
 
-    if (!isValidWord(gameState.currentGuess)) {
+    if (!isValidWord(playerState.currentGuess)) {
         showMessage('Palabra no válida', 'error');
         return;
     }
 
     // Evaluar la palabra
-    const result = evaluateGuess(gameState.currentGuess, gameState.currentWord);
+    const result = evaluateGuess(playerState.currentGuess, gameState.currentWord);
     updateRowWithResult(result);
     updateKeyboard(result);
 
     // Guardar intento
     const playerKey = isRoomCreator ? 'player1Words' : 'player2Words';
-    const words = [...gameState[playerKey], { word: gameState.currentGuess, result }];
+    const words = [...gameState[playerKey], { word: playerState.currentGuess, result }];
     gameState[playerKey] = words;
+    playerState.attempts.push({ word: playerState.currentGuess, result });
 
     // Actualizar Firestore
     await updateRoomData({ [playerKey]: words });
 
-    if (gameState.currentGuess === gameState.currentWord) {
+    if (playerState.currentGuess === gameState.currentWord) {
         // Ganó la ronda
         await handleRoundWin();
-    } else if (gameState.currentRow === 5) {
+    } else if (playerState.currentRow === 5) {
         // Perdió la ronda
         await handleRoundLoss();
     } else {
         // Siguiente intento
-        gameState.currentRow++;
-        gameState.currentGuess = '';
+        playerState.currentRow++;
+        playerState.currentGuess = '';
     }
 }
 
@@ -641,7 +674,8 @@ function evaluateGuess(guess, target) {
 }
 
 function updateRowWithResult(result) {
-    const row = gameState.currentRow;
+    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
+    const row = playerState.currentRow;
     const tiles = document.querySelectorAll(`[data-row="${row}"]`);
     
     tiles.forEach((tile, index) => {
@@ -652,8 +686,9 @@ function updateRowWithResult(result) {
 }
 
 function updateKeyboard(result) {
-    const row = gameState.currentRow;
-    const guess = gameState.currentGuess;
+    const playerState = isRoomCreator ? gameState.player1State : gameState.player2State;
+    const row = playerState.currentRow;
+    const guess = playerState.currentGuess;
     const keys = document.querySelectorAll('.key');
     
     keys.forEach(key => {
@@ -754,8 +789,16 @@ async function handleRoundLoss() {
 
 async function nextRound() {
     gameState.currentRound++;
-    gameState.currentRow = 0;
-    gameState.currentGuess = '';
+    
+    // Reiniciar estado de ambos jugadores
+    gameState.player1State.currentRow = 0;
+    gameState.player1State.currentGuess = '';
+    gameState.player1State.attempts = [];
+    
+    gameState.player2State.currentRow = 0;
+    gameState.player2State.currentGuess = '';
+    gameState.player2State.attempts = [];
+    
     gameState.player1Words = [];
     gameState.player2Words = [];
     
@@ -958,7 +1001,18 @@ function resetGame() {
         roundWords: [],
         gameStatus: 'waiting',
         player1Finished: false,
-        player2Finished: false
+        player2Finished: false,
+        // Estado individual de cada jugador
+        player1State: {
+            currentRow: 0,
+            currentGuess: '',
+            attempts: []
+        },
+        player2State: {
+            currentRow: 0,
+            currentGuess: '',
+            attempts: []
+        }
     };
     
     currentRoom = null;
