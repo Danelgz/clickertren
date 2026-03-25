@@ -17,13 +17,15 @@ let isRoomCreator = false;
 let gameState = {
     currentRound: 1,
     totalRounds: 5,
-    player1Score: 0,
-    player2Score: 0,
+    player1CompletedRounds: 0,
+    player2CompletedRounds: 0,
     currentWord: '',
     player1Words: [],
     player2Words: [],
     roundWords: [],
-    gameStatus: 'waiting' // waiting, playing, finished
+    gameStatus: 'waiting', // waiting, playing, finished
+    player1Finished: false,
+    player2Finished: false
 };
 
 // ========================
@@ -298,8 +300,10 @@ async function createRoom() {
         opponentName: null,
         totalRounds: rounds,
         currentRound: 1,
-        player1Score: 0,
-        player2Score: 0,
+        player1CompletedRounds: 0,
+        player2CompletedRounds: 0,
+        player1Finished: false,
+        player2Finished: false,
         status: 'waiting',
         createdAt: serverTimestamp(),
         currentWord: '',
@@ -423,13 +427,15 @@ async function startGame(roomData) {
     gameState = {
         currentRound: roomData.currentRound,
         totalRounds: roomData.totalRounds,
-        player1Score: roomData.player1Score,
-        player2Score: roomData.player2Score,
+        player1CompletedRounds: roomData.player1CompletedRounds || 0,
+        player2CompletedRounds: roomData.player2CompletedRounds || 0,
         currentWord: roomData.currentWord || '',
         player1Words: roomData.player1Words || [],
         player2Words: roomData.player2Words || [],
         roundWords: roomData.roundWords || [],
-        gameStatus: 'playing'
+        gameStatus: 'playing',
+        player1Finished: roomData.player1Finished || false,
+        player2Finished: roomData.player2Finished || false
     };
 
     showScreen('gameScreen');
@@ -690,28 +696,58 @@ async function generateNewWord() {
 }
 
 async function handleRoundWin() {
-    const playerKey = isRoomCreator ? 'player1Score' : 'player2Score';
+    const playerKey = isRoomCreator ? 'player1CompletedRounds' : 'player2CompletedRounds';
+    const finishedKey = isRoomCreator ? 'player1Finished' : 'player2Finished';
+    
     gameState[playerKey]++;
     
     showMessage('¡Adivinaste la palabra!', 'success');
     
-    setTimeout(async () => {
-        if (gameState.currentRound >= gameState.totalRounds) {
+    // Marcar si este jugador ha terminado todas sus rondas
+    if (gameState[playerKey] >= gameState.totalRounds) {
+        gameState[finishedKey] = true;
+        await updateRoomData({ [finishedKey]: true });
+        
+        // Este jugador ha completado todas sus rondas, terminar el juego
+        setTimeout(async () => {
             await endGame();
-        } else {
+        }, 2000);
+    } else {
+        // Continuar con la siguiente ronda
+        setTimeout(async () => {
             await nextRound();
-        }
-    }, 2000);
+        }, 2000);
+    }
+    
+    // Actualizar el contador de rondas completadas
+    await updateRoomData({ [playerKey]: gameState[playerKey] });
 }
 
 async function handleRoundLoss() {
     showMessage(`La palabra era: ${gameState.currentWord}`, 'error');
     
+    // En el nuevo modo, si no adivinas la palabra, igual pasas a la siguiente ronda
     setTimeout(async () => {
-        if (gameState.currentRound >= gameState.totalRounds) {
-            await endGame();
+        const playerKey = isRoomCreator ? 'player1CompletedRounds' : 'player2CompletedRounds';
+        const finishedKey = isRoomCreator ? 'player1Finished' : 'player2Finished';
+        
+        gameState[playerKey]++;
+        
+        // Marcar si este jugador ha terminado todas sus rondas
+        if (gameState[playerKey] >= gameState.totalRounds) {
+            gameState[finishedKey] = true;
+            await updateRoomData({ [finishedKey]: true, [playerKey]: gameState[playerKey] });
+            
+            // Este jugador ha completado todas sus rondas, terminar el juego
+            setTimeout(async () => {
+                await endGame();
+            }, 1000);
         } else {
-            await nextRound();
+            // Continuar con la siguiente ronda
+            await updateRoomData({ [playerKey]: gameState[playerKey] });
+            setTimeout(async () => {
+                await nextRound();
+            }, 2000);
         }
     }, 3000);
 }
@@ -753,27 +789,35 @@ function showGameOverPanel() {
     const finalScore = document.getElementById('finalScore');
     const message = document.getElementById('gameOverMessage');
 
-    const player1Score = gameState.player1Score;
-    const player2Score = gameState.player2Score;
-    const isWinner = isRoomCreator ? player1Score > player2Score : player2Score > player1Score;
+    const player1Completed = gameState.player1CompletedRounds;
+    const player2Completed = gameState.player2CompletedRounds;
+    
+    // El ganador es quien completó más rondas (o quien terminó primero)
+    const player1Won = player1Completed > player2Completed || 
+                       (player1Completed === player2Completed && gameState.player1Finished && !gameState.player2Finished);
+    const player2Won = player2Completed > player1Completed || 
+                       (player1Completed === player2Completed && gameState.player2Finished && !gameState.player1Finished);
+    
+    const isWinner = isRoomCreator ? player1Won : player2Won;
+    const isDraw = !player1Won && !player2Won;
 
-    title.textContent = isWinner ? '¡Victoria!' : '¡Derrota!';
+    title.textContent = isDraw ? '¡Empate!' : (isWinner ? '¡Victoria!' : '¡Derrota!');
     
     finalScore.innerHTML = `
         <div>
             <div>${currentRoom?.creatorName || 'Jugador 1'}</div>
-            <div>${player1Score}</div>
+            <div>${player1Completed}/${gameState.totalRounds} rondas</div>
         </div>
         <div>
             <div>${currentRoom?.opponentName || 'Jugador 2'}</div>
-            <div>${player2Score}</div>
+            <div>${player2Completed}/${gameState.totalRounds} rondas</div>
         </div>
     `;
 
-    if (player1Score === player2Score) {
-        message.textContent = '¡Empate!';
+    if (isDraw) {
+        message.textContent = '¡Ambos jugadores completaron las mismas rondas!';
     } else {
-        message.textContent = isWinner ? '¡Felicidades por la victoria!' : 'Mejor suerte la próxima vez';
+        message.textContent = isWinner ? '¡Completaste tus rondas primero!' : 'Tu oponente completó sus rondas primero';
     }
 
     panel.style.display = 'flex';
@@ -789,8 +833,10 @@ function saveStats() {
     };
 
     const isWinner = isRoomCreator ? 
-        gameState.player1Score > gameState.player2Score : 
-        gameState.player2Score > gameState.player1Score;
+        gameState.player1CompletedRounds > gameState.player2CompletedRounds || 
+        (gameState.player1CompletedRounds === gameState.player2CompletedRounds && gameState.player1Finished && !gameState.player2Finished) :
+        gameState.player2CompletedRounds > gameState.player1CompletedRounds || 
+        (gameState.player1CompletedRounds === gameState.player2CompletedRounds && gameState.player2Finished && !gameState.player1Finished);
 
     if (isWinner) {
         stats.wins++;
@@ -814,8 +860,13 @@ function saveStats() {
 function updateUI() {
     document.getElementById('currentRound').textContent = gameState.currentRound;
     document.getElementById('totalRounds').textContent = gameState.totalRounds;
-    document.getElementById('player1Score').textContent = gameState.player1Score;
-    document.getElementById('player2Score').textContent = gameState.player2Score;
+    
+    // Mostrar progreso en lugar de puntuación
+    const player1Progress = `${gameState.player1CompletedRounds}/${gameState.totalRounds}`;
+    const player2Progress = `${gameState.player2CompletedRounds}/${gameState.totalRounds}`;
+    
+    document.getElementById('player1Score').textContent = player1Progress;
+    document.getElementById('player2Score').textContent = player2Progress;
     
     if (currentRoom) {
         document.getElementById('player1Name').textContent = currentRoom.creatorName || 'Jugador 1';
@@ -899,13 +950,15 @@ function resetGame() {
     gameState = {
         currentRound: 1,
         totalRounds: 5,
-        player1Score: 0,
-        player2Score: 0,
+        player1CompletedRounds: 0,
+        player2CompletedRounds: 0,
         currentWord: '',
         player1Words: [],
         player2Words: [],
         roundWords: [],
-        gameStatus: 'waiting'
+        gameStatus: 'waiting',
+        player1Finished: false,
+        player2Finished: false
     };
     
     currentRoom = null;
