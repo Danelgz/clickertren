@@ -252,9 +252,12 @@ class Wordle1v1Game {
         if (this.gameOver) return;
         
         // Permitir escribir si la ronda no está completa para este jugador
+        // y si no hemos excedido el número máximo de intentos
         const playerKey = this.isPlayer1 ? 'player1' : 'player2';
         const playerData = this.roomData[playerKey];
-        if (playerData?.roundComplete) return;
+        
+        // Solo bloquear si la ronda está completa Y hemos excedido los intentos
+        if (playerData?.roundComplete && this.currentRow >= 6) return;
         
         if (key === "ENTER") { 
             this.checkWord(); 
@@ -264,7 +267,9 @@ class Wordle1v1Game {
             this.deleteLetter(); 
             return; 
         }
-        if (this.currentCol < 5) {
+        
+        // Permitir escribir si tenemos espacio en el tablero
+        if (this.currentRow < 6 && this.currentCol < 5) {
             const tile = this.myBoard[this.currentRow][this.currentCol];
             tile.textContent = key;
             tile.classList.add('filled');
@@ -388,12 +393,13 @@ class Wordle1v1Game {
         const playerKey = this.isPlayer1 ? 'player1' : 'player2';
         const attempts = this.roomData[playerKey]?.attempts || [];
         
+        const timestamp = serverTimestamp();
         attempts.push({
             round: this.currentRound,
             wordIndex: this.currentWordIndex,
             guess: guess,
             results: results,
-            timestamp: serverTimestamp()
+            timestamp: timestamp
         });
         
         await updateDoc(doc(db, 'wordle1v1_rooms', roomCode), {
@@ -500,7 +506,10 @@ class Wordle1v1Game {
             }
         });
         
-        this.currentCol = this.currentRow < 6 ? 0 : 0;
+        // Solo resetear currentCol si no hemos completado la ronda
+        if (!this.roundOver) {
+            this.currentCol = this.currentRow < 6 ? 0 : 0;
+        }
     }
     
     saveBoardState() {
