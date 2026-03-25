@@ -223,6 +223,9 @@ h2 {
     grid-template-rows: repeat(6, 54px);
     gap: 8px;
     margin: 10px 0;
+    width: 380px;
+    height: 380px;
+    justify-content: center;
 }
 
 /* ======================== */
