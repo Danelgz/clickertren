@@ -111,9 +111,7 @@ class Wordle1v1Game {
         
         // Tableros
         this.myBoard = [];
-        this.opponentBoard = [];
         this.boardDiv = document.getElementById('game-board');
-        this.opponentBoardDiv = document.getElementById('opponent-board');
         
         // Teclado
         this.keyMap = {};
@@ -175,10 +173,6 @@ class Wordle1v1Game {
         if (this.roomData.player2) {
             this.player2NameSpan.textContent = this.roomData.player2.name + (!this.isPlayer1 ? ' (Tú)' : '');
         }
-        
-        // Actualizar títulos de tableros
-        document.getElementById('player1BoardTitle').textContent = this.isPlayer1 ? 'Tu Tablero' : 'Oponente';
-        document.getElementById('player2BoardTitle').textContent = !this.isPlayer1 ? 'Tu Tablero' : 'Oponente';
     }
     
     initBoards() {
@@ -196,22 +190,6 @@ class Wordle1v1Game {
                 row.push(tile);
             }
             this.myBoard.push(row);
-        }
-        
-        // Inicializar tablero del oponente
-        this.opponentBoardDiv.innerHTML = '';
-        this.opponentBoard = [];
-        for (let r = 0; r < 6; r++) {
-            const row = [];
-            for (let c = 0; c < 5; c++) {
-                const tile = document.createElement('div');
-                tile.classList.add('tile');
-                tile.dataset.row = r;
-                tile.dataset.col = c;
-                this.opponentBoardDiv.appendChild(tile);
-                row.push(tile);
-            }
-            this.opponentBoard.push(row);
         }
         
         // Cargar estado existente si lo hay
@@ -470,16 +448,8 @@ class Wordle1v1Game {
     }
     
     clearBoards() {
-        // Limpiar mi tablero
+        // Limpiar tablero
         this.myBoard.forEach(row => {
-            row.forEach(tile => {
-                tile.textContent = '';
-                tile.className = 'tile';
-            });
-        });
-        
-        // Limpiar tablero oponente
-        this.opponentBoard.forEach(row => {
             row.forEach(tile => {
                 tile.textContent = '';
                 tile.className = 'tile';
@@ -698,34 +668,11 @@ function listenToRoom(code) {
                 const playerData = roomData[playerKey];
                 gameInstance.roundOver = playerData?.roundComplete || false;
                 
-                // Actualizar tablero del oponente
-                updateOpponentBoard(roomData);
-                
                 // Verificar si ambos jugadores completaron la ronda
                 checkRoundComplete(roomData);
                 
                 // Verificar si el juego terminó
                 checkGameEnd(roomData);
-            }
-        }
-    });
-}
-
-function updateOpponentBoard(roomData) {
-    const opponentKey = gameInstance.isPlayer1 ? 'player2' : 'player1';
-    const attempts = roomData[opponentKey]?.attempts || [];
-    
-    // Cargar intentos del oponente de la ronda actual
-    const currentRoundAttempts = attempts.filter(a => 
-        a.round === gameInstance.currentRound && a.wordIndex === gameInstance.currentWordIndex
-    );
-    
-    currentRoundAttempts.forEach((attempt, index) => {
-        if (index < 6) {
-            for (let c = 0; c < 5; c++) {
-                const tile = gameInstance.opponentBoard[index][c];
-                tile.textContent = attempt.guess[c];
-                tile.classList.add('filled', attempt.results[c]);
             }
         }
     });

@@ -321,25 +321,19 @@ body {
 }
 
 /* ======================== */
-/* BOARDS CONTAINER */
+/* TABLERO ÚNICO */
 /* ======================== */
-.boards-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    width: 100%;
-    max-width: 1000px;
-}
-
-.player-board {
+.board-container {
     background: var(--bg-secondary);
     border: 2px solid var(--border-color);
     border-radius: 15px;
     padding: 20px;
     backdrop-filter: blur(10px);
+    margin: 0 auto;
+    max-width: fit-content;
 }
 
-.player-board h3 {
+.board-container h3 {
     color: var(--accent);
     text-align: center;
     margin-bottom: 15px;
@@ -347,10 +341,7 @@ body {
     text-shadow: 0 0 10px var(--accent);
 }
 
-/* ======================== */
-/* TABLEROS */
-/* ======================== */
-#game-board, #opponent-board {
+#game-board {
     display: grid;
     grid-template-columns: repeat(5, 50px);
     grid-template-rows: repeat(6, 50px);
@@ -610,12 +601,7 @@ body {
         padding: 15px 20px;
     }
     
-    .boards-container {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    #game-board, #opponent-board {
+    #game-board {
         grid-template-columns: repeat(5, 45px);
         grid-template-rows: repeat(6, 45px);
         gap: 5px;
@@ -654,7 +640,7 @@ body {
         margin: 10px;
     }
     
-    #game-board, #opponent-board {
+    #game-board {
         grid-template-columns: repeat(5, 40px);
         grid-template-rows: repeat(6, 40px);
         gap: 4px;
