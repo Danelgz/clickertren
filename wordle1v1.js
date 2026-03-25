@@ -393,17 +393,17 @@ class Wordle1v1Game {
         const playerKey = this.isPlayer1 ? 'player1' : 'player2';
         const attempts = this.roomData[playerKey]?.attempts || [];
         
-        const timestamp = serverTimestamp();
         attempts.push({
             round: this.currentRound,
             wordIndex: this.currentWordIndex,
             guess: guess,
             results: results,
-            timestamp: timestamp
+            timestamp: new Date().toISOString()
         });
         
         await updateDoc(doc(db, 'wordle1v1_rooms', roomCode), {
-            [`${playerKey}.attempts`]: attempts
+            [`${playerKey}.attempts`]: attempts,
+            [`${playerKey}.lastAttemptTime`]: serverTimestamp()
         });
     }
     
@@ -679,9 +679,6 @@ function listenToRoom(code) {
                 
                 // Verificar si ambos jugadores completaron la ronda
                 checkRoundComplete(roomData);
-                
-                // Verificar si el juego terminó
-                checkGameEnd(roomData);
             }
         }
     });
