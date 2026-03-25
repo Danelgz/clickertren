@@ -271,7 +271,12 @@ class Wordle1v1Game {
     }
     
     handleKey(key) {
-        if (this.gameOver || this.roundOver) return;
+        if (this.gameOver) return;
+        
+        // Permitir escribir si la ronda no está completa para este jugador
+        const playerKey = this.isPlayer1 ? 'player1' : 'player2';
+        const playerData = this.roomData[playerKey];
+        if (playerData?.roundComplete) return;
         
         if (key === "ENTER") { 
             this.checkWord(); 
@@ -437,7 +442,8 @@ class Wordle1v1Game {
         this.currentWordIndex++;
         this.currentRow = 0;
         this.currentCol = 0;
-        this.roundOver = false;
+        this.roundOver = false;  // Reset roundOver para permitir jugar la siguiente ronda
+        this.gameOver = false;   // Reset gameOver también
         this.currentWord = this.words[this.currentWordIndex];
         
         // Limpiar tableros
@@ -452,6 +458,12 @@ class Wordle1v1Game {
             'player1.won': null,
             'player2.won': null
         });
+        
+        // Actualizar roomData local inmediatamente
+        this.roomData.player1.roundComplete = false;
+        this.roomData.player2.roundComplete = false;
+        this.roomData.player1.won = null;
+        this.roomData.player2.won = null;
         
         this.updateUI();
         this.showMessage(`Ronda ${this.currentRound} - ¡A jugar!`);
@@ -488,6 +500,10 @@ class Wordle1v1Game {
         const currentRoundAttempts = attempts.filter(a => 
             a.round === this.currentRound && a.wordIndex === this.currentWordIndex
         );
+        
+        // Determinar si el jugador ya completó esta ronda
+        const playerData = this.roomData[playerKey];
+        this.roundOver = playerData?.roundComplete || false;
         
         currentRoundAttempts.forEach((attempt, index) => {
             if (index < 6) {
@@ -676,6 +692,11 @@ function listenToRoom(code) {
                 gameInstance.roomData = roomData;
                 gameInstance.updateUI();
                 gameInstance.updateScoreboard();
+                
+                // Actualizar estado de ronda del jugador actual
+                const playerKey = gameInstance.isPlayer1 ? 'player1' : 'player2';
+                const playerData = roomData[playerKey];
+                gameInstance.roundOver = playerData?.roundComplete || false;
                 
                 // Actualizar tablero del oponente
                 updateOpponentBoard(roomData);
