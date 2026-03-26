@@ -576,8 +576,8 @@ class Wordle1v1Game {
             return;
         }
         
-        // Esperar al otro jugador
-        this.showMessage('Esperando al oponente...');
+        // Avanzar directamente a la siguiente ronda sin esperar
+        await this.nextRound();
     }
     
     async nextRound() {
@@ -594,17 +594,15 @@ class Wordle1v1Game {
         // Limpiar tableros
         this.clearBoards();
         
-        // Actualizar Firebase
+        // Actualizar Firebase solo con el progreso individual del jugador
+        const playerKey = this.isPlayer1 ? 'player1' : 'player2';
         await updateDoc(doc(db, 'wordle1v1_rooms', roomCode), {
-            currentRound: this.currentRound,
-            currentWordIndex: this.currentWordIndex
+            [`${playerKey}.currentRound`]: this.currentRound,
+            [`${playerKey}.currentWordIndex`]: this.currentWordIndex
         });
-        this.roomData.player2.roundComplete = false;
-        this.roomData.player1.won = null;
-        this.roomData.player2.won = null;
         
         this.updateUI();
-        this.showMessage(`Ronda ${this.currentRound} - ¡A jugar!`);
+        this.showMessage(`🎮 Ronda ${this.currentRound} - ¡A jugar!`);
     }
     
     clearBoards() {
@@ -837,26 +835,9 @@ function listenToRoom(code) {
                 const playerKey = gameInstance.isPlayer1 ? 'player1' : 'player2';
                 const playerData = roomData[playerKey];
                 gameInstance.roundOver = playerData?.roundComplete || false;
-                
-                // Verificar si ambos jugadores completaron la ronda
-                checkRoundComplete(roomData);
             }
         }
     });
-}
-
-async function checkRoundComplete(roomData) {
-    if (roomData.player1?.roundComplete && roomData.player2?.roundComplete) {
-        // Ambos jugadores completaron la ronda
-        setTimeout(async () => {
-            if (gameInstance.currentRound < gameInstance.totalRounds) {
-                await gameInstance.nextRound();
-            } else {
-                // El juego ha terminado
-                await endGame(roomData);
-            }
-        }, 2000);
-    }
 }
 
 async function endGame(roomData) {
