@@ -265,9 +265,17 @@ class Wordle1v1Game {
     }
     
     async init() {
-        // Si no hay palabras, generarlas
+        // Si no hay palabras, esperar a que el creador las genere
         if (this.words.length === 0) {
-            await this.generateWords();
+            if (this.isCreator) {
+                await this.generateWords();
+            } else {
+                // Si no es el creador, esperar a que las palabras se generen
+                this.showMessage('⏳ Esperando a que el creador configure las palabras...');
+            }
+        } else {
+            // Configurar palabras para este jugador (orden diferente)
+            this.setupPlayerWords();
         }
         
         this.updateUI();
@@ -279,6 +287,7 @@ class Wordle1v1Game {
     }
     
     async generateWords() {
+        // Generar palabras para la sala
         const shuffled = [...words].sort(() => Math.random() - 0.5);
         this.words = shuffled.slice(0, this.totalRounds);
         
@@ -288,7 +297,24 @@ class Wordle1v1Game {
             currentWordIndex: 0
         });
         
-        this.currentWord = this.words[0];
+        // Configurar palabras para este jugador
+        this.setupPlayerWords();
+    }
+    
+    setupPlayerWords() {
+        // Crear orden específico para este jugador
+        const baseWords = [...this.words];
+        
+        if (this.isPlayer1) {
+            // Jugador 1: usar orden original
+            this.playerWords = baseWords;
+        } else {
+            // Jugador 2: usar orden diferente (rotar)
+            this.playerWords = [...baseWords.slice(1), baseWords[0]];
+        }
+        
+        // Establecer palabra actual según la ronda actual
+        this.currentWord = this.playerWords[this.currentRound - 1] || '';
     }
     
     updateUI() {
@@ -557,7 +583,9 @@ class Wordle1v1Game {
         this.currentCol = 0;
         this.roundOver = false;  // Reset roundOver para permitir jugar la siguiente ronda
         this.gameOver = false;   // Reset gameOver también
-        this.currentWord = this.words[this.currentWordIndex];
+        
+        // Usar palabra específica del jugador para esta ronda
+        this.currentWord = this.playerWords[this.currentRound - 1] || '';
         
         // Limpiar tableros
         this.clearBoards();
@@ -565,15 +593,8 @@ class Wordle1v1Game {
         // Actualizar Firebase
         await updateDoc(doc(db, 'wordle1v1_rooms', roomCode), {
             currentRound: this.currentRound,
-            currentWordIndex: this.currentWordIndex,
-            'player1.roundComplete': false,
-            'player2.roundComplete': false,
-            'player1.won': null,
-            'player2.won': null
+            currentWordIndex: this.currentWordIndex
         });
-        
-        // Actualizar roomData local inmediatamente
-        this.roomData.player1.roundComplete = false;
         this.roomData.player2.roundComplete = false;
         this.roomData.player1.won = null;
         this.roomData.player2.won = null;
@@ -798,6 +819,13 @@ function listenToRoom(code) {
                 gameInstance = new Wordle1v1Game(roomData);
             } else {
                 gameInstance.roomData = roomData;
+                
+                // Actualizar palabras si es necesario
+                if (roomData.words && roomData.words.length > 0) {
+                    gameInstance.words = roomData.words;
+                    gameInstance.setupPlayerWords();
+                }
+                
                 gameInstance.updateUI();
                 gameInstance.updateScoreboard();
                 
