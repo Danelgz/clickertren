@@ -269,9 +269,6 @@ class Wordle1v1Game {
         if (this.words.length === 0) {
             if (this.isCreator) {
                 await this.generateWords();
-            } else {
-                // Si no es el creador, esperar a que las palabras se generen
-                this.showMessage('⏳ Esperando a que el creador configure las palabras...');
             }
         } else {
             // Configurar palabras para este jugador (orden diferente)
@@ -571,6 +568,13 @@ class Wordle1v1Game {
             [`${playerKey}.roundComplete`]: true,
             [`${playerKey}.won`]: won
         });
+        
+        // Verificar si este jugador ha completado todas sus palabras
+        if (this.currentRound >= this.totalRounds) {
+            // Este jugador completó todas sus palabras - fin del juego
+            await endGame(this.roomData);
+            return;
+        }
         
         // Esperar al otro jugador
         this.showMessage('Esperando al oponente...');
@@ -882,8 +886,69 @@ async function endGame(roomData) {
     gameScreen.classList.remove('active');
     resultsScreen.classList.add('active');
     
+    // Actualizar información del ganador
     document.getElementById('winnerName').textContent = winner;
     document.getElementById('winnerPoints').textContent = `${winnerPoints} puntos`;
+    
+    // Actualizar nombres en la tabla
+    document.getElementById('player1Header').textContent = roomData.player1?.name || 'Jugador 1';
+    document.getElementById('player2Header').textContent = roomData.player2?.name || 'Jugador 2';
+    
+    // Generar tabla de resumen
+    const summaryTableBody = document.getElementById('summaryTableBody');
+    summaryTableBody.innerHTML = '';
+    
+    // Obtener todas las palabras de la sala
+    const allWords = roomData.words || [];
+    
+    // Para cada ronda, mostrar la palabra y los resultados
+    for (let round = 1; round <= roomData.totalRounds; round++) {
+        const row = document.createElement('tr');
+        
+        // Número de ronda
+        const roundCell = document.createElement('td');
+        roundCell.textContent = round;
+        row.appendChild(roundCell);
+        
+        // Palabra (mostrar la palabra que le tocó al jugador 1)
+        const wordCell = document.createElement('td');
+        if (allWords.length >= round) {
+            wordCell.textContent = allWords[round - 1];
+        } else {
+            wordCell.textContent = '-';
+        }
+        row.appendChild(wordCell);
+        
+        // Resultado Jugador 1
+        const p1Cell = document.createElement('td');
+        const p1Attempt = roomData.player1?.attempts?.find(a => a.round === round);
+        if (p1Attempt) {
+            if (p1Attempt.won) {
+                p1Cell.innerHTML = '<span class="result-success">✅ Adivinó</span>';
+            } else {
+                p1Cell.innerHTML = '<span class="result-fail">❌ No adivinó</span>';
+            }
+        } else {
+            p1Cell.innerHTML = '<span class="result-pending">⏳ En progreso</span>';
+        }
+        row.appendChild(p1Cell);
+        
+        // Resultado Jugador 2
+        const p2Cell = document.createElement('td');
+        const p2Attempt = roomData.player2?.attempts?.find(a => a.round === round);
+        if (p2Attempt) {
+            if (p2Attempt.won) {
+                p2Cell.innerHTML = '<span class="result-success">✅ Adivinó</span>';
+            } else {
+                p2Cell.innerHTML = '<span class="result-fail">❌ No adivinó</span>';
+            }
+        } else {
+            p2Cell.innerHTML = '<span class="result-pending">⏳ En progreso</span>';
+        }
+        row.appendChild(p2Cell);
+        
+        summaryTableBody.appendChild(row);
+    }
     
     // Eliminar sala
     setTimeout(async () => {
