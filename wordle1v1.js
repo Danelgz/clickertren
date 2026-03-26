@@ -235,6 +235,9 @@ class Wordle1v1Game {
         this.currentWordIndex = roomData.currentWordIndex || 0;
         this.currentWord = this.words[this.currentWordIndex] || '';
         
+        // Crear set de palabras válidas (como en wordle.js)
+        this.validWordsSet = new Set(words.map(w => normalizeNoAccents(w)).filter(w => w.length === 5));
+        
         // Tableros
         this.myBoard = [];
         this.boardDiv = document.getElementById('game-board');
@@ -416,7 +419,7 @@ class Wordle1v1Game {
     
     isValidWord(guess) {
         const norm = normalizeNoAccents(guess.toUpperCase());
-        return words.includes(norm);
+        return this.validWordsSet.has(norm);
     }
     
     async checkWord() {
