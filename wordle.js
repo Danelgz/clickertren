@@ -121,87 +121,26 @@ const hardWords = [
 
 // Variable global para guardar las palabras seleccionadas según la dificultad
 let words = easyWords; // Por defecto, dificultad fácil
+let currentDifficulty = 'easy'; // Estado global de dificultad
 
-// Función para cambiar la dificultad
+// Función para cambiar la dificultad - versión simplificada
 function changeDifficulty(difficulty) {
     console.log('Cambiando dificultad a:', difficulty);
     
-    if (!window.game) {
-        console.log('El juego aún no está disponible');
-        return;
-    }
+    // Actualizar dificultad global
+    currentDifficulty = difficulty;
+    localStorage.setItem('wordleDifficulty', difficulty);
     
-    const game = window.game;
-    console.log('Dificultad actual:', game.difficulty);
-    
-    // Guardar las estadísticas actuales antes de cambiar (solo si ya están cargadas)
-    if (game.difficulty === 'easy' && game.easyStats) {
-        game.easyStats = {
-            level: game.level,
-            totalWins: game.totalWins,
-            winAttempts: game.winAttempts,
-            currentStreak: game.currentStreak,
-            maxStreak: game.maxStreak,
-            lastPlayedDate: game.lastPlayedDate
-        };
-        console.log('Guardadas estadísticas fáciles:', game.easyStats);
-    } else if (game.difficulty === 'hard' && game.hardStats) {
-        game.hardStats = {
-            level: game.level,
-            totalWins: game.totalWins,
-            winAttempts: game.winAttempts,
-            currentStreak: game.currentStreak,
-            maxStreak: game.maxStreak,
-            lastPlayedDate: game.lastPlayedDate
-        };
-        console.log('Guardadas estadísticas difíciles:', game.hardStats);
-    }
-    
-    // Cambiar la dificultad
+    // Cambiar lista de palabras
     if (difficulty === 'easy') {
         words = easyWords;
-        game.difficulty = 'easy';
-        game.words = words.map(w => normalizeNoAccents(w)).filter(w => w.length === 5);
-        
-        // Cargar estadísticas de fácil
-        const easyStats = game.easyStats || {
-            level: 1, totalWins: 0, winAttempts: [0,0,0,0,0,0],
-            currentStreak: 0, maxStreak: 0, lastPlayedDate: null
-        };
-        game.level = easyStats.level;
-        game.totalWins = easyStats.totalWins;
-        game.winAttempts = easyStats.winAttempts;
-        game.currentStreak = easyStats.currentStreak;
-        game.maxStreak = easyStats.maxStreak;
-        game.lastPlayedDate = easyStats.lastPlayedDate;
-        console.log('Cargadas estadísticas fáciles:', easyStats);
     } else {
         words = hardWords;
-        game.difficulty = 'hard';
-        game.words = words.map(w => normalizeNoAccents(w)).filter(w => w.length === 5);
-        
-        // Cargar estadísticas de difícil
-        const hardStats = game.hardStats || {
-            level: 1, totalWins: 0, winAttempts: [0,0,0,0,0,0],
-            currentStreak: 0, maxStreak: 0, lastPlayedDate: null
-        };
-        game.level = hardStats.level;
-        game.totalWins = hardStats.totalWins;
-        game.winAttempts = hardStats.winAttempts;
-        game.currentStreak = hardStats.currentStreak;
-        game.maxStreak = hardStats.maxStreak;
-        game.lastPlayedDate = hardStats.lastPlayedDate;
-        console.log('Cargadas estadísticas difíciles:', hardStats);
     }
     
-    // Actualizar el validWordsSet con las nuevas palabras
-    game.validWordsSet = new Set(game.words.map(w => normalizeNoAccents(w)));
-    
-    // Actualizar estados de los botones
+    // Actualizar botones
     const easyBtn = document.getElementById('easyBtn');
     const hardBtn = document.getElementById('hardBtn');
-    
-    console.log('Botones encontrados:', { easyBtn: !!easyBtn, hardBtn: !!hardBtn });
     
     if (easyBtn && hardBtn) {
         if (difficulty === 'easy') {
@@ -211,24 +150,24 @@ function changeDifficulty(difficulty) {
             easyBtn.classList.remove('active');
             hardBtn.classList.add('active');
         }
-        console.log('Actualizados estados de botones');
     }
     
-    // Reiniciar el juego con la nueva dificultad y estadísticas
-    game.currentWord = game.getDailyWord();
-    game.resetGame();
-    game.updateStatsDisplay();
-    game.updateLevelDisplay();
-    
-    console.log('Juego reiniciado con nivel:', game.level);
-    
-    // Guardar el cambio de dificultad y las estadísticas (solo si ya hay usuario)
-    localStorage.setItem('wordleDifficulty', difficulty);
-    if (_currentUser) {
-        game.saveStats();
-        console.log('Estadísticas guardadas en Firestore');
-    } else {
-        console.log('Sin usuario, no se guardan en Firestore');
+    // Si el juego ya existe, reiniciarlo
+    if (window.game) {
+        window.game.difficulty = difficulty;
+        window.game.words = words.map(w => normalizeNoAccents(w)).filter(w => w.length === 5);
+        window.game.validWordsSet = new Set(window.game.words.map(w => normalizeNoAccents(w)));
+        
+        // Reiniciar el juego
+        window.game.currentWord = window.game.getDailyWord();
+        window.game.resetGame();
+        
+        // Cargar estadísticas de la dificultad actual
+        window.game.loadDifficultyStats();
+        window.game.updateStatsDisplay();
+        window.game.updateLevelDisplay();
+        
+        console.log('Juego reiniciado con dificultad:', difficulty, 'nivel:', window.game.level);
     }
 }
 
@@ -253,17 +192,15 @@ function normalizeNoAccents(str) {
 // ========================
 class WordleGame {
     constructor(words) {
-        // Cargar la dificultad guardada o usar fácil por defecto
-        const savedDifficulty = localStorage.getItem('wordleDifficulty') || 'easy';
-        if (savedDifficulty === 'hard') {
-            words = hardWords;
-            this.difficulty = 'hard';
-        } else {
-            words = easyWords;
-            this.difficulty = 'easy';
-        }
+        // Usar la dificultad global
+        this.difficulty = currentDifficulty;
         
-        this.words = words.map(w => normalizeNoAccents(w)).filter(w => w.length === 5);
+        // Seleccionar palabras según la dificultad
+        if (this.difficulty === 'hard') {
+            this.words = hardWords.map(w => normalizeNoAccents(w)).filter(w => w.length === 5);
+        } else {
+            this.words = easyWords.map(w => normalizeNoAccents(w)).filter(w => w.length === 5);
+        }
         
         // Construimos el set con entradas normalizadas (sin tildes, con Ñ conservada)
         this.validWordsSet = new Set(this.words.map(w => normalizeNoAccents(w)));
@@ -842,6 +779,28 @@ class WordleGame {
         }).catch(e => console.warn('[wordle lb]', e));
     }
 
+    loadDifficultyStats() {
+        // Cargar las estadísticas de la dificultad actual
+        const stats = this.difficulty === 'hard' ? this.hardStats : this.easyStats;
+        
+        if (stats) {
+            this.level = stats.level;
+            this.totalWins = stats.totalWins;
+            this.winAttempts = stats.winAttempts;
+            this.currentStreak = stats.currentStreak;
+            this.maxStreak = stats.maxStreak;
+            this.lastPlayedDate = stats.lastPlayedDate;
+        } else {
+            // Valores por defecto si no hay estadísticas
+            this.level = 1;
+            this.totalWins = 0;
+            this.winAttempts = [0, 0, 0, 0, 0, 0];
+            this.currentStreak = 0;
+            this.maxStreak = 0;
+            this.lastPlayedDate = null;
+        }
+    }
+
     async loadStats() {
         if (!_currentUser) return;
         try {
@@ -869,13 +828,7 @@ class WordleGame {
             };
             
             // Cargar las estadísticas de la dificultad actual
-            const currentStats = this.difficulty === 'hard' ? this.hardStats : this.easyStats;
-            this.level = currentStats.level;
-            this.totalWins = currentStats.totalWins;
-            this.winAttempts = currentStats.winAttempts;
-            this.currentStreak = currentStats.currentStreak;
-            this.maxStreak = currentStats.maxStreak;
-            this.lastPlayedDate = currentStats.lastPlayedDate;
+            this.loadDifficultyStats();
         } catch (e) {
             console.warn('[wordle load]', e);
         }
@@ -921,13 +874,16 @@ async function init() {
         return;
     }
 
-    // Crear el juego primero
+    // Cargar la dificultad guardada primero
+    const savedDifficulty = localStorage.getItem('wordleDifficulty') || 'easy';
+    currentDifficulty = savedDifficulty;
+    
+    // Crear el juego con la dificultad correcta
     const game = new WordleGame(words);
     window.game = game; // Guardar referencia global para poder acceder desde changeDifficulty
     await game.loadStats();
     
-    // Ahora establecer la dificultad correcta
-    const savedDifficulty = localStorage.getItem('wordleDifficulty') || 'easy';
+    // Establecer los botones en el estado correcto
     changeDifficulty(savedDifficulty);
 }
 init();
