@@ -27,6 +27,11 @@
         <section id="keyboard" aria-label="Teclado virtual"></section>
 
         <section class="game-controls">
+            <div class="difficulty-selector">
+                <span class="difficulty-label">Dificultad:</span>
+                <button id="easyBtn" class="difficulty-btn active" onclick="changeDifficulty('easy')">Fácil</button>
+                <button id="hardBtn" class="difficulty-btn" onclick="changeDifficulty('hard')">Difícil</button>
+            </div>
             <button id="showStatsBtn" type="button">📊 Estadísticas</button>
             <a href="ranking.html" class="ranking-link">🏆 Rankings</a>
             <a href="index.html" id="backBtn">Volver a inicio</a>
