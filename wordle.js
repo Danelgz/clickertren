@@ -230,6 +230,7 @@ class WordleGame {
         this.board = [];
         this.keyMap = {};
         this.gameOver = false;
+        this.isProcessing = false; // Flag to prevent multiple submissions
 
         this.boardDiv = document.getElementById('game-board');
         this.keyboardDiv = document.getElementById('keyboard');
@@ -510,7 +511,7 @@ class WordleGame {
     }
 
     handleKey(key) {
-        if (this.gameOver) return;
+        if (this.gameOver || this.isProcessing) return;
         if (key === "ENTER") { 
             this.checkWord(); 
             return; 
@@ -536,10 +537,14 @@ class WordleGame {
     }
 
     checkWord() {
+        if (this.isProcessing) return;
         if (this.currentCol < 5) {
             this.showMessage('✏️ Escribe 5 letras');
             return;
         }
+
+        // Set processing flag to prevent multiple submissions
+        this.isProcessing = true;
 
         let guess = "";
         for (let c = 0; c < 5; c++) guess += this.board[this.currentRow][c].textContent;
@@ -548,7 +553,10 @@ class WordleGame {
             this.showMessage('❌ Palabra no válida');
             const row = this.board[this.currentRow];
             row.forEach(tile => tile.classList.add('shake'));
-            setTimeout(() => row.forEach(tile => tile.classList.remove('shake')), 500);
+            setTimeout(() => {
+                row.forEach(tile => tile.classList.remove('shake'));
+                this.isProcessing = false; // Reset processing flag
+            }, 500);
             return;
         }
 
@@ -620,6 +628,7 @@ class WordleGame {
                 this.gameOver = true;
                 this.saveStats(); // guardar victorias antes de pasar de nivel
                 this.saveGameState(); // Guardar estado cuando se gana
+                this.isProcessing = false; // Reset processing flag
                 setTimeout(() => this.nextLevel(), 2000);
             } else {
                 this.currentRow++;
@@ -632,7 +641,10 @@ class WordleGame {
                     this.gameOver = true;
                     this.saveStats();
                     this.saveGameState(); // Guardar estado final del juego
+                    this.isProcessing = false; // Reset processing flag
                     setTimeout(() => this.nextLevel(), 2500);
+                } else {
+                    this.isProcessing = false; // Reset processing flag for next attempt
                 }
             }
         }, 6 * 250 + 400);
@@ -674,6 +686,7 @@ class WordleGame {
 
     nextLevel() {
         this.gameOver = false;
+        this.isProcessing = false; // Reset processing flag for new level
         this.currentRow = 0;
         this.currentCol = 0;
         this.messageDiv.textContent = '';
