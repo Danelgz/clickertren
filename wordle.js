@@ -263,12 +263,9 @@ class WordleGame {
         return this.words[Math.floor(Math.random() * this.words.length)];
     }
 
-    // Generar una palabra basada en la fecha actual (misma palabra para todo el día)
+    // Generar una palabra aleatoria
     getDailyWord() {
-        const today = new Date();
-        const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-        const index = seed % this.words.length;
-        return this.words[index];
+        return this.randomWord();
     }
 
     // Guardar estado del juego en localStorage
@@ -688,7 +685,7 @@ class WordleGame {
         Object.values(this.keyMap).forEach(btn => {
             btn.classList.remove('correct', 'present', 'absent');
         });
-        this.currentWord = this.getDailyWord(); // Generar nueva palabra diaria
+        this.currentWord = this.getDailyWord(); // Generar nueva palabra aleatoria
         this.level++;
         this.updateLevelDisplay();
         this.saveStats(); // guardar con el nivel ya incrementado
