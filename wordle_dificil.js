@@ -1,5 +1,5 @@
 // ============================================================
-// wordle.js — con guardado en Firestore por usuario
+// wordle_dificil.js — Wordle difícil con lista expandida de palabras
 // ============================================================
 import { db, waitForUser, getPlayerName }
     from "./firebase-config.js";
@@ -11,7 +11,7 @@ import {
 let _currentUser = null;
 
 // ========================
-// PALABRAS SECRETAS
+// PALABRAS SECRETAS (LISTA EXPANDIDA)
 // ========================
 const words = [
 "ABACO","ABAJO","ABRIR","ACERO","ACIDO","ACTOR","AGUJA","ALBUM","ALDEA","ALETA",
@@ -282,12 +282,12 @@ class WordleGame {
             keyboardState: this.getKeyboardState(),
             date: new Date().toDateString()
         };
-        localStorage.setItem('wordleGameState', JSON.stringify(gameState));
+        localStorage.setItem('wordleDificilGameState', JSON.stringify(gameState));
     }
 
     // Cargar estado del juego desde localStorage
     loadGameState() {
-        const saved = localStorage.getItem('wordleGameState');
+        const saved = localStorage.getItem('wordleDificilGameState');
         const today = new Date().toDateString();
         
         if (saved) {
@@ -434,7 +434,7 @@ class WordleGame {
 
     bindKeyboard() {
         document.addEventListener('keydown', e => {
-            if (this.gameOver) return;
+            if (this.gameOver || this.isProcessing) return;
             const raw = e.key;
 
             if (raw === 'Backspace' || raw === 'Delete') {
@@ -503,7 +503,7 @@ class WordleGame {
     }
 
     handleTileClick(row, col) {
-        if (this.gameOver) return;
+        if (this.gameOver || this.isProcessing) return;
         
         // Only allow clicking on the current row
         if (row !== this.currentRow) return;
@@ -711,7 +711,7 @@ class WordleGame {
         this.updateStatsDisplay();
         if (!_currentUser) return;
         const name = getPlayerName();
-        setDoc(doc(db, 'saves_wordle', _currentUser.uid), {
+        setDoc(doc(db, 'saves_wordle_dificil', _currentUser.uid), {
             name,
             level:         this.level,
             totalWins:     this.totalWins,
@@ -720,74 +720,68 @@ class WordleGame {
             maxStreak:     this.maxStreak,
             lastPlayedDate: this.lastPlayedDate,
             updatedAt:     serverTimestamp()
-        }).catch(e => console.warn('[wordle save]', e));
-        setDoc(doc(db, 'leaderboard_wordle', _currentUser.uid), {
+        }).catch(e => console.warn('[wordle dificil save]', e));
+        setDoc(doc(db, 'leaderboard_wordle_dificil', _currentUser.uid), {
             name,
             score:     this.level,
             updatedAt: serverTimestamp()
-        }).catch(e => console.warn('[wordle lb]', e));
+        }).catch(e => console.warn('[wordle dificil lb]', e));
     }
 
     async loadStats() {
         if (!_currentUser) return;
         try {
-            const snap = await getDoc(doc(db, 'saves_wordle', _currentUser.uid));
-            if (!snap.exists()) return;
-            const d = snap.data();
-            this.level           = d.level           ?? 1;
-            this.totalWins       = d.totalWins       ?? 0;
-            this.winAttempts     = d.winAttempts     ?? [0,0,0,0,0,0];
-            this.currentStreak   = d.currentStreak   ?? 0;
-            this.maxStreak       = d.maxStreak       ?? 0;
-            this.lastPlayedDate  = d.lastPlayedDate  ?? null;
-            this.updateLevelDisplay();
-            this.updateStatsDisplay();
+            const docSnap = await getDoc(doc(db, 'saves_wordle_dificil', _currentUser.uid));
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                this.level = data.level || 1;
+                this.totalWins = data.totalWins || 0;
+                this.winAttempts = data.winAttempts || [0,0,0,0,0,0];
+                this.currentStreak = data.currentStreak || 0;
+                this.maxStreak = data.maxStreak || 0;
+                this.lastPlayedDate = data.lastPlayedDate;
+                this.updateStatsDisplay();
+                this.updateLevelDisplay();
+            }
         } catch (e) {
-            console.warn('[wordle load]', e);
+            console.warn('[wordle dificil load]', e);
         }
     }
 
     updateStatsDisplay() {
-        const totalEl = document.getElementById('totalWins');
-        if (totalEl) totalEl.textContent = this.totalWins;
-        
-        const currentStreakEl = document.getElementById('currentStreak');
-        if (currentStreakEl) currentStreakEl.textContent = this.currentStreak;
-        
-        const maxStreakEl = document.getElementById('maxStreak');
-        if (maxStreakEl) maxStreakEl.textContent = this.maxStreak;
-        
-        // Actualizar barras de distribución
-        const maxWins = Math.max(...this.winAttempts, 1);
-        for (let i = 0; i < 6; i++) {
-            const countEl = document.getElementById('win' + (i + 1));
-            const barEl = document.getElementById('bar' + (i + 1));
-            if (countEl) countEl.textContent = this.winAttempts[i];
-            if (barEl) {
-                const percentage = (this.winAttempts[i] / maxWins) * 100;
-                barEl.style.width = percentage + '%';
-            }
-        }
+        const percent = this.totalWins > 0 
+            ? Math.round((this.totalWins / (this.totalWins + this.winAttempts.reduce((a,b) => a+b, 0))) * 100)
+            : 0;
+        document.getElementById('stats-games').textContent = this.totalWins;
+        document.getElementById('stats-percent').textContent = `${percent}%`;
+        document.getElementById('stats-streak').textContent = this.currentStreak;
+        document.getElementById('stats-max').textContent = this.maxStreak;
     }
 
     updateLevelDisplay() {
-        if (this.levelDisplay) this.levelDisplay.textContent = this.level;
+        if (this.levelDisplay) {
+            this.levelDisplay.textContent = `Nivel ${this.level}`;
+        }
     }
 }
 
 // ========================
-// INICIALIZAR JUEGO
+// INICIALIZACIÓN
 // ========================
 async function init() {
-    // Esperar a que Firebase Auth confirme quién es el usuario
-    _currentUser = await waitForUser();
-
-    if (!_currentUser) {
-        window.location.href = 'index.html';
-        return;
+    try {
+        _currentUser = await waitForUser();
+        const game = new WordleGame(words);
+        await game.loadStats();
+        console.log('Wordle Difícil inicializado');
+    } catch (e) {
+        console.error('Error al inicializar Wordle Difícil:', e);
     }
-
-    const game = new WordleGame(words);
-    await game.loadStats();
 }
-init();
+
+// Iniciar cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}

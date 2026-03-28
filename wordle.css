@@ -371,53 +371,6 @@ button:hover {
 }
 
 /* ======================== */
-/* SELECTOR DE DIFICULTAD */
-/* ======================== */
-.difficulty-selector {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 8px 12px;
-    border-radius: 25px;
-    border: 1px solid rgba(255, 217, 61, 0.3);
-}
-
-.difficulty-label {
-    color: #FFD93D;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.difficulty-btn {
-    background: transparent;
-    border: 1px solid rgba(255, 217, 61, 0.3);
-    color: #FFD93D;
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.difficulty-btn:hover {
-    background: rgba(255, 217, 61, 0.1);
-    border-color: rgba(255, 217, 61, 0.5);
-    transform: scale(1.05);
-}
-
-.difficulty-btn.active {
-    background: #FFD93D;
-    color: #000;
-    border-color: #FFD93D;
-}
-
-.difficulty-btn.active:hover {
-    background: #FFD93D;
-    transform: scale(1.05);
-}
-
-/* ======================== */
 /* ESTADÍSTICAS */
 /* ======================== */
 #statsPanel {

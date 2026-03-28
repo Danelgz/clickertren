@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Difícil</title>
+    <link rel="stylesheet" href="wordle.css">
+    <style>
+        .difficulty-indicator {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+        
+        .game-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .difficulty-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: scale(1.05);
+        }
+        
+        .difficulty-btn:not(.active) {
+            background: #e0e0e0;
+            color: #666;
+        }
+        
+        .difficulty-btn:not(.active):hover {
+            background: #d0d0d0;
+        }
+        
+        .game-board {
+            border: 2px solid #f5576c;
+            box-shadow: 0 0 20px rgba(245, 87, 108, 0.3);
+        }
+        
+        .tile.correct {
+            background-color: #f5576c !important;
+            border-color: #f5576c !important;
+        }
+        
+        .tile.present {
+            background-color: #f9ca24 !important;
+            border-color: #f9ca24 !important;
+        }
+        
+        .key.correct {
+            background-color: #f5576c !important;
+            border-color: #f5576c !important;
+        }
+        
+        .key.present {
+            background-color: #f9ca24 !important;
+            border-color: #f9ca24 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="difficulty-indicator">
+            🔥 WORDLE DIFÍCIL - Lista Expandida (+3546 palabras)
+        </div>
+        
+        <div class="game-switcher">
+            <a href="wordle_facil.html" class="difficulty-btn">FÁCIL</a>
+            <a href="wordle_dificil.html" class="difficulty-btn active">DIFÍCIL</a>
+        </div>
+        
+        <div class="header">
+            <h1>WORDLE</h1>
+            <div id="levelDisplay">Nivel 1</div>
+            <button id="showStatsBtn">📊 Estadísticas</button>
+        </div>
+        
+        <div id="game-board" class="game-board"></div>
+        <div id="keyboard" class="keyboard"></div>
+        <div id="game-message" class="message"></div>
+        
+        <div id="statsPanel" class="stats-panel" style="display: none;" aria-hidden="true">
+            <div class="stats-content">
+                <button id="closeStatsBtn" class="close-btn">&times;</button>
+                <h2>📊 Estadísticas</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="stats-games">0</div>
+                        <div class="stat-label">Partidas ganadas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="stats-percent">0%</div>
+                        <div class="stat-label">Acierto</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="stats-streak">0</div>
+                        <div class="stat-label">Racha actual</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="stats-max">0</div>
+                        <div class="stat-label">Mejor racha</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="auth-section">
+            <div id="userInfo" style="display: none;">
+                <span id="userName"></span>
+                <button id="logoutBtn">Cerrar sesión</button>
+            </div>
+            <div id="loginSection">
+                <button id="loginBtn">Iniciar sesión</button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="wordle_dificil.js"></script>
+    <script type="module" src="firebase-config.js"></script>
+</body>
+</html>

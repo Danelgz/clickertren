@@ -1,5 +1,5 @@
 // ============================================================
-// wordle.js — con guardado en Firestore por usuario
+// wordle_facil.js — Wordle fácil con lista original de palabras
 // ============================================================
 import { db, waitForUser, getPlayerName }
     from "./firebase-config.js";
@@ -11,7 +11,7 @@ import {
 let _currentUser = null;
 
 // ========================
-// PALABRAS SECRETAS
+// PALABRAS SECRETAS (LISTA ORIGINAL)
 // ========================
 const words = [
 "ABACO","ABAJO","ABRIR","ACERO","ACIDO","ACTOR","AGUJA","ALBUM","ALDEA","ALETA",
@@ -187,10 +187,7 @@ const words = [
 "lunar","xunta","entre","peste","tonta","llame","lapiz","mafia","segui","salva",
 "situo","lucio","batir","cedio","beach","films","jabon","ruedo","tubos","ruego",
 "belen","pasto","bolas","grand","pugna","roger","amada","tomen","bacon","sordo",
-"amaba",
-"CULPO",
-"PICAS",
-"PISCA","PISCO","PISPA","PISTE","PISTO","PITAO","PITAR","PITIO","PIUNE","PIURE","PIXEL","PIZCA","PIZCO","PLAGA","PLAYO","PLEBE","PLECA","PLEON","PLEPA","PLEXO","PLICA","POBRA","POCHA","POCHO","PODAR","PODIO","POISA","POISE","POLAR","POLCA","POLEA","POLEN","POLEO","POLIO","POLIR","POLLA","POMAR","POMPA","POMPO","PONTO","POPAR","POPEL","PORCO","PORNO","PORRA","PORRO","PORTE","POSA³","POSAR","POSCA","POSMA","POSTA","POSTE","POTAR","POTRA","POTRO","POYAL","POYAR","POZAL","POZOL","PRAVO","PRAZA","PREAR","PREDA","PREST","PRION","PRIOR","PROAL","PROBO","PROCO","PROEL","PROFE","PROLE","PRONO","PRORA","PRUNA","PRUNO","PUA±O","PUADO","PUBES","PUBIS","PUCHA","PUCHO","PUCIA","PUDAº","PUDIO","PUDIR","PUDOR","PUJAR","PULGA","PULIR","PULLA","PULPA","PULPO","PUMBA","PUNAR","PUNGA","PUNIR","PUPAR","PURA©","PURGA","PUSPO","PUYAR","PUZLE","PUZOL","QUAA","QUAO","QUARK","QUECO","QUEJO","QUENA","QUERA","QUICO","QUIER","QUIJO","QUILA","QUILO","QUIMA","QUIMO","QUINA","QUINO","QUIPA","QUIPU","QUISA","QUITE","QUIVI","RAA±A","RAA±O","RAAL","RAAZ","RABA","RABAL","RABEL","RABEO","RABIL","RACEL","RACHA","RACOR","RADAL","RAFAL","RAFEZ","RAFIA","RAGAº","RAGUA","RAHEZ","RAIDO","RAIJO","RAJA¡","RAJAR","RALEA","RALLO","RALLY","RAMAL","RAMIO","RAMPA","RANDA","RAPA©","RAPAR","RAPAZ","RAPTA","RAPTO","RAQUE","RASA","RASAR","RASCA","RASEL","RASPA","RATEO","RATIO","RAUCO","RAUDA","RAUDO","RAUTA","RAZAR","RAZIA","REALA","REAR","REATA","REATO","REBLE","REBOL","RECEL","RECIO","RECLE","RECRE","RECUA","REDAR","REDEL","REDIL","REDOL","REDOR","REDRO","REFEZ","REGAR","REGIO","REGIR","REJAL","RELA©","RELAX","RELEJ","RELSO","RELVA","REMAR","RENAL","RENCO","RENDA","RENGA","RENGO","RENIL","RENIO","RENTO","REOCA","REOJO","RESMA","RESOL","RESPE","RETAL","RETAR","RETEL","RETOR","RETRO","REUMA","REVER","REYAR","REZNO","RIA±A","RIADA","RICIA","RICIO","RIERA","RIFAR","RILAR","RIMAº","RIMAR","RINDE","RIPIA","RIPIO","RISCA","RISCO","RISPA","RISPO","RIZAL","RIZAR","ROA±A","ROANO","ROBDA","ROBLA","ROBLE","ROBRA","ROBRE","ROCHA","ROCHO","RODAL","RODAS","RODEO","RODIL","RODIO","ROELA","ROETE","ROGAR","ROJAL","ROJEZ","ROLAR","ROLDE","ROLEO","ROLLA","ROMA","ROMBO","ROMEO","RONCA","RONCE","RONCO","RONZA","RORAR","RORRO","ROSAL","ROSAR","ROSCA","ROSCO","ROSJO","ROTAL","ROTAR","ROTEN","ROTOR","ROUGE","ROZAR","ROZNO","RUA¡N","RUANA","RUANO","RUBA","RUBLO","RUBOR","RUBRO","RUCAR","RUCHE","RUCHO","RUCIO","RUECA","RUEJO","RUGAR","RUGBY","RUGIR","RULA©","RULAR","RUMA","RUMBA","RUMIA","RUNGO","RUPIA","RUSCO","RUSEL","RUTAR","RUTEL","SA³LO","SAA±A","SAAN","SABEO","SABLE","SABRE","SACHO","SACIO","SACRA","SACRE","SACRO","SAETA","SAFIR","SAGAº","SAGAZ","SAJAR","SALAR","SALAZ","SALCE","SALEA","SALEP","SALMA","SALMO","SALOL","SALPA","SALSO","SALVE","SAMBA","SAMBO","SAMIO","SAMPA","SANAR","SANCO","SANGO","SANIE","SANSA","SANSO","SAQUE","SARA","SARAO","SARDA","SARDE","SARDO","SARGA","SARGO","SARNA","SARRO","SARTA","SARZA","SARZO","SATIS","SAUCE","SAUNA","SAVIA","SAYAL","SEA±A","SECAR","SECTA","SECUA","SEDAL","SEDAR","SEGAR","SEGUR","SEIBO","SEICO","SEISE","SELTZ","SEMEN","SEMIS","SENIL","SEPIA","SEPTO","SERBA","SERBO","SERNA","SERPA","SERVO","SESA","SESEO","SESGA","SESGO","SESMA","SESMO","SETAL","SEUDO","SEXMA","SEXMO","SHORT","SIBIL","SICLO","SIDRA","SIEGA","SIENA","SIESO","SIGLA","SIGMA","SIGUA","SIJAº","SILBA","SILBO","SILFO","SILGA","SIMIA","SIMIO","SIMPA","SINGA","SIRGA","SIRGO","SIRIO","SIRLE","SIRTE","SISAL","SISAR","SISCA","SISEO","SISMO","SOBAR","SOBEO","SOCAZ","SOCHE","SOEZA","SOFA","SOFA¡","SOLAZ","SOLEN","SOLEO","SOLER","SOLFA","SOLIO","SOLLA","SOLLO","SONDA","SONIO","SONSO","SONTO","SOPAR","SOPLO","SOPOR","SORBA","SORBO","SORCE","SORDA","SORGO","SORNA","SORRA","SOSAL","SOSAR","SOSIA","SOTAR","SOTIL","SOTOL","SOVOZ","SPORT","SPRAY","STAND","STOCK","SUABO","SUATO","SUBEO","SUBTE","SUCHE","SUCRE","SUDAR","SUECO","SUELA","SUERO","SUEVO","SUFA","SUFRA","SUIDO","SUITA","SUITE","SULCO","SULLA","SUMIR","SUNCO","SUPRA","SURA¡","SURAL","SURCO","SURTO","TAA±O","TABA","TABAL","TABAº","TABEA","TABES","TABOR","TACAR","TACHA","TACHO","TAFIA","TAFUR","TAGUA","TAIFA","TAIGA","TAIMA","TAINA","TAIRA","TAIRE","TAITA","TAJA¡","TAJAº","TAJAR","TAJEA","TALAR","TALCO","TALED","TALGO","TALIO","TALLE","TALLO","TALMA","TALPA","TALUD","TAMAL","TAMBA","TAMBO","TAMIL","TAMIZ","TAMUL","TANDA","TANGA","TANKA","TANOR","TANZA","TAPAR","TAPEO","TAPIA","TAPIR","TAPIS","TAPIZ","TAQUE","TARAR","TARAY","TARCA","TARCO","TARJA","TARMA","TAROT","TARRA","TARRO","TARSO","TARTA","TASAR","TASCA","TASCO","TASIO","TASTO","TATAº","TATAS","TAUCA","TAULA","TAURO","TAZAR","TEA±A","TEAME","TEBEO","TECLE","TECOL","TEDIO","TEGEO","TEGUA","TEGUE","TEJAR","TEJER","TEMPO","TENAZ","TENCA","TENSO","TENUE","TEOSO","TEPAº","TERCO","TERMA","TERMO","TERNA","TERNE","TERNO","TERSO","TESAR","TESLA","TESTA","TESTE","TETAR","TETRA","TETRO","TEYAº","TIA±A","TIACA","TIARA","TIBAR","TIBIO","TIBOR","TIESO","TIFUS","TIGRA","TILDE","TILIA","TILLA","TILLO","TILMA","TIMAR","TIMBA","TIMBO","TIMOL","TIMPA","TINCA","TINGE","TINTE","TINTO","TIPLE","TIPOI","TIPOY","TIQUE","TIQUI","TIRIO","TIRSO","TIRTE","TISAº","TISIS","TISTE","TITA","TITAR","TITEO","TIZNA","TIZNE","TLACO","TOA±A","TOBAR","TOCHE","TOCHO","TOCIA","TOCIO","TOCTE","TOESA","TOJAL","TOLAº","TOLDO","TOLLA","TOLLO","TOLMO","TOLVA","TONA¡","TONA³","TONAL","TONAR","TONCA","TONDO","TONEL","TONGA","TONGO","TOPAR","TOPIA","TOPIL","TOQUI","TORAL","TORCA","TORCE","TORCO","TORDA","TORDO","TORGA","TORGO","TORIL","TORIO","TORMO","TORNA","TORSO","TORTA","TORVA","TORVO","TOSCA","TOSCO","TOSER","TOTA","TOZAL","TOZAR","TRAA","TRABA","TRABE","TRACA","TRACE","TRAO","TRAPA","TRAPE","TRARO","TRAVO","TRAZA","TRAZO","TREBO","TREFE","TREJA","TRENA","TRENO","TREPA","TREPE","TRETA","TRIAL","TRIAR","TRIGA","TRILE","TRINO","TRIPA","TRIPE","TRISA","TRIZA","TROCO","TROJA","TROJE","TROLA","TROLE","TRONA","TROPO","TROTE","TROVA","TROVO","TROYA","TROZA","TRUA©","TRUCA","TRUFA","TRUJA","TRUSA","TRUST","TUDEL","TUECA","TUECO","TUERA","TUERO","TUINA","TULIO","TULPA","TUMBO","TUNAL","TUNAR","TUNCA","TUNCO","TUNDA","TUNJO","TUNTA","TUPA","TUPA©","TUPIR","TURAR","TURBA","TURCA","TURMA","TURRA","TURRO","TUSAR","TUSCA","TUSCO","TUTAº","TUTEO","TUTOR","UA±A","UA±IR","UCASE","UCHAº","UEBOS","UFANO","UJIER","ULAGA","ULALA","ULANO","ULEMA","ULTRA","UMBRA","UMBRO","UMERO","UNCIA","UNCIR","UNGIR","UNJAº","UNTAR","UPUPA","URAPE","URATO","URDIR","URGIR","URUGA","USAA","USAJE","USIER","USINA","USUAL","USURA","UVADA","UVATE","UVERO","UVIAR","VACAR","VACUO","VAGAR","VAHAR","VAINA","VALA","VALAR","VALER","VALGO","VALLA","VALSE","VALVA","VARA","VARAL","VARAR","VAREA","VAREO","VARGA","VARIO","VARIZ","VASAR","VASTO","VATIO","VEDAR","VEJAR","VELAR","VELAY","VELIS","VELIZ","VELLO","VELOZ","VENAL","VENDA","VENDO","VERAZ","VERBA","VERGA","VERIL","VERJA","VESTE","VETAR","VEZAR","VIA±A","VIADA","VICHY","VICIA","VICTO","VIDRO","VIESA","VILOS","VINAL","VINAR","VINCA","VINCO","VINTA","VIRAL","VIRAR","VIRGO","VIRIL","VIRIO","VIROL","VISAR","VISCO","VISIR","VISOR","VITAR","VITRE","VIUDO","VIVAC","VIVAR","VIVAZ","VIVEZ","VOCEO","VODAº","VODCA","VODKA","VOILA","VOLEA","VOLEO","VOLVO","VORAZ","VOSEO","VOTRI","VUDAº","VUESO","VULGO","VULTO","VULVA","VUSCO","WEBER","YACAL","YACER","YACIO","YAGUA","YAMAO","YAMBO","YANTA","YAPAº","YAPAR","YARDA","YAREY","YATAY","YEDGO","YEDRA","YEGUA","YELGO","YELMO","YENTE","YERAL","YERBA","YERMO","YERNA","YERNO","YERRA","YERRO","YERSI","YERTO","YERVO","YESAL","YESAR","YESCA","YEZGO","YOGAR","YOGUI","YOGUR","YOQUI","YOYA³","YUCAL","YUMBO","YUNGA","YUNTA","YUNTO","YURA©","YURAS","YUYAL","ZABRA","ZABRO","ZACEO","ZAFAR","ZAFIO","ZAFIR","ZAFRA","ZAFRE","ZAGAL","ZAGUA","ZAIDA","ZAINA","ZAINO","ZALA¡","ZALBO","ZALEA","ZALEO","ZAMBA","ZAMBO","ZAMPA","ZANCA","ZANCO","ZANGA","ZANJA","ZAPAR","ZAQUE","ZARBO","ZARCO","ZARJA","ZARPA","ZARZA","ZARZO","ZEBRA","ZENDO","ZENIT","ZOCLO","ZOFRA","ZOILO","ZOIZO","ZOLLE","ZOMBI","ZOMPO","ZONAL","ZONDA","ZONTO","ZONZO","ZOPAS","ZOQUE","ZORRO","ZOTAL","ZUA±O","ZUAVO","ZUBIA","ZUECA","ZUECO","ZUELA","ZUIZA","ZULAº","ZULLA","ZUMBA","ZUMBO","ZUPIA","ZURBA","ZURDA","ZURDO","ZUREO","ZURRA","ZUZAR"
+"amaba"
 ];
 
 // Función de normalización: quita tildes, convierte Ñ→N para comparación interna
@@ -282,12 +279,12 @@ class WordleGame {
             keyboardState: this.getKeyboardState(),
             date: new Date().toDateString()
         };
-        localStorage.setItem('wordleGameState', JSON.stringify(gameState));
+        localStorage.setItem('wordleFacilGameState', JSON.stringify(gameState));
     }
 
     // Cargar estado del juego desde localStorage
     loadGameState() {
-        const saved = localStorage.getItem('wordleGameState');
+        const saved = localStorage.getItem('wordleFacilGameState');
         const today = new Date().toDateString();
         
         if (saved) {
@@ -434,7 +431,7 @@ class WordleGame {
 
     bindKeyboard() {
         document.addEventListener('keydown', e => {
-            if (this.gameOver) return;
+            if (this.gameOver || this.isProcessing) return;
             const raw = e.key;
 
             if (raw === 'Backspace' || raw === 'Delete') {
@@ -503,7 +500,7 @@ class WordleGame {
     }
 
     handleTileClick(row, col) {
-        if (this.gameOver) return;
+        if (this.gameOver || this.isProcessing) return;
         
         // Only allow clicking on the current row
         if (row !== this.currentRow) return;
@@ -711,7 +708,7 @@ class WordleGame {
         this.updateStatsDisplay();
         if (!_currentUser) return;
         const name = getPlayerName();
-        setDoc(doc(db, 'saves_wordle', _currentUser.uid), {
+        setDoc(doc(db, 'saves_wordle_facil', _currentUser.uid), {
             name,
             level:         this.level,
             totalWins:     this.totalWins,
@@ -720,74 +717,68 @@ class WordleGame {
             maxStreak:     this.maxStreak,
             lastPlayedDate: this.lastPlayedDate,
             updatedAt:     serverTimestamp()
-        }).catch(e => console.warn('[wordle save]', e));
-        setDoc(doc(db, 'leaderboard_wordle', _currentUser.uid), {
+        }).catch(e => console.warn('[wordle facil save]', e));
+        setDoc(doc(db, 'leaderboard_wordle_facil', _currentUser.uid), {
             name,
             score:     this.level,
             updatedAt: serverTimestamp()
-        }).catch(e => console.warn('[wordle lb]', e));
+        }).catch(e => console.warn('[wordle facil lb]', e));
     }
 
     async loadStats() {
         if (!_currentUser) return;
         try {
-            const snap = await getDoc(doc(db, 'saves_wordle', _currentUser.uid));
-            if (!snap.exists()) return;
-            const d = snap.data();
-            this.level           = d.level           ?? 1;
-            this.totalWins       = d.totalWins       ?? 0;
-            this.winAttempts     = d.winAttempts     ?? [0,0,0,0,0,0];
-            this.currentStreak   = d.currentStreak   ?? 0;
-            this.maxStreak       = d.maxStreak       ?? 0;
-            this.lastPlayedDate  = d.lastPlayedDate  ?? null;
-            this.updateLevelDisplay();
-            this.updateStatsDisplay();
+            const docSnap = await getDoc(doc(db, 'saves_wordle_facil', _currentUser.uid));
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                this.level = data.level || 1;
+                this.totalWins = data.totalWins || 0;
+                this.winAttempts = data.winAttempts || [0,0,0,0,0,0];
+                this.currentStreak = data.currentStreak || 0;
+                this.maxStreak = data.maxStreak || 0;
+                this.lastPlayedDate = data.lastPlayedDate;
+                this.updateStatsDisplay();
+                this.updateLevelDisplay();
+            }
         } catch (e) {
-            console.warn('[wordle load]', e);
+            console.warn('[wordle facil load]', e);
         }
     }
 
     updateStatsDisplay() {
-        const totalEl = document.getElementById('totalWins');
-        if (totalEl) totalEl.textContent = this.totalWins;
-        
-        const currentStreakEl = document.getElementById('currentStreak');
-        if (currentStreakEl) currentStreakEl.textContent = this.currentStreak;
-        
-        const maxStreakEl = document.getElementById('maxStreak');
-        if (maxStreakEl) maxStreakEl.textContent = this.maxStreak;
-        
-        // Actualizar barras de distribución
-        const maxWins = Math.max(...this.winAttempts, 1);
-        for (let i = 0; i < 6; i++) {
-            const countEl = document.getElementById('win' + (i + 1));
-            const barEl = document.getElementById('bar' + (i + 1));
-            if (countEl) countEl.textContent = this.winAttempts[i];
-            if (barEl) {
-                const percentage = (this.winAttempts[i] / maxWins) * 100;
-                barEl.style.width = percentage + '%';
-            }
-        }
+        const percent = this.totalWins > 0 
+            ? Math.round((this.totalWins / (this.totalWins + this.winAttempts.reduce((a,b) => a+b, 0))) * 100)
+            : 0;
+        document.getElementById('stats-games').textContent = this.totalWins;
+        document.getElementById('stats-percent').textContent = `${percent}%`;
+        document.getElementById('stats-streak').textContent = this.currentStreak;
+        document.getElementById('stats-max').textContent = this.maxStreak;
     }
 
     updateLevelDisplay() {
-        if (this.levelDisplay) this.levelDisplay.textContent = this.level;
+        if (this.levelDisplay) {
+            this.levelDisplay.textContent = `Nivel ${this.level}`;
+        }
     }
 }
 
 // ========================
-// INICIALIZAR JUEGO
+// INICIALIZACIÓN
 // ========================
 async function init() {
-    // Esperar a que Firebase Auth confirme quién es el usuario
-    _currentUser = await waitForUser();
-
-    if (!_currentUser) {
-        window.location.href = 'index.html';
-        return;
+    try {
+        _currentUser = await waitForUser();
+        const game = new WordleGame(words);
+        await game.loadStats();
+        console.log('Wordle Fácil inicializado');
+    } catch (e) {
+        console.error('Error al inicializar Wordle Fácil:', e);
     }
-
-    const game = new WordleGame(words);
-    await game.loadStats();
 }
-init();
+
+// Iniciar cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
