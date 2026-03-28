@@ -1,25 +1,27 @@
 /* ======================== */
-/* WORDLE FÁCIL - ESTILOS ESPECÍFICOS */
+/* WORDLE FÁCIL - ESTILOS ESPECÍFICOS (TEMA AMARILLO) */
 /* ======================== */
 
 /* IMPORTAR ESTILOS BASE */
 @import url('wordle.css');
 
 /* ======================== */
-/* SOBRESCRIBIR ESTILOS PARA VERSIÓN FÁCIL */
+/* SOBRESCRIBIR ESTILOS PARA VERSIÓN FÁCIL - TEMA AMARILLO */
 /* ======================== */
 
 /* Indicador de dificultad */
 .difficulty-indicator {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(90deg, #FFD93D, #FFC700);
+    color: #000;
     padding: 8px 16px;
     border-radius: 20px;
     font-weight: bold;
     font-size: 14px;
     margin-bottom: 20px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 0 28px rgba(255, 217, 61, 0.35);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 2px;
 }
 
 /* Switcher de dificultad */
@@ -38,21 +40,26 @@
     font-weight: bold;
     transition: all 0.3s ease;
     text-decoration: none;
-    color: white;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
 }
 
 .difficulty-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, #FFD93D, #FFC700);
+    color: #000;
     transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 217, 61, 0.5);
 }
 
 .difficulty-btn:not(.active) {
-    background: #e0e0e0;
-    color: #666;
+    background: rgba(255, 217, 61, 0.1);
+    color: #5a5040;
+    border: 1px solid rgba(255, 217, 61, 0.3);
 }
 
 .difficulty-btn:not(.active):hover {
-    background: #d0d0d0;
+    background: rgba(255, 217, 61, 0.2);
+    border-color: rgba(255, 217, 61, 0.5);
 }
 
 /* Contenedor principal */
@@ -77,35 +84,42 @@
 .header h1 {
     margin: 0;
     font-size: 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #FFD93D;
+    text-shadow: 0 0 20px #FFD93D;
+    letter-spacing: 4px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
 }
 
 #levelDisplay {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(90deg, #FFD93D, #FFC700);
+    color: #000;
     padding: 5px 15px;
     border-radius: 15px;
     font-weight: bold;
     font-size: 0.9rem;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+    box-shadow: 0 0 20px rgba(255, 217, 61, 0.4);
 }
 
 #showStatsBtn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(90deg, #FFD93D, #FFC700);
+    color: #000;
     border: none;
     padding: 8px 12px;
     border-radius: 10px;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+    box-shadow: 0 0 20px rgba(255, 217, 61, 0.5);
 }
 
 #showStatsBtn:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 0 28px rgba(255, 217, 61, 0.35);
 }
 
 /* Panel de estadísticas */
@@ -123,14 +137,23 @@
 }
 
 .stats-content {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-    border: 2px solid rgba(102, 126, 234, 0.3);
+    background: rgba(255, 217, 61, 0.05);
+    border: 2px solid rgba(255, 217, 61, 0.3);
     border-radius: 20px;
     padding: 30px;
     max-width: 400px;
     width: 90%;
     text-align: center;
     position: relative;
+}
+
+.stats-content h2 {
+    color: #FFD93D;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
 }
 
 .close-btn {
@@ -140,8 +163,9 @@
     background: none;
     border: none;
     font-size: 24px;
-    color: #fff;
+    color: #FFD93D;
     cursor: pointer;
+    padding: 10px;
 }
 
 .stats-grid {
@@ -158,22 +182,26 @@
 .stat-number {
     font-size: 2rem;
     font-weight: bold;
-    color: #667eea;
+    color: #FFD93D;
+    text-shadow: 0 0 15px rgba(255, 217, 61, 0.5);
 }
 
 .stat-label {
     font-size: 0.9rem;
-    color: #ccc;
+    color: #8a7d5a;
     margin-top: 5px;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 /* Sección de autenticación */
 .auth-section {
     margin-top: 20px;
     padding: 15px;
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(255, 217, 61, 0.05);
     border-radius: 15px;
-    border: 1px solid rgba(102, 126, 234, 0.3);
+    border: 1px solid rgba(255, 217, 61, 0.3);
 }
 
 #userInfo {
@@ -184,23 +212,56 @@
 }
 
 #userName {
-    color: #667eea;
+    color: #FFD93D;
     font-weight: bold;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 #logoutBtn, #loginBtn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(90deg, #FFD93D, #FFC700);
+    color: #000;
     border: none;
     padding: 8px 16px;
     border-radius: 10px;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+    box-shadow: 0 0 20px rgba(255, 217, 61, 0.5);
 }
 
 #logoutBtn:hover, #loginBtn:hover {
     transform: scale(1.05);
+    box-shadow: 0 0 28px rgba(255, 217, 61, 0.35);
+}
+
+/* Colores del juego específicos para tema amarillo */
+.game-board {
+    border: 2px solid rgba(255, 217, 61, 0.5) !important;
+    box-shadow: 0 0 20px rgba(255, 217, 61, 0.3) !important;
+}
+
+.tile.correct {
+    background-color: #FFD93D !important;
+    border-color: #FFD93D !important;
+    color: #000 !important;
+}
+
+.tile.present {
+    background-color: rgba(255, 217, 61, 0.5) !important;
+    border-color: rgba(255, 217, 61, 0.7) !important;
+}
+
+.key.correct {
+    background-color: #FFD93D !important;
+    border-color: #FFD93D !important;
+    color: #000 !important;
+}
+
+.key.present {
+    background-color: rgba(255, 217, 61, 0.5) !important;
+    border-color: rgba(255, 217, 61, 0.7) !important;
 }
 
 /* Responsive */
